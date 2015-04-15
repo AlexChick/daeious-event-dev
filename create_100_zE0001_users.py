@@ -5,6 +5,10 @@ This program creates 100 test zE0001_User objects by batch POSTing them to Parse
 It first queries "_User" for users registered for this particular event,
 then creates an object in the event-specific zE0001_User table for each user.
 
+Right now, the code is cluttered.
+
+I plan to use ParsePy and the parse_rest API to make it a lot cleaner.
+
 
 """
 
@@ -73,8 +77,6 @@ for chunk in chunk_list: # this is done either 1x or 2x, assuming <= 100 people.
 
         requests_array.append(new_user_object_dict)
 
-        #query_result['results'].remove(returned_user_object_dict)
-
         playerCounter += 1
 
 
@@ -90,88 +92,6 @@ for chunk in chunk_list: # this is done either 1x or 2x, assuming <= 100 people.
          })
     creation_result = json.loads(connection.getresponse().read())
     pprint (creation_result)
-
-
-# # Females
-# requests_dict = { "requests": [] }
-
-# for name in fullNames_female:
-#     object_dict = {
-#                     "method": "POST",
-#                     "path": "/1/classes/_User",
-#                     "body": 
-#                     {
-#                       #"playerNum": playerCounter,
-#                       "username": name,
-#                       "array_eventsRegistered": [2],
-#                       "sex": 'F'
-#                     }
-#     }
-
-#     requests_dict['requests'].append(object_dict)
-
-#     playerCounter += 1
-
-
-# requests_dict_to_upload = json.dumps(requests_dict)
-
-# # upload them
-# connection = httplib.HTTPSConnection('api.parse.com', 443)
-# connection.connect()
-# connection.request('POST', '/1/batch', requests_dict_to_upload, {
-#        "X-Parse-Application-Id": "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
-#        "X-Parse-REST-API-Key": "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS",
-#        "Content-Type": "application/json"
-#      })
-# result = json.loads(connection.getresponse().read())
-# pprint (result)
-
-
-
-
-
-
-
-
-
-
-""" This is copied from the Parse docs for batch object creation
-
-import json, httplib
-connection = httplib.HTTPSConnection('api.parse.com', 443)
-connection.connect()
-connection.request('POST', '/1/batch', json.dumps({
-       "requests": [
-         {
-           "method": "POST",
-           "path": "/1/classes/_User",
-           "body": 
-           {
-             "username"  : "alexchick",
-             "password"  : "1234",
-             "firstName" : "Alex",
-             "lastName"  : "Chick", 
-           }
-         },
-         {
-           "method": "POST",
-           "path": "/1/classes/Event",
-           "body": {
-             "eventNumber" : 0002,
-             "location"	   : "San Francisco",
-             "start"	   : ["2016.10.24","20:00"]
-           }
-         }
-       ]
-     }), {
-       "X-Parse-Application-Id": "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
-       "X-Parse-REST-API-Key": "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS",
-       "Content-Type": "application/json"
-     })
-result = json.loads(connection.getresponse().read())
-print result
-
-"""
 
 
 
