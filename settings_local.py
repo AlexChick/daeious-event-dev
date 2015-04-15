@@ -1,5 +1,11 @@
 
+"""
 
+This file exists so that ParsePy and the parse_rest functions work.
+
+These are the keys for the dev test app.
+
+"""
 
 
 APPLICATION_ID = "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ"
