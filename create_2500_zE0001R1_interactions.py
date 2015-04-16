@@ -1,3 +1,5 @@
+# Alexander Chick ©2015
+
 """
 
 This program creates 50 * 50 = 2500 test interaction objects in the "zE0001R1" table in Parse.
@@ -15,15 +17,19 @@ Data members for each Round 1 interaction object:
 - m_firstName (string)
 - f_firstName (string)
 - question_objectId (a string? pointer?)
-- m_answer (string? or int of array position?)
-- f_answer (string? or int of array position?)
-- m_see_f_again (string or int?)
-- f_see_m_again (string or int?)
+- m_answer (string? or int of array position 0-3? or array of [int, string]?)
+- f_answer (string? or int of array position 0-3?)
+- is_same_answer (boolean)
+- m_see_f_again (string or int 1-4?)
+- f_see_m_again (string or int 1-4?)
+- total_see_again (int, sum of see again ints, so possible values are 2-8)
 - m_next_station (int)
 - f_next_station (int, current + 1)
 
-I'm going to start by just using the strings, 
-and I'll figure out later if it'll be helpful to use pointers.
+I'm going to start by just using strings
+to reference objectId's, 
+and I'll figure out later if it'll be
+better or more helpful to use pointers.
 
 I'm also going to try to use ParsePy, 
 which I *think* is meant to make it easier
@@ -71,7 +77,6 @@ print num_people_at_event
 #
 #
 #
-
 
 
 
