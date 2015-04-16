@@ -1,3 +1,5 @@
+# creates 100 iPad objects and writes
+# them to a .json file "100_iPads.json"
 
 # https://www.random.org/strings/?mode=advanced
 
@@ -118,7 +120,6 @@ for i in range (len(iPadSerialNumbers_list)):
 
 iPadCreator.write("]}")
 iPadCreator.close()
-
 
 
 
