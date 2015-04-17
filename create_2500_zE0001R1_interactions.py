@@ -200,7 +200,7 @@ all_questions_at_event = list(Question.Query.all().order_by("questionNum"))
     on the batcher, passing the array as an argument. 
    		- The Parse batch upload limit is 50, so this has to be 
    		  in some kind of loop.
-   		- Use counters, formatted like: interaction_counter, subround_counter 
+   		- Use counters.
     _______________________________________________
     ----------------------------------------------- """
 
@@ -260,9 +260,11 @@ for subround in range (50):
 			# m_answer = None,
 			# f_answer = None,
 			# is_same_answer = None,
+
 			# m_see_f_again = None,
 			# f_see_m_again = None,
 			# total_see_again = None,
+			
 			m_next_station = ( (station_list[i] + 1) % 50 ),
 			f_next_station = ( (station_list[i] - 1) if station_list[i] > 1 else 50 )
 
@@ -334,14 +336,17 @@ program_end_time = time.time()
 
 print "\nAll batches saved."
 
+
+# Timing tests
+
 print "\nTime spent uploading: {} seconds.".format(round((pause_time - program_start_time) + (program_end_time - resume_time), 3))
-
 print "\nTime spent sleeping: {} seconds.".format(round((resume_time - pause_time), 3))
-
 print "\nTotal time of program: {} seconds.\n".format(round((program_end_time - program_start_time), 3))
 
 """
 TESTS
+
+From laptop:
 
 Time spent uploading: 19.552 seconds.
 Time spent sleeping: 48.067 seconds.
@@ -357,40 +362,6 @@ Total time of program: 67.008 seconds.
 
 
 """
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # 1. Get (query) all "zE0001_User" objects (the people at the event)
-# #		- by directly calling the Parse API through HTTP
-
-# connection = httplib.HTTPSConnection('api.parse.com', 443)
-# params = urllib.urlencode({"order":"-sex,playerNum"}) # retrieves males first then females, in ascending order by playerNum
-# connection.connect()
-# connection.request('GET', '/1/classes/zE0001_User?%s' % params, '', {
-#        "X-Parse-Application-Id": "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
-#        "X-Parse-Master-Key": "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
-#      }) 
-# query_result = json.loads(connection.getresponse().read())
-# #pprint (query_result)
-# num_people_at_event = len(query_result['results'])
-# print num_people_at_event
-
-
 
 
 
