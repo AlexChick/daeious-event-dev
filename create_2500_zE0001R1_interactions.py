@@ -54,24 +54,48 @@ The ParsePy docs are at
 
 Here's the order of everything:
 
+
 1. Get (query) all "zE0001_User" objects (the people at the event)
+
 		- all_users_at_event is an array containing the objects
+		
+		- create all_males_at_event, all_females_at_event too	
+		
+		- use ParsePy / parse_rest
+ 		
+ 		- (should I use the Parse "count" function?)
+ 		
+ 		- a Query returns a "QuerySet" of objects. 
+ 		
+ 		- QuerySets are like lists, but you can't operate on them:
+ 		(AttributeError: 'Queryset' object has no attribute 'insert'),
+ 		so I cast each QuerySet as a list.
+ 		
+ 		- an object's attributes are accessed like this: > object.attribute
+	      For example, to get the username of playerNum = 1: > all_users_at_event[0].username
+
 
 2. Get (query) the correct iPads / "IPad" objects for the event (right now, get all 100)
+
 		- all_ipads_at_event is an array containing the objects
 
+
 3. Get (query) the correct questions / "Question" objects for the event (right now, get all 100)
+
 		- all_questions_at_event is an array containing the objects
+
 
 4. Create the interaction / zE####R1 objects, store them in an array,
    create a ParseBatcher, and upload the objects by calling batch_save
    on the batcher, passing the array as an argument. 
+
    		- The Parse batch upload limit is 50, so this has to be 
    		  in some kind of loop.
+   
    		- Use counters, formatted like: interaction_counter, subround_counter 
 
 
-
+**************************************************
 
 """
 
@@ -88,6 +112,9 @@ from parse_rest.datatypes import ACL, Function, Object
 from parse_rest.role import Role
 from parse_rest.user import User
 
+# start program timer
+program_start_time = time.time()
+
 # Calling "register" allows parse_rest / ParsePy to work.
 # - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
 register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
@@ -95,7 +122,11 @@ register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
 		 master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
 	)
 
-program_start_time = time.time()
+# get correct event object from Parse; 
+# have to subclass Object before using Event.Query
+class Event(Object):
+	pass
+event_object = list(Event.Query.get(eventNumber = 1))
 
 ##################################################
 
@@ -124,11 +155,32 @@ program_start_time = time.time()
     _______________________________________________
     ----------------------------------------------- """
 
+
+def get_eventUserClassName(event_number):
+
+	# set the class name of the event users we're querying
+	num_string = ""
+	if 0 < event_number < 10:
+		num_string = "000{}".format(event_number)
+	elif 10 <= event_number < 100:
+		num_string = "00{}".format(event_number)
+	elif 100 <= event_number < 1000:
+		num_string = "0{}".format(event_number)
+	elif 1000 <= event_number < 10000:
+		num_string = "{}".format(event_number)
+	else:
+		raise ValueError("The event number must be between 1 and 9999.")
+
+	return "zE{}_User".format(num_string)
+
+
+
+
 # set the class name of the event users we're querying
-eventUserClassName = "zE0001_User"
-	# (The precise 4-digit number can be retrieved / set by querying "Config"; 
-	# I'll add this functionality later. Maybe I can pass an argument 
-	# containing the event number into the function that runs the simulation.)
+#eventUserClassName = "zE0001_User"
+eventUserClassName = get_eventUserClassName(event_object.eventNumber)
+	# (The event number can be retrieved / set by querying "Config"; 
+	# I'll add this functionality later.) 
 
 # make it a subclass of Object
 eventUserClass = Object.factory(eventUserClassName)
@@ -204,11 +256,8 @@ all_questions_at_event = list(Question.Query.all().order_by("questionNum"))
     _______________________________________________
     ----------------------------------------------- """
 
-# set the class name of the round for which we're creating interactions
-eventRoundClassName = "zE0001R1"
-	# (The precise 4-digit number can be retrieved / set by querying "Config"; 
-	# I'll add this functionality later. Maybe I can pass an argument 
-	# containing the event number into the function that runs the simulation.)
+# set the class name of the round for which we're creating interactions (zE####R1)
+eventRoundClassName = eventUserClassName[:6] + "R1"
 
 # make it a subclass of Object
 eventRoundClass = Object.factory(eventRoundClassName)
@@ -264,7 +313,7 @@ for subround in range (50):
 			# m_see_f_again = None,
 			# f_see_m_again = None,
 			# total_see_again = None,
-			
+
 			m_next_station = ( (station_list[i] + 1) % 50 ),
 			f_next_station = ( (station_list[i] - 1) if station_list[i] > 1 else 50 )
 
@@ -346,7 +395,9 @@ print "\nTotal time of program: {} seconds.\n".format(round((program_end_time - 
 """
 TESTS
 
-From laptop:
+******
+
+From laptop, at home:
 
 Time spent uploading: 19.552 seconds.
 Time spent sleeping: 48.067 seconds.
@@ -359,6 +410,14 @@ Total time of program: 66.076 seconds.
 Time spent uploading: 19.194 seconds.
 Time spent sleeping: 47.814 seconds.
 Total time of program: 67.008 seconds.
+
+******
+
+From laptop, at Dana Farber:
+
+Time spent uploading: 32.592 seconds.
+Time spent sleeping: 38.232 seconds.
+Total time of program: 70.824 seconds.
 
 
 """
