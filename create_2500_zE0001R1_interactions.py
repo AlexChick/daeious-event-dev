@@ -95,6 +95,7 @@ register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
 		 master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
 	)
 
+program_start_time = time.time()
 
 ##################################################
 
@@ -105,14 +106,21 @@ register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
 	1. Get (query) all "zE0001_User" objects (the people at the event)
 
 		- all_users_at_event is an array containing the objects
+		
 		- create all_males_at_event, all_females_at_event too	
+		
 		- use ParsePy / parse_rest
+ 		
  		- (should I use the Parse "count" function?)
- 		- Queries return arrays of objects.
- 		- an object's attributes are accessed like this: 
-	              object.attribute
-	      For example, to get the username of playerNum = 1:
-	              all_users_at_event[0].username
+ 		
+ 		- a Query returns a "QuerySet" of objects. 
+ 		
+ 		- QuerySets are like lists, but you can't operate on them:
+ 		(AttributeError: 'Queryset' object has no attribute 'insert'),
+ 		so I cast each QuerySet as a list.
+ 		
+ 		- an object's attributes are accessed like this: > object.attribute
+	      For example, to get the username of playerNum = 1: > all_users_at_event[0].username
     _______________________________________________
     ----------------------------------------------- """
 
@@ -126,7 +134,7 @@ eventUserClassName = "zE0001_User"
 eventUserClass = Object.factory(eventUserClassName)
 
 # run the query (all users at event)
-all_users_at_event = eventUserClass.Query.all().order_by("playerNum")
+all_users_at_event = list(eventUserClass.Query.all().order_by("playerNum"))
 	# This has a format of [object, object, object, ...]
 	# and an object's attributes are accessed like this: 
 	#   object.attribute
@@ -134,15 +142,18 @@ all_users_at_event = eventUserClass.Query.all().order_by("playerNum")
 	#   all_users_at_event[0].username
 
 # run the query (all males at event)
-all_males_at_event = eventUserClass.Query.all().filter(sex='M').order_by("playerNum")
+all_males_at_event = list(eventUserClass.Query.all().filter(sex='M').order_by("playerNum"))
 
 # run the query (all females at event)
-all_females_at_event = eventUserClass.Query.all().filter(sex='F').order_by("playerNum")
+all_females_at_event = list(eventUserClass.Query.all().filter(sex='F').order_by("playerNum"))
 
 # print the results of the queries
 print "\n\n" + str(len(all_users_at_event)) + " people are at this event.\n"
 print "\n\n" + str(len(all_males_at_event)) + " males are here.\n"
 print "\n\n" + str(len(all_females_at_event)) + " females are here.\n"
+
+# pprint("Males: " + str(list(all_males_at_event)))
+# pprint("Males: " + str(all_males_at_event))
 
 
 
@@ -159,7 +170,7 @@ class IPad(Object):
 	pass
 
 # run the query
-all_ipads_at_event = IPad.Query.all().order_by("iPad_Id")
+all_ipads_at_event = list(IPad.Query.all().order_by("iPad_Id"))
 
 
 
@@ -177,7 +188,7 @@ class Question(Object):
 	pass
 
 # run the query
-all_questions_at_event = Question.Query.all().order_by("questionNum")
+all_questions_at_event = list(Question.Query.all().order_by("questionNum"))
 
 
 
@@ -211,32 +222,41 @@ interaction_counter = 0
 # initialize the list of stations [1, 2, 3, ..., 50]
 station_list = list(x+1 for x in range(50))
 
-# iterate through the males, 
-for event_user_object in all_males_at_event:
+batch_uploading_start_time = time.time()
 
-	# initialize the list of objects to pass to the batch uploader
+# iterate through the subrounds -- i.e. subround 1 contains interactions 1-50, etc.
+for subround in range (50):
+
+	# initialize the list of created objects to pass to the batch uploader
 	interactions_list_to_be_saved = []
 
-	# iterate through subrounds
+	# create the 50 interactions of this subround
 	for i in range (50):
 
 		interaction_counter += 1
 
 		interaction = eventRoundClass(
 
-			interaction = interaction_counter,
-			subround = (i + 1),
-			station = station_list[i],
-			iPad_objectId = all_ipads_at_event[i].objectId,
-			m_thisEvent_objectId = all_males_at_event[0].objectId,
-			f_objectId = all_females_at_event[i].objectId,
-			m_user_objectId = all_males_at_event[0].user_objectId,
-			f_user_objectId = all_females_at_event[i].user_objectId,			
-			m_playerNum = all_males_at_event[0].playerNum,
-			f_playerNum = all_females_at_event[i].playerNum,
-			m_firstName = all_males_at_event[0].username,
-			f_firstName = all_females_at_event[i].username,
-			question_objectId = all_questions_at_event[0].objectId,
+			interaction = 	interaction_counter,
+			subround = 		subround + 1,
+			station = 		station_list[i],
+
+			inner_iPad_objectId = all_ipads_at_event[i].objectId,
+			outer_iPad_objectId = all_ipads_at_event[i+50].objectId,
+
+			m_thisEvent_objectId = 	all_males_at_event[i].objectId,
+			f_thisEvent_objectId = 	all_females_at_event[i].objectId,
+
+			m_user_objectId = 		all_males_at_event[i].user_objectId,
+			f_user_objectId = 		all_females_at_event[i].user_objectId,
+
+			m_playerNum = 			all_males_at_event[i].playerNum,
+			f_playerNum = 			all_females_at_event[i].playerNum,
+
+			m_firstName = 			all_males_at_event[i].username,
+			f_firstName = 			all_females_at_event[i].username,
+
+			question_objectId = 	all_questions_at_event[i].objectId,
 			# m_answer = None,
 			# f_answer = None,
 			# is_same_answer = None,
@@ -244,29 +264,83 @@ for event_user_object in all_males_at_event:
 			# f_see_m_again = None,
 			# total_see_again = None,
 			m_next_station = ( (station_list[i] + 1) % 50 ),
-			f_next_station = ( (station_list[i] - 1) if station_list[i] > 1 else 50 )# need to fix 50 --> 0 instead of 50 --> 1
+			f_next_station = ( (station_list[i] - 1) if station_list[i] > 1 else 50 )
 
 		)
 
 		# add to interactions_list_to_be_saved
 		interactions_list_to_be_saved.append(interaction)
 
+
+	# wait approx. 1-2 seconds so as not to exceed Parse's 30 requests / second free limit.
+		# Without waiting, I get this error: 
+		# parse_rest.core.ResourceRequestBadRequest: {"code":155,"error":"This application performed 1805 requests within the past minute, and exceeded its request limit. Please retry in one  minute or raise your request limit."}
+		# Times that work: 2.0
+		# Times that don't work: 0.5 (does 35 of 50), 1.0 (does 47 of 50)
+	#time.sleep(1)
+
+	# if we're going too fast for the request limit of 1800 per minute, slow down
+	# Test 1: Slept after batch 35 for 47.557 seconds. Success (no errors, all batches saved).
+	# Test 2: Slept after batch 35 for 49.203 seconds. Success.
+	# Test 3: Slept after batch 35 for 45.496 seconds. Success.
+
+	time_uploading = time.time() - batch_uploading_start_time
+	if (time_uploading < 60) and (interaction_counter > 1799):
+		print "\nSleeping for {} seconds.".format(60 - time_uploading)
+		pause_time = time.time()
+		time.sleep(60 - time_uploading)
+		print "\nUploading will now resume.\n"
+		resume_time = time.time()
+
 	# save these 50 interactions to Parse
 	batcher = ParseBatcher()
 	batcher.batch_save(interactions_list_to_be_saved)
-	print "batch " + str(event_user_object.playerNum) + " saved."
-
-	# wait approx. 1-2 seconds so as not to exceed Parse's 30 requests / second free limit.
-			# Without waiting, I get this error: 
-			# parse_rest.core.ResourceRequestBadRequest: {"code":155,"error":"This application performed 1805 requests within the past minute, and exceeded its request limit. Please retry in one  minute or raise your request limit."}
-	time.sleep(2)
+	print "batch " + str(subround + 1) + " of 50 has been saved."
 
 
 
 	# rotate lists
+	# (I'm getting an error that says "Slice is not supported for now.",
+	# so I've had to do something slightly more complicated.)
 
+	# males: take the last, put in front 
+	# (guys are moving toward increasing station nums)
+	all_males_at_event.insert(0, all_males_at_event[-1])
+	all_males_at_event.pop(-1)
 
-print "All batches saved."
+	# females: take the first, put in back 
+	# (girls are moving toward decreasing station nums)
+	all_females_at_event.append(all_females_at_event[0])
+	all_females_at_event.pop(0)
+	
+	# iPads: will iterate as stations do 
+	# (since an iPad always stays at the same station)
+	
+	# questions: take the first two, put in back
+	all_questions_at_event.append(all_questions_at_event[0])
+	all_questions_at_event.append(all_questions_at_event[1])
+	all_questions_at_event.pop(0)
+	all_questions_at_event.pop(0)
+
+	# rotate lists (with slicing)
+	# # males: take the first, put in back
+	# all_males_at_event = all_males_at_event[1:] + [all_males_at_event[0]]
+	# # females: take the last, put in front
+	# all_females_at_event = [all_females_at_event[-1]] + all_females_at_event[:-1]
+	# # questions: take the first two, put in back
+	# all_questions_at_event = all_questions_at_event[2:] + all_questions_at_event[:2]
+
+program_end_time = time.time()
+
+print "\nAll batches saved."
+
+print "\nTime spent uploading: {} seconds.".format((60 - time_uploading) + (program_end_time - resume_time))
+
+print "\nTime spent sleeping: {} seconds.".format(60 - time_uploading)
+
+print "\nTotal time of program: {} seconds.\n".format(program_end_time - program_start_time)
+
+print 
 
 
 
