@@ -20,6 +20,19 @@ import sqlite3
 import time
 import json, httplib, urllib # parse stuff
 from pprint import pprint # pretty printing
+from parse_rest.connection import ParseBatcher, register, SessionToken
+from parse_rest.datatypes import ACL, Function, Object
+from parse_rest.role import Role
+from parse_rest.user import User
+
+# Calling "register" allows parse_rest / ParsePy to work.
+# - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
+register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
+     "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", 
+     master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
+  )
+
+
 
 
 # get (query) all eligible Users
@@ -30,12 +43,30 @@ params = urllib.urlencode({"where":json.dumps({
 connection.connect()
 connection.request('GET', '/1/users?%s' % params, '', {
        "X-Parse-Application-Id": "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
-       "X-Parse-REST-API-Key": "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS"
+       "X-Parse-Master-Key": "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
      })
 query_result = json.loads(connection.getresponse().read())
 pprint (query_result)
 num_users_registered_for_event = len(query_result['results'])
 print "\nUsers Registered: " + str(num_users_registered_for_event)
+
+
+
+
+# set the class name of the event users we're creating
+eventUserClassName = "zE0001_User"
+  # (The precise 4-digit number can be retrieved / set by querying "Config"; 
+  # I'll add this functionality later. Maybe I can pass an argument 
+  # containing the event number into the function that runs the simulation.)
+
+# make it a subclass of Object
+eventUserClass = Object.factory(eventUserClassName)
+
+# set the class ACL: public is not allowed to read or write
+eventUserClass.ACL.set_default(read=False, write=False)
+#eventUserClass.ACL.set_default()
+eventUserClass.save()
+
 
 
 
@@ -91,7 +122,7 @@ for chunk in chunk_list: # this is done either 1x or 2x, assuming <= 100 people.
            "Content-Type": "application/json"
          })
     creation_result = json.loads(connection.getresponse().read())
-    pprint (creation_result)
+    pprint (str(len(creation_result)) + " zE0001_User objects created in Parse.")
 
 
 
