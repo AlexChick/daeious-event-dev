@@ -284,11 +284,11 @@ for subround in range (50):
 	# Test 2: Slept after batch 35 for 49.203 seconds. Success.
 	# Test 3: Slept after batch 35 for 45.496 seconds. Success.
 
-	time_uploading = time.time() - batch_uploading_start_time
-	if (time_uploading < 60) and (interaction_counter > 1799):
-		print "\nSleeping for {} seconds.".format(60 - time_uploading)
+	time_uploading_before_sleep = time.time() - batch_uploading_start_time
+	if (time_uploading_before_sleep < 60) and (interaction_counter > 1799):
+		print "\nSleeping for {} seconds.".format(round((60 - time_uploading_before_sleep), 3))
 		pause_time = time.time()
-		time.sleep(60 - time_uploading)
+		time.sleep(60 - time_uploading_before_sleep)
 		print "\nUploading will now resume.\n"
 		resume_time = time.time()
 
@@ -306,7 +306,7 @@ for subround in range (50):
 	# males: take the last, put in front 
 	# (guys are moving toward increasing station nums)
 	all_males_at_event.insert(0, all_males_at_event[-1])
-	all_males_at_event.pop(-1)
+	all_males_at_event.pop(-1) # default is -1, but I left it in for clarity
 
 	# females: take the first, put in back 
 	# (girls are moving toward decreasing station nums)
@@ -334,13 +334,29 @@ program_end_time = time.time()
 
 print "\nAll batches saved."
 
-print "\nTime spent uploading: {} seconds.".format((60 - time_uploading) + (program_end_time - resume_time))
+print "\nTime spent uploading: {} seconds.".format(round((pause_time - program_start_time) + (program_end_time - resume_time), 3))
 
-print "\nTime spent sleeping: {} seconds.".format(60 - time_uploading)
+print "\nTime spent sleeping: {} seconds.".format(round((resume_time - pause_time), 3))
 
-print "\nTotal time of program: {} seconds.\n".format(program_end_time - program_start_time)
+print "\nTotal time of program: {} seconds.\n".format(round((program_end_time - program_start_time), 3))
 
-print 
+"""
+TESTS
+
+Time spent uploading: 19.552 seconds.
+Time spent sleeping: 48.067 seconds.
+Total time of program: 67.618 seconds.
+
+Time spent uploading: 18.309 seconds.
+Time spent sleeping: 47.767 seconds.
+Total time of program: 66.076 seconds.
+
+Time spent uploading: 19.194 seconds.
+Time spent sleeping: 47.814 seconds.
+Total time of program: 67.008 seconds.
+
+
+"""
 
 
 
