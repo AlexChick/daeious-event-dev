@@ -547,6 +547,7 @@ for name_list in tuple_of_lists:
 
 
 # # upload _User objects
+# # this doesn't work. =(
 
 # requests_list_to_upload_1 = list_of_users_to_upload[0:50]
 # requests_list_to_upload_2 = list_of_users_to_upload[50:100]
@@ -586,7 +587,9 @@ print "Program complete.\n"
 
 print "Program time: {} seconds.\n".format(time.time() - program_start_time)
 
+
 """
+
 TIME TEST results
 
 Program time: 67.3509368896 seconds.

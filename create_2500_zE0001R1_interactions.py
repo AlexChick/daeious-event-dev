@@ -129,6 +129,7 @@ class Event(Object):
 event_object = list(Event.Query.get(eventNumber = 1))
 # (do I need to make this a list?)
 
+
 ##################################################
 
 
@@ -203,11 +204,15 @@ all_males_at_event = list(eventUserClass.Query.all().filter(sex='M').order_by("p
 # run the query (all females at event)
 all_females_at_event = list(eventUserClass.Query.all().filter(sex='F').order_by("playerNum"))
 
+# run the query (all ghosts at event)
+all_ghosts_at_event = list(eventUserClass.Query.all().filter(sex='G').order_by("playerNum"))
+
 # print the results of the queries
-print "\n\n" + str(len(all_users_at_event)) + " people are at this event.\n"
-print "\n\n" + str(len(all_males_at_event)) + " males are here.\n"
-print "\n\n" + str(len(all_females_at_event)) + " females are here.\n"
-print "\n\n" + str(event_object.numStations) + " iPad stations are required."
+print "\n\n{} of the {} people who registered for this event are here.\n".format(len(all_users_at_event), event_object.numPeople)
+print "\n\n{} of the {} men are here.\n".format(len(all_males_at_event), event_object.numMen)
+print "\n\n{} of the {} women are here.\n".format(len(all_females_at_event), event_object.numWomen)
+print "\n\n{} \"ghosts\" are being provided.\n".format(len(all_ghosts_at_event))
+print "\n\n{} iPads and {} iPad stations are required for this event.".format(event_object.numIPads, event_object.numStations)
 
 # pprint("Males: " + str(list(all_males_at_event)))
 # pprint("Males: " + str(all_males_at_event))
@@ -301,14 +306,14 @@ for subround in range (50):
 			m_thisEvent_objectId = 	all_males_at_event[i].objectId,
 			f_thisEvent_objectId = 	all_females_at_event[i].objectId,
 
-			m_user_objectId = 		all_males_at_event[i].user_objectId,
-			f_user_objectId = 		all_females_at_event[i].user_objectId,
+			m_user_objectId = 	all_males_at_event[i].user_objectId,
+			f_user_objectId = 	all_females_at_event[i].user_objectId,
 
-			m_playerNum = 			all_males_at_event[i].playerNum,
-			f_playerNum = 			all_females_at_event[i].playerNum,
+			m_playerNum = 	all_males_at_event[i].playerNum,
+			f_playerNum = 	all_females_at_event[i].playerNum,
 
-			m_firstName = 			all_males_at_event[i].username,
-			f_firstName = 			all_females_at_event[i].username,
+			m_firstName = 	all_males_at_event[i].username,
+			f_firstName = 	all_females_at_event[i].username,
 
 			question_objectId = 	all_questions_at_event[i].objectId,
 			# m_answer = None,
@@ -319,7 +324,7 @@ for subround in range (50):
 			# f_see_m_again = None,
 			# total_see_again = None,
 
-			m_next_station = ( (station_list[i] + 1) % 50 ),
+			m_next_station = ( (station_list[i] + 1) % 50 if station_list[i] !=  ),
 			f_next_station = ( (station_list[i] - 1) if station_list[i] > 1 else 50 )
 
 		)
@@ -370,7 +375,7 @@ for subround in range (50):
 	all_females_at_event.pop(0)
 	
 	# iPads: will iterate as stations do 
-	# (since an iPad always stays at the same station)
+	# (an iPad always stays at the same station)
 	
 	# questions: take the first two, put in back
 	all_questions_at_event.append(all_questions_at_event[0])
@@ -379,6 +384,7 @@ for subround in range (50):
 	all_questions_at_event.pop(0)
 
 	# rotate lists (with slicing)
+	# (ParsePy doesn't support slicing lists of objects yet)
 	# # males: take the first, put in back
 	# all_males_at_event = all_males_at_event[1:] + [all_males_at_event[0]]
 	# # females: take the last, put in front
