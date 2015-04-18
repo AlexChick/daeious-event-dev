@@ -127,6 +127,7 @@ register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
 class Event(Object):
 	pass
 event_object = list(Event.Query.get(eventNumber = 1))
+# (do I need to make this a list?)
 
 ##################################################
 
@@ -158,6 +159,8 @@ event_object = list(Event.Query.get(eventNumber = 1))
 
 def get_eventUserClassName(event_number):
 
+	# Should I use a switch block instead? Can I with ranges?
+
 	# set the class name of the event users we're querying
 	num_string = ""
 	if 0 < event_number < 10:
@@ -185,13 +188,14 @@ eventUserClassName = get_eventUserClassName(event_object.eventNumber)
 # make it a subclass of Object
 eventUserClass = Object.factory(eventUserClassName)
 
+# Queries return with a format of [object, object, object, ...]
+# and an object's attributes are accessed like this: 
+#   object.attribute
+# For example, to get the username of playerNum = 1:
+#   all_users_at_event[0].username
+
 # run the query (all users at event)
 all_users_at_event = list(eventUserClass.Query.all().order_by("playerNum"))
-	# This has a format of [object, object, object, ...]
-	# and an object's attributes are accessed like this: 
-	#   object.attribute
-	# For example, to get the username of playerNum = 1:
-	#   all_users_at_event[0].username
 
 # run the query (all males at event)
 all_males_at_event = list(eventUserClass.Query.all().filter(sex='M').order_by("playerNum"))
@@ -203,6 +207,7 @@ all_females_at_event = list(eventUserClass.Query.all().filter(sex='F').order_by(
 print "\n\n" + str(len(all_users_at_event)) + " people are at this event.\n"
 print "\n\n" + str(len(all_males_at_event)) + " males are here.\n"
 print "\n\n" + str(len(all_females_at_event)) + " females are here.\n"
+print "\n\n" + str(event_object.numStations) + " iPad stations are required."
 
 # pprint("Males: " + str(list(all_males_at_event)))
 # pprint("Males: " + str(all_males_at_event))

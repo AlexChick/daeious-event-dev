@@ -168,7 +168,7 @@ import json, httplib
 connection = httplib.HTTPSConnection('api.parse.com', 443)
 connection.connect()
 connection.request('POST', '/1/batch', json.dumps({
-       "results": [
+       "requests": [
          {
            "method": "POST",
            "path": "/1/classes/_User",

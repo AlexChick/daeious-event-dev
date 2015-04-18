@@ -27,15 +27,19 @@ from parse_rest.user import User
 
 # Calling "register" allows parse_rest / ParsePy to work.
 # - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
-register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
-     "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", 
-     master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
-  )
-
-
+register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")
 
 
 # get (query) all eligible Users
+class _User(Object):
+  pass
+
+all_users_at_event = list(_User.Query.filter(array_eventsRegistered = event_object.eventNumber))
+
+for user in all_users_at_event:
+
+
+
 connection = httplib.HTTPSConnection('api.parse.com', 443)
 params = urllib.urlencode({"where":json.dumps({
        "array_eventsRegistered": 1
@@ -61,11 +65,6 @@ eventUserClassName = "zE0001_User"
 
 # make it a subclass of Object
 eventUserClass = Object.factory(eventUserClassName)
-
-# set the class ACL: public is not allowed to read or write
-eventUserClass.ACL.set_default(read=False, write=False)
-#eventUserClass.ACL.set_default()
-eventUserClass.save()
 
 
 
