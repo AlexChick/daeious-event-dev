@@ -214,9 +214,6 @@ print "\n\n{} of the {} women are here.\n".format(len(all_females_at_event), eve
 print "\n\n{} \"ghosts\" are being provided.\n".format(len(all_ghosts_at_event))
 print "\n\n{} iPads and {} iPad stations are required for this event.".format(event_object.numIPads, event_object.numStations)
 
-# pprint("Males: " + str(list(all_males_at_event)))
-# pprint("Males: " + str(all_males_at_event))
-
 
 
 """ _______________________________________________

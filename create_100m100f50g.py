@@ -547,7 +547,7 @@ for name_list in tuple_of_lists:
 
 
 # # upload _User objects
-# # this doesn't work. =(
+# # this doesn't work =(
 
 # requests_list_to_upload_1 = list_of_users_to_upload[0:50]
 # requests_list_to_upload_2 = list_of_users_to_upload[50:100]
@@ -588,6 +588,15 @@ print "Program complete.\n"
 print "Program time: {} seconds.\n".format(time.time() - program_start_time)
 
 
+
+
+
+
+
+
+
+
+
 """
 
 TIME TEST results
@@ -597,86 +606,6 @@ Program time: 67.3509368896 seconds.
 
 """
 
-
-
-
-
-
-
-# userCreator = open("100_users_v2.json", "w")
-
-# #userCreator.write("{ \"results\": [\n\n")
-
-# # Males
-
-# results_dict = { "results": [] }
-
-# for name in fullNames_male:
-#     object_dict = {
-#                       #"playerNum": playerCounter,
-#                       "username": name,
-#                       "bcryptPassword": "1234",
-#                       "array_eventsRegistered": [1,3,6],
-#                       "sex": 'M'
-#                     }
-#     results_dict['results'].append(object_dict)
-
-# for name in fullNames_female:
-#     object_dict = {
-#                       #"playerNum": playerCounter,
-#                       "username": name,
-#                       "bcryptPassword": "1234",
-#                       "array_eventsRegistered": [1],
-#                       "sex": 'F'
-#                     }
-
-#     results_dict['results'].append(object_dict)
-
-# results_dict_to_upload = json.dumps(results_dict)
-
-# userCreator.write(results_dict_to_upload)
-
-# userCreator.close()
-
-
-
-""" This is copied from the Parse docs for batch object creation
-
-import json, httplib
-connection = httplib.HTTPSConnection('api.parse.com', 443)
-connection.connect()
-connection.request('POST', '/1/batch', json.dumps({
-       "results": [
-         {
-           "method": "POST",
-           "path": "/1/classes/_User",
-           "body": 
-           {
-             "username"  : "alexchick",
-             "password"  : "1234",
-             "firstName" : "Alex",
-             "lastName"  : "Chick", 
-           }
-         },
-         {
-           "method": "POST",
-           "path": "/1/classes/Event",
-           "body": {
-             "eventNumber" : 0002,
-             "location"	   : "San Francisco",
-             "start"	   : ["2016.10.24","20:00"]
-           }
-         }
-       ]
-     }), {
-       "X-Parse-Application-Id": "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ",
-       "X-Parse-REST-API-Key": "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS",
-       "Content-Type": "application/json"
-     })
-result = json.loads(connection.getresponse().read())
-print result
-
-"""
 
 
 
