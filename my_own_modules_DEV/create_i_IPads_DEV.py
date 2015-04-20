@@ -1,7 +1,7 @@
 
 
 # import general stuff
-import itertools, math, os, random, time # python stuff
+import itertools, math, os, random, re, time # python stuff
 import json, httplib, urllib # parse stuff
 from pprint import pprint # pretty printing
 # import ParsePy stuff
@@ -10,39 +10,48 @@ from parse_rest.datatypes import ACL, Function, Object
 from parse_rest.role import Role
 from parse_rest.user import User
 # import my custom stuff
+### from my_own_modules.decorator_asterisk import decorate_prints_with_asterisks
 
 
 
 def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
 
-    """
-        Creates i objects of the class "IPad" and uploads them to Parse with ParsePy.
+    """ Create i objects of the class "IPad" and upload them to Parse with ParsePy.
 
-          *  'purchaseDate' is a string formatted like this: "2015.04.18"
+          *  'purchaseDate' is a string formatted like this: "2015.04.18".
 
           *   WARNING: Program currently assumes there are no existing IPad objects,
-              so it starts at iPadNum = 1. Will be fixed to query existing IPad object with
-              the highest iPadNum and begin from there.                                     
+              so it starts at iPadNum = 1. Will be fixed to query the existing IPad object with
+              the highest iPadNum and begin from that number + 1.                                     
     """
 
-    # start function timer
+    # Start a function timer.
     function_start_time = time.time()
 
     # Calling "register" allows parse_rest / ParsePy to work.
     # - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
     register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")
 
-    # We must subclass Object for the class names we want to use
+    # We must subclass Object for the class names we want to use.
     class IPad(Object):
         pass
 
-    # instantiate the list to upload
+    # Print the "function is starting" message.
+    # (Later, I'd like to make a decorator that does this.)
+    is_now_running_str = "Function \"create_i_ipads\" is now running."
+    print "\
+        \n\n********************************************************\
+        \n*****  Function \"create_i_ipads\" is now running.  *****\
+        \n********************************************************\
+        \n\n{} IPad objects are being created...".format(i)
+
+    # Instantiate the list to upload.
     list_IPad_objects_to_upload = []
 
-    # get a (fictitious) list of i serial numbers for our new IPad objects
+    # Get a (fictitious) list of i serial numbers for our new IPad objects.
     list_iPadSerialNumbers = get_s_ipad_serial_numbers(i)
 
-    # create new iPad objects and put them into a list
+    # Create new iPad objects and put them into a list.
     for index, serial_number in enumerate(list_iPadSerialNumbers):
         
         new_IPad_object = IPad(
@@ -54,49 +63,64 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
         list_IPad_objects_to_upload.append(new_IPad_object)
 
     # Upload the list of new iPad objects to Parse.
-        # The Parse batch request limit is 50,
-        #     and the Parse request limit is 30/sec = 1800/min.
-        # Other functions are being run before and/or after this,
-        #     so to avoid going over the 1800/min limit, 
-        #     call time.sleep for (i/30 - time_spent_uploading) after uploading.
+        # The Parse batch request limit is 50, and the Parse request limit is 30/sec = 1800/min.
+        # Other functions are being run before and/or after this, so to avoid going over
+        #     the 1800/min limit, call time.sleep(i/30 - time_spent_uploading). 
+
+    
+    # Create a ParseBatcher object.
     batcher = ParseBatcher()
 
+    print "\n{} IPad objects are being uploaded...".format(i)
+
+    # Start an "uploading" timer.
     uploading_start_time = time.time()
 
-    # upload
-    for k in range( (i/50) + 1 ):
+    # Call batcher.batch_save on slices of the list no larger than 50.
+    for k in range(i/50 + 1):
+        ### lower = 50*k
+        ### upper = 
         try:
-            batcher.batch_save(list_IPad_objects_to_upload[ 50*k : 50*(k+1) ])
+            batcher.batch_save(list_IPad_objects_to_upload[
+                50*k : 50*(k + 1)
+                ])
         except:
-            batcher.batch_save(list_IPad_objects_to_upload[ 50*k : i ])
+            batcher.batch_save(list_IPad_objects_to_upload[
+                50*k : i
+                ])
 
-    # for how long should function sleep?
+    # Calculate time spent uploading and how long to sleep for.
     time_spent_uploading = time.time() - uploading_start_time
     how_long_to_sleep_for = (i/30) - time_spent_uploading
     print "\n{} IPad objects uploaded in {} seconds.".format(i, round(time_spent_uploading, 3))
-    print "\nSleeping for {} seconds".format(round(how_long_to_sleep_for, 3))
+    print "\nSleeping for {} seconds...".format(round(how_long_to_sleep_for, 3))
 
-    # sleep
+    # Sleep.
     for k in range(int(math.ceil(how_long_to_sleep_for))):
         time.sleep(1) if k < how_long_to_sleep_for else time.sleep(math.modf(how_long_to_sleep_for)[0])
-        print "\r."
+        print "\r.\r" # GRRRRRR this isn't working the way I want it to.
 
-    # print results
-    print "\n\nFunction \"create_i_ipads(i)\" has finished running."
-    print "\n    -- {} objects of class \"IPad\" were created and uploaded".format(i)
-    print "\n    -- Time taken: {} seconds\n\n".format(round(time.time() - function_start_time, 3))
+    # Print results.
+    function_total_time = round(time.time() - function_start_time, 3)
+    print_str = "*****  Function \"create_i_ipads(i)\" has finished running in {} seconds.  *****".format(function_total_time)
+    asterisk_str = "*" * (len(print_str) + (2 * (2 + 5)))
+    print "\n{}\n{}\n{}\n\n".format(asterisk_str, print_str, asterisk_str)
+    ### print "\n    -- {} objects of class \"IPad\" were created and uploaded".format(i)
+    ### print "\n    -- Time taken: {} seconds\n\n".format(round(time.time() - function_start_time, 3))
 
 
 
 
 
 def get_s_ipad_serial_numbers(s):
+
+    """ Return a list of the first 's' strings from a large list of fictitious iPad serial number strings.
+            
+            * 's' is an int between 1 and 200 inclusive.
     """
-    * Returns a list of the first 's' strings from a large list of fictitious iPad serial number strings.
-    * 's' is an int between 1 and 200 inclusive.     """
 
     # 200 16-character serial number strings from https://www.random.org/strings/?mode=advanced
-    iPadSerialNumbers_list = [
+    list_ipad_serial_numbers = [
     "lo4cWpEOhzbGEZj2","FXoRIsHIu8qv911S","IzArOMhwALYjxGpz","1AmmS6O3saDNREtv",
     "V9HLmGjEHFu9Ka31","piZ2egrZ66ncEEGn","BrasV9S6oTF5JbWm","HUEowznvmBZT11Ed",
     "ce83Fkaxy08u61GO","Hjnd9NqQw1ZE1Q45","l892lbPjg9hjm4dA","YwztD66NM23MgYPJ",
@@ -149,7 +173,7 @@ def get_s_ipad_serial_numbers(s):
     "EtZhT3uvBejFZqpb","eCqnRjl8dDZJTrM4","qKFbtTONxkpe3aY9","Ed8OjAH2z8Nd2R6x"
     ]
 
-    return iPadSerialNumbers_list[:s]
+    return list_ipad_serial_numbers[:s]
 
 
 
@@ -159,10 +183,11 @@ def get_s_ipad_serial_numbers(s):
 def main():
 
     create_i_ipads(200)
-    #pprint(  get_s_iPadSerialNumbers(s)  )
+    #pprint(get_s_ipad_serial_numbers(s))
 
 
-# main()
+# if __name__ == '__main__':
+#     main()
 
 
 
