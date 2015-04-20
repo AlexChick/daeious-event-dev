@@ -1,15 +1,25 @@
+"""
+"""
 
+# Import Python stuff
+import itertools
+import math
+import os
+import random
+import sys
+import time
+from pprint import pprint
 
-# import general stuff
-import itertools, math, os, random, re, time # python stuff
-import json, httplib, urllib # parse stuff
-from pprint import pprint # pretty printing
-# import ParsePy stuff
+# Import Parse stuff
+import httplib, json, urllib
+
+# Import ParsePy stuff
 from parse_rest.connection import ParseBatcher, register, SessionToken
 from parse_rest.datatypes import ACL, Function, Object
 from parse_rest.role import Role
 from parse_rest.user import User
-# import my custom stuff
+
+# Import my custom stuff
 ### from my_own_modules.decorator_asterisk import decorate_prints_with_asterisks
 
 
@@ -38,11 +48,12 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
 
     # Print the "function is starting" message.
     # (Later, I'd like to make a decorator that does this.)
-    is_now_running_str = "Function \"create_i_ipads\" is now running."
     print "\
-        \n\n********************************************************\
-        \n*****  Function \"create_i_ipads\" is now running.  *****\
-        \n********************************************************\
+        \n\n*********************************************************\
+        \n*****                                               *****\
+        \n*****   Function \"create_i_ipads\" is now running.   *****\
+        \n*****                                               *****\
+        \n*********************************************************\
         \n\n{} IPad objects are being created...".format(i)
 
     # Instantiate the list to upload.
@@ -51,7 +62,7 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
     # Get a (fictitious) list of i serial numbers for our new IPad objects.
     list_iPadSerialNumbers = get_s_ipad_serial_numbers(i)
 
-    # Create new iPad objects and put them into a list.
+    # Create new iPad objects and put them into a big ol' list.
     for index, serial_number in enumerate(list_iPadSerialNumbers):
         
         new_IPad_object = IPad(
@@ -91,25 +102,27 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
 
     # Calculate time spent uploading and how long to sleep for.
     time_spent_uploading = time.time() - uploading_start_time
-    how_long_to_sleep_for = (i/30) - time_spent_uploading
+    how_long_to_sleep_for = (i/30.0) - time_spent_uploading
     print "\n{} IPad objects uploaded in {} seconds.".format(i, round(time_spent_uploading, 3))
     print "\nSleeping for {} seconds...".format(round(how_long_to_sleep_for, 3))
 
     # Sleep.
     for k in range(int(math.ceil(how_long_to_sleep_for))):
         time.sleep(1) if k < how_long_to_sleep_for else time.sleep(math.modf(how_long_to_sleep_for)[0])
-        print "\r.\r" # GRRRRRR this isn't working the way I want it to.
+        print "\r{}".format(k + 1) # GRRRRRR this isn't working the way I want it to.
 
     # Print results.
     function_total_time = round(time.time() - function_start_time, 3)
-    print_str = "*****  Function \"create_i_ipads(i)\" has finished running in {} seconds.  *****".format(function_total_time)
-    asterisk_str = "*" * (len(print_str) + (2 * (2 + 5)))
-    print "\n{}\n{}\n{}\n\n".format(asterisk_str, print_str, asterisk_str)
-    ### print "\n    -- {} objects of class \"IPad\" were created and uploaded".format(i)
-    ### print "\n    -- Time taken: {} seconds\n\n".format(round(time.time() - function_start_time, 3))
 
+    print_str = "*****   Function \"create_i_ipads({})\" ran in {} seconds.   *****".format(i, function_total_time)
+    
+    long_ast_str = "*" * (len(print_str))
+    short_ast_str = "*****   {}   *****".format(" "*(len(print_str) - 16))
+    long_und_str = "_" * (len(print_str))
 
-
+    print "{}\n{}\n{}\n{}\n{}\n{}\n\n".format(
+        long_ast_str, short_ast_str, print_str, short_ast_str, long_ast_str, long_und_str
+        )
 
 
 def get_s_ipad_serial_numbers(s):
