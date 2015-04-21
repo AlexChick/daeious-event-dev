@@ -1,6 +1,8 @@
 """
 """
 
+###############################################################################
+
 # Import Python stuff
 from __future__ import print_function
 import itertools
@@ -21,15 +23,14 @@ from parse_rest.role import Role
 from parse_rest.user import User
 
 # Import my custom stuff
-### from my_own_modules.decorator_asterisk import decorate_prints_with_asterisks
-###
+### (Nothing to see here yet!)
 
-##########################################
-##########################################
+###############################################################################
 
 def create_g_ghosts(g):
     """
-    Create 1 - 50 Ghost objects by "batch_save"-ing them to Parse using ParsePy's ParseBatcher().
+    Create 1 - 50 Ghost objects by "batch_save"-ing them to Parse using 
+    ParsePy's ParseBatcher().
 
     """
 
@@ -58,10 +59,19 @@ def create_g_ghosts(g):
     batcher = ParseBatcher()
     batcher.batch_save(list_of_Ghost_objects_to_upload)
 
-    print ("\nBatch 1 of 1 containing {} Ghost objects uploaded to Parse in {} seconds.\n".format(g, time.time() - function_start_time))
+    print ("\n{} Ghost objects uploaded to Parse in {} seconds.\n".format(g, time.time() - function_start_time))
 
-##########################################
-##########################################
+###############################################################################
+
+def main():
+    create_g_ghosts(37)
+    return "create_g_ghosts() has finished running."
+
+###############################################################################
+
+if __name__ == '__main__':
+    status = main()
+    sys.exit(status)
 
 
 

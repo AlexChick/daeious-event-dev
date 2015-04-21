@@ -21,11 +21,9 @@ from parse_rest.role import Role
 from parse_rest.user import User
 
 # Import my custom stuff
-### from my_own_modules.decorator_asterisk import decorate_prints_with_asterisks
-###
+### (Nothing to see here yet!)
 
-######################################
-######################################
+###############################################################################
 
 def create_u_users(u, m = 50, f = 50):
 
@@ -67,7 +65,9 @@ def create_u_users(u, m = 50, f = 50):
             array_eventsRegistered = array_events_registered
             )
 
-        sys.stdout.write("\r{} of {} new users uploaded ({}{})".format(user_number, u, int(round((user_number*100.0)/u, 0)), "%"))
+        sys.stdout.write("\r{} of {} new users uploaded ({}{})".format(
+            user_number, u, int(round((user_number*100.0)/u, 0)), "%"
+            ))
         sys.stdout.flush()
 
     sys.stdout.write("\n") # move the cursor to the next line
@@ -75,22 +75,18 @@ def create_u_users(u, m = 50, f = 50):
     # Print results.
     function_total_time = round(time.time() - function_start_time, 3)
 
-    print_str = "*****   Function \"create_u_users({}, {}, {})\" ran in {} seconds.   *****".format(u, m, f, function_total_time)
-    
-    ast_str = "*" * (len(print_str))
-    space_str = "*****   {}   *****".format(" "*(len(print_str) - 16))
-    und_str = ("_" * (len(print_str))) + "\n" + ("=" * (len(print_str)))
+    print("\nFunction \"create_u_users({},{},{})\" ran in {} seconds."\
+                .format(u, m, f, function_total_time))
 
     print ("\n\n{}\n{}\n{}\n{}\n{}\n{}\n\n".format(space_str, space_str, print_str, space_str, ast_str, und_str))
 
-######################################
-###################################
+###############################################################################
 
 def get_m_male_names_in_2_lists(m):
-    """ 
-    Return a dictionary of 2 lists of the first 'm' names from lists of randomly generated names.
 
-            * 'm' is an int between 1 and 100 inclusive.
+    """ 
+    Return a dictionary of 2 lists of the first 'm' names from lists of
+    randomly generated names. "m" is an int between 1 and 100 inclusive.
     """
 
     # 2 lists of 100 strings each: full and first names for males.
@@ -144,14 +140,13 @@ def get_m_male_names_in_2_lists(m):
                 "m_first_names": list_male_first_names[:m]
            }
 
-###################################
-#####################################
+###############################################################################
 
 def get_f_female_names_in_2_lists(f):
-    """ 
-    Return a dictionary of 2 lists of the first 'f' names from lists of randomly generated names.
 
-            * 'f' is an int between 1 and 100 inclusive.
+    """ 
+    Return a dictionary of 2 lists of the first 'f' names from lists of
+    randomly generated names. "f" is an int between 1 and 100 inclusive.
     """
 
     # 2 lists of 100 strings each: full and first names for males.
@@ -205,8 +200,18 @@ def get_f_female_names_in_2_lists(f):
                 "f_first_names": list_female_first_names[:f]
            }
 
-#####################################
-#####################################
+###############################################################################
+
+def main():
+    u = 37
+    create_u_users(u)
+    return "create_u_users({}) has finished running.".format(u)
+
+###############################################################################
+
+if __name__ == '__main__':
+    status = main()
+    sys.exit(status)
 
 
 

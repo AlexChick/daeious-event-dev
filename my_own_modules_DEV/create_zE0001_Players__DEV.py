@@ -1,6 +1,8 @@
 """
 """
 
+###############################################################################
+
 # Import Python stuff
 from __future__ import print_function
 import itertools
@@ -21,11 +23,9 @@ from parse_rest.role import Role
 from parse_rest.user import User
 
 # Import my custom stuff
-### from my_own_modules.decorator_asterisk import decorate_prints_with_asterisks
-###
+### (Nothing to see here yet!)
 
-###########################
-###########################
+###############################################################################
 
 def create_event_players():
     """
@@ -37,12 +37,6 @@ def create_event_players():
 
     # Start a function timer.
     function_start_time = time.time()
-
-    # Calling "register" allows parse_rest / ParsePy to work.
-    # - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
-    register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
-             "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", 
-             master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")
 
     class zE0001_Player(Object):
         pass
@@ -56,7 +50,7 @@ def create_event_players():
 
     ep_count = len(list_of_users_at_event)
 
-    list_of_event_player_objects_to_upload = []
+    list_of_ep_objects_to_upload = []
 
     for ep_num in range(ep_count):
         new_zE0001_Player_object = zE0001_Player(
@@ -65,39 +59,38 @@ def create_event_players():
             username = list_of_users_at_event[ep_num].username,
             sex = list_of_users_at_event[ep_num].sex
         )
-        list_of_event_player_objects_to_upload.append(new_zE0001_Player_object)
-
-    batcher = ParseBatcher()
-
-    print (ep_count)
+        list_of_ep_objects_to_upload.append(new_zE0001_Player_object)
 
     # Call batcher.batch_save on slices of the list no larger than 50.
+    batcher = ParseBatcher()
+
     for k in range(ep_count/50 + 1):
-        # lo = 50*k
-        # hi = min(50*(k + 1), ep_count)
-        batcher.batch_save(list_of_event_player_objects_to_upload[
-            50*k:min(50*k + 50, ep_count)
-            ])
+
+        lo = 50*k
+        hi = min(50*(k + 1), ep_count)
+
+        batcher.batch_save(list_of_ep_objects_to_upload[lo:hi])
 
     # try:
-    #     batcher.batch_save(list_of_event_player_objects_to_upload[:])
+    #     batcher.batch_save(list_of_ep_objects_to_upload[:])
     # except:
-    #     batcher.batch_save(list_of_event_player_objects_to_upload[0:50])
-    #     batcher.batch_save(list_of_event_player_objects_to_upload[50:ep_count])
+    #     batcher.batch_save(list_of_ep_objects_to_upload[0:50])
+    #     batcher.batch_save(list_of_ep_objects_to_upload[50:ep_count])
 
     print ("\n{} zE0001_Player objects uploaded to Parse in {} seconds.\n"
-          .format(ep_count, round(time.time() - function_start_time)))
+          .format(ep_count, round(time.time() - function_start_time, 2)))
 
     return ep_count, m_count, f_count
 
-###########################
-###########################
+###############################################################################
 
 def main():
     ep, m, f = create_event_players()
     return "create_event_players() has finished running.\
             There are {} people ({} men, {} women) at this event.\
             ".format(ep, m, f)
+
+###############################################################################
 
 if __name__ == '__main__':
     status = main()

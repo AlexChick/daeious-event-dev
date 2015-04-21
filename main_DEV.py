@@ -81,7 +81,6 @@ def main():
     """ 
     * Start timer.
     * Call register() so ParsePy works. 
-        (can I do this here so I don't have to in every module?)
     * Set all simulation setup parameter values.
     * Call all desired test functions.
     * Print total program running time.
