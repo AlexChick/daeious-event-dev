@@ -2,6 +2,7 @@
 """
 
 # Import Python stuff
+from __future__ import print_function
 import itertools
 import math
 import os
@@ -21,8 +22,10 @@ from parse_rest.user import User
 
 # Import my custom stuff
 ### from my_own_modules.decorator_asterisk import decorate_prints_with_asterisks
+###
 
-
+################################################################
+################################################################
 
 def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
 
@@ -48,13 +51,13 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
 
     # Print the "function is starting" message.
     # (Later, I'd like to make a decorator that does this.)
-    print "\
+    print ("\
         \n\n*********************************************************\
         \n*****                                               *****\
         \n*****   Function \"create_i_ipads\" is now running.   *****\
         \n*****                                               *****\
-        \n*********************************************************\
-        \n\n{} IPad objects are being created...".format(i)
+        \n*****                                               *****\
+        \n\n{} IPad objects are being created...".format(i))
 
     # Instantiate the list to upload.
     list_IPad_objects_to_upload = []
@@ -70,19 +73,19 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
             iPadSerialNumber = serial_number,
             purchaseDate = purchaseDate
             )
-
         list_IPad_objects_to_upload.append(new_IPad_object)
+
+    print("Done.")
 
     # Upload the list of new iPad objects to Parse.
         # The Parse batch request limit is 50, and the Parse request limit is 30/sec = 1800/min.
         # Other functions are being run before and/or after this, so to avoid going over
         #     the 1800/min limit, call time.sleep(i/30 - time_spent_uploading). 
-
     
     # Create a ParseBatcher object.
     batcher = ParseBatcher()
 
-    print "\n{} IPad objects are being uploaded...".format(i)
+    print ("\n{} IPad objects are being uploaded...".format(i))
 
     # Start an "uploading" timer.
     uploading_start_time = time.time()
@@ -101,29 +104,31 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
                 ])
 
     # Calculate time spent uploading and how long to sleep for.
-    time_spent_uploading = time.time() - uploading_start_time
+    time_spent_uploading = round(time.time() - uploading_start_time, 3)
     how_long_to_sleep_for = (i/30.0) - time_spent_uploading
-    print "\n{} IPad objects uploaded in {} seconds.".format(i, round(time_spent_uploading, 3))
-    print "\nSleeping for {} seconds...".format(round(how_long_to_sleep_for, 3))
+    how_long_to_sleep_for_rounded = round(how_long_to_sleep_for, 3)
+    print("Done.\n")
+    print("{} IPad objects uploaded in {} seconds.\n".format(i, time_spent_uploading))
 
     # Sleep.
-    for k in range(int(math.ceil(how_long_to_sleep_for))):
-        time.sleep(1) if k < how_long_to_sleep_for else time.sleep(math.modf(how_long_to_sleep_for)[0])
-        print "\r{}".format(k + 1) # GRRRRRR this isn't working the way I want it to.
+    for k in range(1, 101, 1):
+        sys.stdout.write("\r{}{} of {}s sleep complete.".format(k, "%", how_long_to_sleep_for_rounded)) # \r puts the cursor back to the start of the line i/o onto the next line
+        sys.stdout.flush()
+        time.sleep(how_long_to_sleep_for / 100.0)
+    sys.stdout.write("\n") # move the cursor to the next line
 
     # Print results.
     function_total_time = round(time.time() - function_start_time, 3)
 
     print_str = "*****   Function \"create_i_ipads({})\" ran in {} seconds.   *****".format(i, function_total_time)
-    
-    long_ast_str = "*" * (len(print_str))
-    short_ast_str = "*****   {}   *****".format(" "*(len(print_str) - 16))
-    long_und_str = "_" * (len(print_str))
+    ast_str = "*" * (len(print_str))
+    space_str = "*****   {}   *****".format(" "*(len(print_str) - 16))
+    und_str = ("_" * (len(print_str))) + "\n" + ("=" * (len(print_str)))
 
-    print "{}\n{}\n{}\n{}\n{}\n{}\n\n".format(
-        long_ast_str, short_ast_str, print_str, short_ast_str, long_ast_str, long_und_str
-        )
+    print ("\n\n{}\n{}\n{}\n{}\n{}\n{}\n\n".format(space_str, space_str, print_str, space_str, ast_str, und_str))
 
+################################################################
+#################################
 
 def get_s_ipad_serial_numbers(s):
 
@@ -188,15 +193,20 @@ def get_s_ipad_serial_numbers(s):
 
     return list_ipad_serial_numbers[:s]
 
-
-
-
-
+#################################
+###########
 
 def main():
 
     create_i_ipads(200)
     #pprint(get_s_ipad_serial_numbers(s))
+
+
+
+
+
+
+
 
 
 # if __name__ == '__main__':
