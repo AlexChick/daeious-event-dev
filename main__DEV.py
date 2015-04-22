@@ -4,12 +4,13 @@ main_DEV.py
 
 This program creates:
 
--  (DONE)  u _User objects with {create_u_Users_DEV.py}
--  (DONE)  g Ghost objects with {create_g_Ghosts_DEV.py}
--  (DONE)  i IPad objects with {create_i_IPads_DEV.py}
--  (DONE)  q Question objects with {create_q_Questions_DEV.py}
--          p zE0001_Player objects with {create_p_Players_DEV.py}
--          z zE####R1 objects with {create_z_R1_Interactions_DEV.py}
+-  (DONE)  u _User objects
+-  (DONE)  g Ghost objects
+-  (DONE)  i IPad objects
+-  (DONE)  q Question objects
+-  (DONE)  eu zE0001_User objects
+
+-          z zE0001_R1 objects
 
 by importing their functions from the my_own_modules__DEV package inside the
 same directory.
@@ -40,25 +41,30 @@ from parse_rest.user import User
 # Import my custom stuff
 #
 ### (setup the simulation)
-from my_own_modules_DEV.create_u_Users_DEV import create_u_users
-from my_own_modules_DEV.create_g_Ghosts_DEV import create_g_ghosts
-from my_own_modules_DEV.create_i_IPads_DEV import create_i_ipads
-from my_own_modules_DEV.create_q_Questions_DEV import create_q_questions
-from my_own_modules_DEV.create_zE0001_Players__DEV import create_event_players
+from packages.setup.__DEV__setup_Users import setup_users
+from packages.setup.__DEV__setup_Ghosts import setup_ghosts
+from packages.setup.__DEV__setup_IPads import setup_ipads
+from packages.setup.__DEV__setup_Questions import setup_questions
+from packages.setup.__DEV__setup_Event_Users import setup_event_users
 #
-### (simulate the event)
-### from my_own_modules_DEV.create_zE****R1_DEV import create_r1_interactions
-### from my_own_modules_DEV.create_zE****R2_DEV import create_r2_interactions
-### from my_own_modules_DEV.create_zE****R3_DEV import create_r3_interactions
+### (prepare the round pairings)
+### from packages.prepare.__DEV__prepare_R1 import prepare_R1
+### from packages.prepare.__DEV__prepare_R2 import prepare_R2
+### from packages.prepare.__DEV__prepare_R3 import prepare_R3
+#
+### (play the rounds)
+### from packages.play.__DEV__play_R1 import play_R1
+### from packages.play.__DEV__play_R2 import play_R2
+### from packages.play.__DEV__play_R3 import play_R3
 #
 ### (analyze the simulation)
-### from my_own_modules_DEV.analyze_zE****R1__DEV import analyze_r1_interactions
-### from my_own_modules_DEV.analyze_zE****R2__DEV import analyze_r2_interactions
-### from my_own_modules_DEV.analyze_zE****R3__DEV import analyze_r3_interactions
-### from my_own_modules_DEV.analyze_event__DEV import analyze_event
+### from packages.analyze.__DEV__analyze_R1 import analyze_R1
+### from packages.analyze.__DEV__analyze_R2 import analyze_R2
+### from packages.analyze.__DEV__analyze_R3 import analyze_R3
+### from packages.analyze.__DEV__analyze_event import analyze_event
 #
 ### (get other helper functions)
-### from my_own_modules_DEV.get_event_class_name_DEV import get_event_class_name
+### from helpers.get_event_class_name import get_event_class_name
 ###
 
 ###############################################################################
@@ -109,43 +115,41 @@ def main():
     q = 85
 
     # Call simulation setup functions.
-    # create_u_users(u, m, f)
-    # create_g_ghosts(g)
+    # create_users(u, m, f)
+    # create_ghosts(g)
     # create_i_ipads(i)
     # create_q_questions(q)
-    ep, mp, fp = create_event_players()
+    eu, mu, fu = create_event_users()
 
     sim_setup_end_time = time.time()
     sim_setup_total_time = round(sim_setup_end_time - program_start_time, 3)
 
     # Call event simulation and analysis functions.
     ### event_sim_start_time = time.time()
-    ### create_r1_interactions()
+    ### create_r1()
     ### analyze_r1()
-    ### create_r2_interactions()
+    ### create_r2()
     ### analyze_r2()
-    ### create_r3_interactions()
+    ### create_r3()
     ### analyze_r3()
     ### analyze_event()
-    total_number_of_setup_objects_uploaded = u + g + i + q + ep
+    total_number_of_setup_objects_uploaded = u + g + i + q + eu
 
     program_total_time = round(time.time() - program_start_time, 3)
 
     # Print execution times.
-    print ("\
-\n\n\
-================================================\
-\n\n\
-Setting up the simulation took {} seconds to upload {} objects ({}/second).\
-\n\n\
-In total, program \"main__DEV.py\" took {} seconds.\
-\n\n\
-================================================\
+    print ("In total, program \"main__DEV.py\" took {} seconds.\
+\n\nIt took {} seconds to upload {} objects ({}/second).\
+\n\nIt took ?.?? seconds to create Round 1.\
+\nIt took ?.?? seconds to analyze Round 1 and create Round 2.\
+\nIt took ?.?? seconds to analyze Round 2 and create Round 3.\
+\nIt took ?.?? seconds to analyze Round 2 and create Round 3.\
+\nIt took ?.?? seconds to analyze Round 2 and create Round 3.\
 \n\n\n\n\
 ".format(
     sim_setup_total_time,
     total_number_of_setup_objects_uploaded,
-    round(total_number_of_setup_objects_uploaded / program_total_time, 3),
+    round(total_number_of_setup_objects_uploaded / program_total_time, 2),
     program_total_time
     ))
 

@@ -53,7 +53,6 @@ def create_u_users(u, m = 50, f = 50):
     for user_number in range(1, u + 1, 1):
 
         gender = "M" if (user_number <= m) else "F"
-
         array_events_registered = [1] if (user_number % 2 == 1) else [2]
 
         new_User_object = User.signup(
@@ -75,7 +74,7 @@ def create_u_users(u, m = 50, f = 50):
     # Print results.
     function_total_time = round(time.time() - function_start_time, 3)
 
-    print("\nFunction \"create_u_users({},{},{})\" ran in {} seconds."\
+    print("\nFunction \"create_u_users({},{},{})\" ran in {} seconds."
                 .format(u, m, f, function_total_time))
 
     print ("\n\n{}\n{}\n{}\n{}\n{}\n{}\n\n".format(space_str, space_str, print_str, space_str, ast_str, und_str))
