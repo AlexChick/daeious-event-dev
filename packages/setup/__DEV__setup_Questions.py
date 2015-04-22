@@ -4,6 +4,9 @@ This program creates 100 test Question objects (with a 4-answer array)
 and uploads them to Parse.
 
 """
+###############################################################################
+                            """ IMPORTS """
+###############################################################################
 
 # Import Python stuff
 from __future__ import print_function
@@ -27,7 +30,11 @@ from parse_rest.user import User
 # Import my custom stuff
 ###
 
-def create_q_questions(q):
+###############################################################################
+                            """ FUNCTIONS """
+###############################################################################
+
+def setup_questions(q):
 
     """
     """
@@ -35,17 +42,13 @@ def create_q_questions(q):
     # Start a function timer.
     function_start_time = time.time()
 
-    # Calling "register" allows parse_rest / ParsePy to work.
-    # - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
-    register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")
-
     # We must subclass Object for the class names we want to use.
     class Question(Object):
         pass
 
     # Print the "function is starting" message.
     # (Later, I'd like to make a decorator that does this.)
-    print("\nFunction \"create_q_questions()\" is now running.")
+    print("\nFunction \"setup_questions({})\" is now running.").format(q)
     
     # Instantiate the list to upload.
     list_Question_objects_to_upload = []
@@ -68,10 +71,11 @@ def create_q_questions(q):
 
         list_Question_objects_to_upload.append(new_Question_object)
 
-            # Upload the list of new iPad objects to Parse.
-        # The Parse batch request limit is 50, and the Parse request limit is 30/sec = 1800/min.
-        # Other functions are being run before and/or after this, so to avoid going over
-        #     the 1800/min limit, call time.sleep(q/30 - time_spent_uploading). 
+    # Upload the list of new iPad objects to Parse.
+    # The Parse batch request limit is 50, 
+    #     and the Parse request limit is 30/sec = 1800/min.
+    # Other functions are being run surrounding this, so to avoid going over
+    #     the 1800/min limit, call time.sleep(q/30 - time_spent_uploading). 
 
     
     # Create a ParseBatcher object.
@@ -103,40 +107,20 @@ def create_q_questions(q):
 
     # Sleep.
     for k in range(1, 101, 1):
-        sys.stdout.write("\r{}{} of {}s sleep complete.".format(k, "%", how_long_to_sleep_for_rounded)) # \r puts the cursor back to the start of the line i/o onto the next line
-        sys.stdout.flush()
+        sys.stdout.write("\r{}{} of {}s sleep complete.".format(k, "%", 
+            how_long_to_sleep_for_rounded)
+            ) # \r puts cursor back to start of line i/o onto the next line
+        sys.stdout.flush() # this must be called to refresh the line
         time.sleep(how_long_to_sleep_for / 100.0)
     sys.stdout.write("\n") # move the cursor to the next line
-
-    # # Sleep.
-    # for k in range(int(math.ceil(how_long_to_sleep_for))):
-    #     time.sleep(1) if k < how_long_to_sleep_for else time.sleep(math.modf(how_long_to_sleep_for)[0])
-    #     print ("\nSleeping for {}/{} seconds...".format(k + 1, round(how_long_to_sleep_for, 3)), end = "\r")
 
     # Print results.
     function_total_time = round(time.time() - function_start_time, 3)
 
-#     print_str = "*****   Function \"create_q_questions(q)\" ran in {} seconds.   *****".format(function_total_time)
-#   
-#     long_ast_str = "*" * (len(print_str))
-#     short_ast_str = "*****   {}   *****".format(" "*(len(print_str) - 16))
-#     print "\
-# {} \
-# \n \
-# {} \
-# \n \
-# {} \
-# \n \
-# {} \
-# \n \
-# {} \
-# \n\n \
-# ".format(long_ast_str, short_ast_str, print_str, short_ast_str, long_ast_str)
-
     print ("\n\
             \n***********************************************************************\
             \n*****                                                             *****\
-            \n*****   Function \"create_q_questions({})\" ran in {} seconds.   *****\
+            \n*****   Function \"setup_questions({})\" ran in {} seconds.   *****\
             \n*****                                                             *****\
             \n***********************************************************************\
             \n_______________________________________________________________________\
@@ -144,7 +128,7 @@ def create_q_questions(q):
             \n\n\
             ".format(q, function_total_time))
 
-
+###############################################################################
 
 def get_q_question_strings(q):
 
@@ -156,9 +140,11 @@ def get_q_question_strings(q):
 
     """
 
-    # 100 randomly generated questions from http://www.cfcl.com/vlb/Memes/Questionaires/random_1.html
+    # 100 randomly generated questions from 
+    # http://www.cfcl.com/vlb/Memes/Questionaires/random_1.html
     list_100_questions = [
-    "Grab the book nearest to you, turn to page 18, and find line 4. What does it say?",
+    "Grab the book nearest to you, turn to page 18, and find line 4. \
+        What does it say?",
     "Stretch your left arm out as far as you can, What can you touch?",
     "Before you started this survey, what were you doing?",
     "What is the last thing you watched on TV?",
@@ -177,7 +163,7 @@ def get_q_question_strings(q):
     "If you could live anywhere in the world, where would you live?",
     "If you became a multi-millionaire overnight, what would you buy?",
     "Tell me something about you that most people don't know.",
-    "If you could change one thing about the world, regardless of guilt or politics, what would you do?",
+    "If you could change one thing about the world, what would you do?",
     "Do you like to dance?",
     "Would you ever consider living abroad?",
     "Does your name make any interesting anagrams?",
@@ -188,7 +174,8 @@ def get_q_question_strings(q):
     "Type of music you dislike most?",
     "Are you listening to music right now?",
     "What color is your bedroom carpet?",
-    "If you could change something about your home, without worry about expense or mess, what would you do?",
+    "If you could change something about your home, \
+        without worry about expense or mess, what would you do?",
     "What was the last thing you bought?",
     "Have you ever ridden on a motorbike?",
     "Would you go bungee jumping or sky diving?",
@@ -211,7 +198,8 @@ def get_q_question_strings(q):
     "Have you ever won a trophy?",
     "Are you a good cook?",
     "Do you know how to pump your own gas?",
-    "If you could meet any one person (from history or currently alive), who would it be?",
+    "If you could meet any one person (from history or currently alive), \
+        who would it be?",
     "Have you ever had to wear a uniform to school?",
     "Do you touch-type?",
     "What's under your bed?",
@@ -225,7 +213,8 @@ def get_q_question_strings(q):
     "How are you feeling right now?",
     "What do you think about the most?",
     "What time do you get up in the morning?",
-    "If you had A Big Win in the Lottery, how long would you wait to tell people?",
+    "If you had A Big Win in the Lottery, how long would you wait \
+        to tell people?",
     "Who would you tell first?",
     "What is the last movie that you saw at the cinema?",
     "Do you sing in the shower?",
@@ -262,6 +251,7 @@ def get_q_question_strings(q):
 
     return list_100_questions[:q]
 
+###############################################################################
 
 def get_q_answer_lists(a):
 
@@ -380,8 +370,17 @@ def get_q_answer_lists(a):
 
     return list_100_lists_of_4_answers[:a]
 
+###############################################################################
 
+def main():
 
+    setup_ipads(200)
+    #pprint(get_s_ipad_serial_numbers(s))
+
+###############################################################################
+
+if __name__ == '__main__':
+    main()
 
 
 

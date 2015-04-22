@@ -10,7 +10,10 @@ This program creates:
 -  (DONE)  q Question objects
 -  (DONE)  eu zE0001_User objects
 
--          z zE0001_R1 objects
+-          z1 zE0001_R1 objects
+-          z2 zE0001_R2 objects
+-          z3 zE0001_R3 objects
+
 
 by importing their functions from the my_own_modules__DEV package inside the
 same directory.
@@ -47,23 +50,23 @@ from packages.setup.__DEV__setup_IPads import setup_ipads
 from packages.setup.__DEV__setup_Questions import setup_questions
 from packages.setup.__DEV__setup_Event_Users import setup_event_users
 #
-### (prepare the round pairings)
+### (prepare the pairings for each round)
 ### from packages.prepare.__DEV__prepare_R1 import prepare_R1
 ### from packages.prepare.__DEV__prepare_R2 import prepare_R2
 ### from packages.prepare.__DEV__prepare_R3 import prepare_R3
 #
-### (play the rounds)
+### (play each round)
 ### from packages.play.__DEV__play_R1 import play_R1
 ### from packages.play.__DEV__play_R2 import play_R2
 ### from packages.play.__DEV__play_R3 import play_R3
 #
-### (analyze the simulation)
+### (analyze the results of each round)
 ### from packages.analyze.__DEV__analyze_R1 import analyze_R1
 ### from packages.analyze.__DEV__analyze_R2 import analyze_R2
 ### from packages.analyze.__DEV__analyze_R3 import analyze_R3
 ### from packages.analyze.__DEV__analyze_event import analyze_event
 #
-### (get other helper functions)
+### (get helper functions)
 ### from helpers.get_event_class_name import get_event_class_name
 ###
 
@@ -111,46 +114,61 @@ def main():
     m = 66
     f = 68
     g = 27
-    i = 172
+    i = 110
     q = 85
 
     # Call simulation setup functions.
-    # create_users(u, m, f)
-    # create_ghosts(g)
-    # create_i_ipads(i)
-    # create_q_questions(q)
-    eu, mu, fu = create_event_users()
+    setup_users(u, m, f)
+    setup_ghosts(g)
+    setup_i_ipads(i)
+    setup_q_questions(q)
+    eu, mu, fu = setup_event_users()
 
     sim_setup_end_time = time.time()
-    sim_setup_total_time = round(sim_setup_end_time - program_start_time, 3)
+    sim_setup_total_time = round(sim_setup_end_time - program_start_time, 2)
 
     # Call event simulation and analysis functions.
     ### event_sim_start_time = time.time()
-    ### create_r1()
-    ### analyze_r1()
-    ### create_r2()
-    ### analyze_r2()
-    ### create_r3()
-    ### analyze_r3()
-    ### analyze_event()
-    total_number_of_setup_objects_uploaded = u + g + i + q + eu
 
-    program_total_time = round(time.time() - program_start_time, 3)
+    ### prepare_R1()
+    ### play_R1
+    ### analyze_R1()
+
+    ### prepare_R2()
+    ### play_R2()
+    ### analyze_R2()
+
+    ### prepare_R3()
+    ### play_R3()
+    ### analyze_R3()
+
+    ### analyze_event()
+
+    program_total_time = round(time.time() - program_start_time, 2)
 
     # Print execution times.
-    print ("In total, program \"main__DEV.py\" took {} seconds.\
-\n\nIt took {} seconds to upload {} objects ({}/second).\
-\n\nIt took ?.?? seconds to create Round 1.\
-\nIt took ?.?? seconds to analyze Round 1 and create Round 2.\
-\nIt took ?.?? seconds to analyze Round 2 and create Round 3.\
-\nIt took ?.?? seconds to analyze Round 2 and create Round 3.\
-\nIt took ?.?? seconds to analyze Round 2 and create Round 3.\
-\n\n\n\n\
-".format(
+    print ("It took {} seconds for \"__DEV__main().py\" to run.\
+    \nIt took {} seconds to upload {} objects ({}/second).\
+    \nIt took ?.?? seconds to setup the event.\
+    \n\
+    \nIt took ?.?? seconds to prepare Round 1.\
+    \nIt took ?.?? seconds to play Round 1.\
+    \nIt took ?.?? seconds to analyze Round 1.\
+    \n\
+    \nIt took ?.?? seconds to prepare Round 2.\
+    \nIt took ?.?? seconds to play Round 2.\
+    \nIt took ?.?? seconds to analyze Round 2.\
+    \n\
+    \nIt took ?.?? seconds to prepare Round 3.\
+    \nIt took ?.?? seconds to play Round 3.\
+    \nIt took ?.?? seconds to analyze Round 3.\
+    \n\
+    \nIt took ?.?? seconds to analyze the event.\
+    \n\n\n\n".format(
+    program_time,
     sim_setup_total_time,
-    total_number_of_setup_objects_uploaded,
-    round(total_number_of_setup_objects_uploaded / program_total_time, 2),
-    program_total_time
+    u + g + i + q + eu,
+    round((u + g + i + q + eu)/sim_setup_total_time, 2),
     ))
 
 ###############################################################################

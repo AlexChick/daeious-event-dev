@@ -1,5 +1,6 @@
 """
 """
+###############################################################################
 
 # Import Python stuff
 from __future__ import print_function
@@ -24,10 +25,9 @@ from parse_rest.user import User
 ### from my_own_modules.decorator_asterisk import decorate_prints_with_asterisks
 ###
 
-################################################################
-################################################################
+###############################################################################
 
-def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
+def setup_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
 
     """ Create i objects of the class "IPad" and upload them to Parse with ParsePy.
 
@@ -54,7 +54,7 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
     print ("\
         \n\n*********************************************************\
         \n*****                                               *****\
-        \n*****   Function \"create_i_ipads\" is now running.   *****\
+        \n*****   Function \"setup_ipads\" is now running.   *****\
         \n*****                                               *****\
         \n*****                                               *****\
         \n\n{} IPad objects are being created...".format(i))
@@ -120,15 +120,14 @@ def create_i_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
     # Print results.
     function_total_time = round(time.time() - function_start_time, 3)
 
-    print_str = "*****   Function \"create_i_ipads({})\" ran in {} seconds.   *****".format(i, function_total_time)
+    print_str = "*****   Function \"setup_ipads({})\" ran in {} seconds.   *****".format(i, function_total_time)
     ast_str = "*" * (len(print_str))
     space_str = "*****   {}   *****".format(" "*(len(print_str) - 16))
     und_str = ("_" * (len(print_str))) + "\n" + ("=" * (len(print_str)))
 
     print ("\n\n{}\n{}\n{}\n{}\n{}\n{}\n\n".format(space_str, space_str, print_str, space_str, ast_str, und_str))
 
-################################################################
-#################################
+###############################################################################
 
 def get_s_ipad_serial_numbers(s):
 
@@ -193,24 +192,17 @@ def get_s_ipad_serial_numbers(s):
 
     return list_ipad_serial_numbers[:s]
 
-#################################
-###########
+###############################################################################
 
 def main():
 
-    create_i_ipads(200)
+    setup_ipads(200)
     #pprint(get_s_ipad_serial_numbers(s))
 
+###############################################################################
 
-
-
-
-
-
-
-
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
 
 

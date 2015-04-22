@@ -27,7 +27,7 @@ from parse_rest.user import User
 
 ###############################################################################
 
-def create_g_ghosts(g):
+def setup_ghosts(g):
     """
     Create 1 - 50 Ghost objects by "batch_save"-ing them to Parse using 
     ParsePy's ParseBatcher().
@@ -64,8 +64,8 @@ def create_g_ghosts(g):
 ###############################################################################
 
 def main():
-    create_g_ghosts(37)
-    return "create_g_ghosts() has finished running."
+    setup_ghosts(37)
+    return "setup_ghosts() has finished running."
 
 ###############################################################################
 

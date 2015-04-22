@@ -25,7 +25,7 @@ from parse_rest.user import User
 
 ###############################################################################
 
-def create_u_users(u, m = 50, f = 50):
+def setup_users(u, m = 50, f = 50):
 
     """
     """
@@ -74,7 +74,7 @@ def create_u_users(u, m = 50, f = 50):
     # Print results.
     function_total_time = round(time.time() - function_start_time, 3)
 
-    print("\nFunction \"create_u_users({},{},{})\" ran in {} seconds."
+    print("\nFunction \"setup_users({},{},{})\" ran in {} seconds."
                 .format(u, m, f, function_total_time))
 
     print ("\n\n{}\n{}\n{}\n{}\n{}\n{}\n\n".format(space_str, space_str, print_str, space_str, ast_str, und_str))
@@ -203,8 +203,8 @@ def get_f_female_names_in_2_lists(f):
 
 def main():
     u = 37
-    create_u_users(u)
-    return "create_u_users({}) has finished running.".format(u)
+    setup_users(u)
+    return "setup_users({}) has finished running.".format(u)
 
 ###############################################################################
 

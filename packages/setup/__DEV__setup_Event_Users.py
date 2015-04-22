@@ -2,6 +2,8 @@
 """
 
 ###############################################################################
+                            """ IMPORTS """
+###############################################################################
 
 # Import Python stuff
 from __future__ import print_function
@@ -26,10 +28,13 @@ from parse_rest.user import User
 ### (Nothing to see here yet!)
 
 ###############################################################################
+                            """ FUNCTIONS """
+###############################################################################
 
-def create_event_players():
+
+def setup_event_users():
     """
-    Create zE0001_Player objects by "batch_save"-ing them to Parse using 
+    Create zE0001_User objects by "batch_save"-ing them to Parse using 
     ParsePy's ParseBatcher().  Player objects are _User objects whose 
     array_eventsRegistered contains 1.
 
@@ -38,7 +43,7 @@ def create_event_players():
     # Start a function timer.
     function_start_time = time.time()
 
-    class zE0001_Player(Object):
+    class zE0001_User(Object):
         pass
 
     queryset_of_users_at_event = User.Query.filter(
@@ -53,13 +58,13 @@ def create_event_players():
     list_of_ep_objects_to_upload = []
 
     for ep_num in range(ep_count):
-        new_zE0001_Player_object = zE0001_Player(
+        new_zE0001_User_object = zE0001_User(
             user_objectId = list_of_users_at_event[ep_num].objectId,
             playerNum = ep_num + 1,
             username = list_of_users_at_event[ep_num].username,
             sex = list_of_users_at_event[ep_num].sex
         )
-        list_of_ep_objects_to_upload.append(new_zE0001_Player_object)
+        list_of_ep_objects_to_upload.append(new_zE0001_User_object)
 
     # Call batcher.batch_save on slices of the list no larger than 50.
     batcher = ParseBatcher()
@@ -77,7 +82,7 @@ def create_event_players():
     #     batcher.batch_save(list_of_ep_objects_to_upload[0:50])
     #     batcher.batch_save(list_of_ep_objects_to_upload[50:ep_count])
 
-    print ("\n{} zE0001_Player objects uploaded to Parse in {} seconds.\n"
+    print ("\n{} zE0001_User objects uploaded to Parse in {} seconds.\n"
           .format(ep_count, round(time.time() - function_start_time, 2)))
 
     return ep_count, m_count, f_count
@@ -85,10 +90,10 @@ def create_event_players():
 ###############################################################################
 
 def main():
-    ep, m, f = create_event_players()
-    return "create_event_players() has finished running.\
+    eu, mu, fu = setup_event_users()
+    return "setup_event_users() has finished running.\
             There are {} people ({} men, {} women) at this event.\
-            ".format(ep, m, f)
+            ".format(eu, mu, fu)
 
 ###############################################################################
 
