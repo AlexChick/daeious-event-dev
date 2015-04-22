@@ -120,8 +120,8 @@ def main():
     # Call simulation setup functions.
     setup_users(u, m, f)
     setup_ghosts(g)
-    setup_i_ipads(i)
-    setup_q_questions(q)
+    setup_ipads(i)
+    setup_questions(q)
     eu, mu, fu = setup_event_users()
 
     sim_setup_end_time = time.time()
@@ -148,7 +148,7 @@ def main():
 
     # Print execution times.
     print ("It took {} seconds for \"__DEV__main().py\" to run.\
-    \nIt took {} seconds to upload {} objects ({}/second).\
+    \nIt took {} seconds to upload {} objects (not counting users) ({}/second).\
     \nIt took ?.?? seconds to setup the event.\
     \n\
     \nIt took ?.?? seconds to prepare Round 1.\
@@ -165,10 +165,10 @@ def main():
     \n\
     \nIt took ?.?? seconds to analyze the event.\
     \n\n\n\n".format(
-    program_time,
+    program_total_time,
     sim_setup_total_time,
-    u + g + i + q + eu,
-    round((u + g + i + q + eu)/sim_setup_total_time, 2),
+    g + i + q + eu,
+    round((g + i + q + eu)/sim_setup_total_time, 2),
     ))
 
 ###############################################################################

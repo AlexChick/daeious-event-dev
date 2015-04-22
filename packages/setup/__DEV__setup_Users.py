@@ -1,8 +1,8 @@
+from __future__ import print_function
 """
 """
 
 # Import Python stuff
-from __future__ import print_function
 import itertools
 import math
 import os
@@ -76,8 +76,6 @@ def setup_users(u, m = 50, f = 50):
 
     print("\nFunction \"setup_users({},{},{})\" ran in {} seconds."
                 .format(u, m, f, function_total_time))
-
-    print ("\n\n{}\n{}\n{}\n{}\n{}\n{}\n\n".format(space_str, space_str, print_str, space_str, ast_str, und_str))
 
 ###############################################################################
 

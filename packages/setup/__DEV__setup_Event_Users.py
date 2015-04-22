@@ -1,12 +1,12 @@
+from __future__ import print_function
 """
 """
 
 ###############################################################################
-                            """ IMPORTS """
+"""                                 IMPORTS                                 """
 ###############################################################################
 
 # Import Python stuff
-from __future__ import print_function
 import itertools
 import math
 import os
@@ -28,7 +28,7 @@ from parse_rest.user import User
 ### (Nothing to see here yet!)
 
 ###############################################################################
-                            """ FUNCTIONS """
+"""                                FUNCTIONS                                """
 ###############################################################################
 
 

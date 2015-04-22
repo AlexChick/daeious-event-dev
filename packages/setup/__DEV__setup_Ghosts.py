@@ -1,10 +1,10 @@
+from __future__ import print_function
 """
 """
 
 ###############################################################################
 
 # Import Python stuff
-from __future__ import print_function
 import itertools
 import math
 import os

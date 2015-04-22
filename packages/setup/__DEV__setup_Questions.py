@@ -1,15 +1,14 @@
-
+from __future__ import print_function
 """
 This program creates 100 test Question objects (with a 4-answer array)
 and uploads them to Parse.
 
 """
 ###############################################################################
-                            """ IMPORTS """
+"""                                 IMPORTS                                 """
 ###############################################################################
 
 # Import Python stuff
-from __future__ import print_function
 import itertools
 import math
 import os
@@ -31,7 +30,7 @@ from parse_rest.user import User
 ###
 
 ###############################################################################
-                            """ FUNCTIONS """
+"""                                FUNCTIONS                                """
 ###############################################################################
 
 def setup_questions(q):
@@ -48,7 +47,7 @@ def setup_questions(q):
 
     # Print the "function is starting" message.
     # (Later, I'd like to make a decorator that does this.)
-    print("\nFunction \"setup_questions({})\" is now running.").format(q)
+    print("\nFunction \"setup_questions({})\" is now running.".format(q))
     
     # Instantiate the list to upload.
     list_Question_objects_to_upload = []
