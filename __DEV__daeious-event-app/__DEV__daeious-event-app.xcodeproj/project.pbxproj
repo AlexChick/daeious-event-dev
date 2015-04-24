@@ -1,0 +1,481 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6C3A88541AE95304008979C2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3A88531AE95304008979C2 /* AppDelegate.swift */; };
+		6C3A88561AE95304008979C2 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3A88551AE95304008979C2 /* ViewController.swift */; };
+		6C3A88591AE95304008979C2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6C3A88571AE95304008979C2 /* Main.storyboard */; };
+		6C3A885B1AE95304008979C2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C3A885A1AE95304008979C2 /* Images.xcassets */; };
+		6C3A885E1AE95304008979C2 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6C3A885C1AE95304008979C2 /* LaunchScreen.xib */; };
+		6C3A886A1AE95304008979C2 /* __DEV__daeious_event_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3A88691AE95304008979C2 /* __DEV__daeious_event_appTests.swift */; };
+		6CB5D9EA1AEA07CC00C8C296 /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB5D9E91AEA07CC00C8C296 /* Firebase.framework */; };
+		6CB5D9EC1AEA092200C8C296 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB5D9EB1AEA092200C8C296 /* libicucore.dylib */; };
+		6CB5D9EE1AEA093100C8C296 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB5D9ED1AEA093100C8C296 /* libc++.dylib */; };
+		6CB5D9F01AEA093A00C8C296 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB5D9EF1AEA093A00C8C296 /* CFNetwork.framework */; };
+		6CB5D9F21AEA094200C8C296 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB5D9F11AEA094200C8C296 /* Security.framework */; };
+		6CB5D9F41AEA094A00C8C296 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB5D9F31AEA094A00C8C296 /* SystemConfiguration.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6C3A88641AE95304008979C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6C3A88461AE95304008979C2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6C3A884D1AE95304008979C2;
+			remoteInfo = "__DEV__daeious-event-app";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6C3A884E1AE95304008979C2 /* __DEV__daeious-event-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "__DEV__daeious-event-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C3A88521AE95304008979C2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6C3A88531AE95304008979C2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		6C3A88551AE95304008979C2 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		6C3A88581AE95304008979C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		6C3A885A1AE95304008979C2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		6C3A885D1AE95304008979C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		6C3A88631AE95304008979C2 /* __DEV__daeious-event-appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "__DEV__daeious-event-appTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C3A88681AE95304008979C2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6C3A88691AE95304008979C2 /* __DEV__daeious_event_appTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = __DEV__daeious_event_appTests.swift; sourceTree = "<group>"; };
+		6C3A88731AE9538F008979C2 /* __DEV__daeious-event-app.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "__DEV__daeious-event-app.entitlements"; sourceTree = "<group>"; };
+		6CB5D9E61AEA055600C8C296 /* __DEV__daeious-event-app-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "__DEV__daeious-event-app-Bridging-Header.h"; sourceTree = "<group>"; };
+		6CB5D9E91AEA07CC00C8C296 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Firebase.framework; path = ../Firebase.framework; sourceTree = "<group>"; };
+		6CB5D9EB1AEA092200C8C296 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
+		6CB5D9ED1AEA093100C8C296 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
+		6CB5D9EF1AEA093A00C8C296 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		6CB5D9F11AEA094200C8C296 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		6CB5D9F31AEA094A00C8C296 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6C3A884B1AE95304008979C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CB5D9EA1AEA07CC00C8C296 /* Firebase.framework in Frameworks */,
+				6CB5D9EC1AEA092200C8C296 /* libicucore.dylib in Frameworks */,
+				6CB5D9EE1AEA093100C8C296 /* libc++.dylib in Frameworks */,
+				6CB5D9F01AEA093A00C8C296 /* CFNetwork.framework in Frameworks */,
+				6CB5D9F21AEA094200C8C296 /* Security.framework in Frameworks */,
+				6CB5D9F41AEA094A00C8C296 /* SystemConfiguration.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6C3A88601AE95304008979C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6C3A88451AE95304008979C2 = {
+			isa = PBXGroup;
+			children = (
+				6CB5D9F31AEA094A00C8C296 /* SystemConfiguration.framework */,
+				6CB5D9F11AEA094200C8C296 /* Security.framework */,
+				6CB5D9EF1AEA093A00C8C296 /* CFNetwork.framework */,
+				6CB5D9ED1AEA093100C8C296 /* libc++.dylib */,
+				6CB5D9EB1AEA092200C8C296 /* libicucore.dylib */,
+				6C3A88501AE95304008979C2 /* __DEV__daeious-event-app */,
+				6C3A88661AE95304008979C2 /* __DEV__daeious-event-appTests */,
+				6C3A884F1AE95304008979C2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6C3A884F1AE95304008979C2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6C3A884E1AE95304008979C2 /* __DEV__daeious-event-app.app */,
+				6C3A88631AE95304008979C2 /* __DEV__daeious-event-appTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6C3A88501AE95304008979C2 /* __DEV__daeious-event-app */ = {
+			isa = PBXGroup;
+			children = (
+				6C3A88731AE9538F008979C2 /* __DEV__daeious-event-app.entitlements */,
+				6C3A88531AE95304008979C2 /* AppDelegate.swift */,
+				6C3A88551AE95304008979C2 /* ViewController.swift */,
+				6C3A88571AE95304008979C2 /* Main.storyboard */,
+				6C3A885A1AE95304008979C2 /* Images.xcassets */,
+				6C3A885C1AE95304008979C2 /* LaunchScreen.xib */,
+				6CB5D9E91AEA07CC00C8C296 /* Firebase.framework */,
+				6C3A88511AE95304008979C2 /* Supporting Files */,
+				6CB5D9E61AEA055600C8C296 /* __DEV__daeious-event-app-Bridging-Header.h */,
+			);
+			path = "__DEV__daeious-event-app";
+			sourceTree = "<group>";
+		};
+		6C3A88511AE95304008979C2 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6C3A88521AE95304008979C2 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6C3A88661AE95304008979C2 /* __DEV__daeious-event-appTests */ = {
+			isa = PBXGroup;
+			children = (
+				6C3A88691AE95304008979C2 /* __DEV__daeious_event_appTests.swift */,
+				6C3A88671AE95304008979C2 /* Supporting Files */,
+			);
+			path = "__DEV__daeious-event-appTests";
+			sourceTree = "<group>";
+		};
+		6C3A88671AE95304008979C2 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6C3A88681AE95304008979C2 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6C3A884D1AE95304008979C2 /* __DEV__daeious-event-app */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C3A886D1AE95304008979C2 /* Build configuration list for PBXNativeTarget "__DEV__daeious-event-app" */;
+			buildPhases = (
+				6C3A884A1AE95304008979C2 /* Sources */,
+				6C3A884B1AE95304008979C2 /* Frameworks */,
+				6C3A884C1AE95304008979C2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "__DEV__daeious-event-app";
+			productName = "__DEV__daeious-event-app";
+			productReference = 6C3A884E1AE95304008979C2 /* __DEV__daeious-event-app.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6C3A88621AE95304008979C2 /* __DEV__daeious-event-appTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C3A88701AE95304008979C2 /* Build configuration list for PBXNativeTarget "__DEV__daeious-event-appTests" */;
+			buildPhases = (
+				6C3A885F1AE95304008979C2 /* Sources */,
+				6C3A88601AE95304008979C2 /* Frameworks */,
+				6C3A88611AE95304008979C2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6C3A88651AE95304008979C2 /* PBXTargetDependency */,
+			);
+			name = "__DEV__daeious-event-appTests";
+			productName = "__DEV__daeious-event-appTests";
+			productReference = 6C3A88631AE95304008979C2 /* __DEV__daeious-event-appTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6C3A88461AE95304008979C2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0620;
+				ORGANIZATIONNAME = "The Intro Game LLC";
+				TargetAttributes = {
+					6C3A884D1AE95304008979C2 = {
+						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = YKBTCLWS4H;
+						SystemCapabilities = {
+							com.apple.iCloud = {
+								enabled = 0;
+							};
+						};
+					};
+					6C3A88621AE95304008979C2 = {
+						CreatedOnToolsVersion = 6.2;
+						TestTargetID = 6C3A884D1AE95304008979C2;
+					};
+				};
+			};
+			buildConfigurationList = 6C3A88491AE95304008979C2 /* Build configuration list for PBXProject "__DEV__daeious-event-app" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6C3A88451AE95304008979C2;
+			productRefGroup = 6C3A884F1AE95304008979C2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6C3A884D1AE95304008979C2 /* __DEV__daeious-event-app */,
+				6C3A88621AE95304008979C2 /* __DEV__daeious-event-appTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6C3A884C1AE95304008979C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C3A88591AE95304008979C2 /* Main.storyboard in Resources */,
+				6C3A885E1AE95304008979C2 /* LaunchScreen.xib in Resources */,
+				6C3A885B1AE95304008979C2 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6C3A88611AE95304008979C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6C3A884A1AE95304008979C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C3A88561AE95304008979C2 /* ViewController.swift in Sources */,
+				6C3A88541AE95304008979C2 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6C3A885F1AE95304008979C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C3A886A1AE95304008979C2 /* __DEV__daeious_event_appTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6C3A88651AE95304008979C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6C3A884D1AE95304008979C2 /* __DEV__daeious-event-app */;
+			targetProxy = 6C3A88641AE95304008979C2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		6C3A88571AE95304008979C2 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6C3A88581AE95304008979C2 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		6C3A885C1AE95304008979C2 /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6C3A885D1AE95304008979C2 /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		6C3A886B1AE95304008979C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		6C3A886C1AE95304008979C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6C3A886E1AE95304008979C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "__DEV__daeious-event-app/__DEV__daeious-event-app.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = "__DEV__daeious-event-app/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "__DEV__daeious-event-app/__DEV__daeious-event-app-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6C3A886F1AE95304008979C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "__DEV__daeious-event-app/__DEV__daeious-event-app.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = "__DEV__daeious-event-app/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "__DEV__daeious-event-app/__DEV__daeious-event-app-Bridging-Header.h";
+			};
+			name = Release;
+		};
+		6C3A88711AE95304008979C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "__DEV__daeious-event-appTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/__DEV__daeious-event-app.app/__DEV__daeious-event-app";
+			};
+			name = Debug;
+		};
+		6C3A88721AE95304008979C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "__DEV__daeious-event-appTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/__DEV__daeious-event-app.app/__DEV__daeious-event-app";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6C3A88491AE95304008979C2 /* Build configuration list for PBXProject "__DEV__daeious-event-app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C3A886B1AE95304008979C2 /* Debug */,
+				6C3A886C1AE95304008979C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6C3A886D1AE95304008979C2 /* Build configuration list for PBXNativeTarget "__DEV__daeious-event-app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C3A886E1AE95304008979C2 /* Debug */,
+				6C3A886F1AE95304008979C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6C3A88701AE95304008979C2 /* Build configuration list for PBXNativeTarget "__DEV__daeious-event-appTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C3A88711AE95304008979C2 /* Debug */,
+				6C3A88721AE95304008979C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6C3A88461AE95304008979C2 /* Project object */;
+}
