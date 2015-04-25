@@ -23,22 +23,67 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             
             
-            
-            
-            
-            
-        // Create a reference to a Firebase location
-        var myRootReference = Firebase(url:"https://burning-fire-8681.firebaseio.com/see-again-choices-R1")
-        var ref_no = Firebase(url:"https://burning-fire-8681.firebaseio.com/see-again-choices-R1/users/user1/no")
-        var ref_mn = Firebase(url:"https://burning-fire-8681.firebaseio.com/see-again-choices-R1/users/user1/mn")
-            
-        // Write data to Firebase
-        ref_no.setValue(12)
-        ref_mn.setValue(1)
+        var rootURL = "https://burning-fire-8681.firebaseio.com/see-again-choices-R1"
+            // remove any currently existing child data nodes
+            var root_ref = Firebase(url: rootURL)
+            root_ref.removeValue()
 
-        // SUCCESS!!!
+        var array_user_nums = [33, 52, 57, 80]
             
+        for user_num in 1...100 {
             
+            var event_user_num_str = ""
+            
+            if user_num < 10 {
+                event_user_num_str = "00" + String(user_num)
+            } else if user_num < 100 {
+                event_user_num_str = "0" + String(user_num)
+            } else {
+                event_user_num_str = String(user_num)
+            }
+            
+            var URL_no = rootURL + "/users/user" + event_user_num_str + "/no"
+            var URL_mn = rootURL + "/users/user" + event_user_num_str + "/mn"
+            var URL_my = rootURL + "/users/user" + event_user_num_str + "/my"
+            var URL_yes = rootURL + "/users/user" + event_user_num_str + "/yes"
+            
+            var ref_no = Firebase(url:URL_no)
+            var ref_mn = Firebase(url:URL_mn)
+            var ref_my = Firebase(url:URL_my)
+            var ref_yes = Firebase(url:URL_yes)
+            
+            for (key, value) in [ref_no:13, ref_mn:11, ref_my:8, ref_yes:14] {
+                key.setValue(value)
+            }
+            
+            println("usernum: \(user_num)")
+            
+            for ref in [ref_no, ref_mn, ref_my, ref_yes] {
+                ref.observeEventType(.Value, withBlock: {
+                    snapshot in
+                    println("\(snapshot.key) -> \(snapshot.value)")
+                })
+            }
+            
+        }
+//            
+//        var URL_no = rootURL + "/users/user1/no"
+//        var URL_mn = rootURL + "/users/user1/mn"
+//        var URL_my = rootURL + "/users/user1/my"
+//        var URL_yes = rootURL + "/users/user1/yes"
+
+
+            
+//        for (key, value) in [ref_no:12, ref_mn:1, ref_my:10, ref_yes:4] {
+//            key.setValue(value) }
+//        //user1.setValue(["no": 12, "maybe-no": 1, "maybe-yes": 10, "yes": 4])
+//            
+//        // Read data and react to changes
+//        ref_no.observeEventType(.Value, withBlock: {
+//            snapshot in
+//            println("\(snapshot.key) -> \(snapshot.value)")
+//        })
+                    //user1_choices_array = [
             
             
             
@@ -73,4 +118,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
