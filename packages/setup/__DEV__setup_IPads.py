@@ -41,10 +41,6 @@ def setup_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
     # Start a function timer.
     function_start_time = time.time()
 
-    # Calling "register" allows parse_rest / ParsePy to work.
-    # - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
-    register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")
-
     # We must subclass Object for the class names we want to use.
     class IPad(Object):
         pass

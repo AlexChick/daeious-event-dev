@@ -37,10 +37,6 @@ def setup_users(u, m = 50, f = 50):
     # Start a function timer.
     function_start_time = time.time()
 
-    # Calling "register" allows parse_rest / ParsePy to work.
-    # - register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
-    register("AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")
-
     m_names_dict = get_m_male_names_in_2_lists(m)
     f_names_dict = get_f_female_names_in_2_lists(f)
     full_names_dict = m_names_dict["m_full_names"] + f_names_dict["f_full_names"]
