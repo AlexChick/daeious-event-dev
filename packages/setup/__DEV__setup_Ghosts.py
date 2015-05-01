@@ -49,7 +49,7 @@ def setup_ghosts(g):
             ghostNum = ghost_number,
             firstName = "Ghost",
             sex = "G",
-            array_eventsRegistered = [1]
+            array_eventsRegistered = [1,2,3,4,5,6,7,8,9,10]
         )
         list_of_Ghost_objects_to_upload.append(new_Ghost_object)
 

@@ -124,6 +124,7 @@ def main():
     setup_questions(q)
     eu, mu, fu = setup_event_users()
 
+    # More timing
     sim_setup_end_time = time.time()
     sim_setup_total_time = round(sim_setup_end_time - program_start_time, 2)
 
