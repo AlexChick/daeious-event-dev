@@ -35,8 +35,8 @@ from parse_rest.user import User
 def setup_event_users():
     """
     Create zE0001_User objects by "batch_save"-ing them to Parse using 
-    ParsePy's ParseBatcher(). Player objects are _User objects whose 
-    array_eventsRegistered contains 1.
+    ParsePy's ParseBatcher(). Event User objects are _User objects whose 
+    array_eventsRegistered contains the eventNum of this current event.
 
     """
 

@@ -40,10 +40,24 @@ def create_event_object(this_date, this_time, this_location):
     highest_event_num = list(q)[0].eventNum
     this_event_num = highest_event_num + 1
 
-    
+    e = Event(
+        eventNum = this_event_num,
+        eventPrefix = make_event_prefix(this_event_num),
+        location = this_location,
+        startDate = this_date,
+        startTime = this_time,
+        start = [this_date, this_time],
+        )
 
+    e.save()
 
     return "Successfully created Event {}.".format(this_event_num)
+
+###############################################################################
+
+def make_event_prefix(eventNum):
+
+    return "zE" + ("0"*(4-len(str(eventNum)))) + str(eventNum)
 
 ###############################################################################
 
