@@ -47,12 +47,10 @@ def setup_event_users():
     class zE0001_User(Object):
         pass
 
-    queryset_of_users_at_event = User.Query.filter(
-        array_eventsRegistered__in = [1]
-        )
-    meu_count = len(list(queryset_of_users_at_event.filter(sex = "M")))
-    feu_count = len(list(queryset_of_users_at_event.filter(sex = "F")))
-    list_of_users_at_event = list(queryset_of_users_at_event)
+    qset_users_at_event = User.Query.filter(array_eventsRegistered__in = [1])
+    meu_count = len(list(qset_users_at_event.filter(sex = "M")))
+    feu_count = len(list(qset_users_at_event.filter(sex = "F")))
+    list_of_users_at_event = list(qset_users_at_event)
 
     eu_count = len(list_of_users_at_event)
 
