@@ -131,12 +131,13 @@ def determine_ghosts_and_stations(m, f):
             s = max(m,f) + 1
 
     # else diff is 5.
-    if max(m,f) %2 == 1: # max is odd
-        g = 5 #(5 min)
-        s = max(m,f)
-    else: # max is even
-        g = 7 #(6 min, 1 max)
-        s = max(m,f) + 1
+    elif abs(m-f) == 5:
+        if max(m,f) %2 == 1: # max is odd
+            g = 5 #(5 min)
+            s = max(m,f)
+        else: # max is even
+            g = 7 #(6 min, 1 max)
+            s = max(m,f) + 1
 
 
     return g, s
