@@ -51,7 +51,7 @@ from __DEV__setup_Questions import setup_questions
 from __DEV__setup_Event_Users import setup_event_users
 #
 ### (prepare the pairings for each round)
-### from __DEV__prepare_R1 import prepare_R1
+from __DEV__prepare_R1 import prepare_R1
 ### from __DEV__prepare_R2 import prepare_R2
 ### from __DEV__prepare_R3 import prepare_R3
 #
@@ -67,7 +67,7 @@ from __DEV__setup_Event_Users import setup_event_users
 ### from __DEV__analyze_event import analyze_event
 #
 ### (get helper functions)
-from __DEV__helpers_event import create_event_object
+# from __DEV__helpers_event import create_event_object
 from __DEV__helpers_event import determine_ghosts_and_stations
 from __DEV__helpers_event import get_this_event_num
 from __DEV__helpers_event import make_event_prefix
@@ -79,8 +79,30 @@ from __DEV__helpers_event import make_event_prefix
 
 # VARS
 
-EVENT_NUM = 0
-EVENT_PREFIX = ""
+EVENT_NUM = 1
+EVENT_PREFIX = make_event_prefix(EVENT_NUM)
+
+EVENT_DATE = time.strftime("%Y.%m.%d")
+EVENT_TIME = random.choice(["19:00", "19:30", "20:00", "20:30", "21:00"])
+EVENT_LOCATION = random.choice(["Palo Alto", "San Francisco", "Los Angeles"])
+
+M_U = random.randint(20,50)
+F_U = 0
+while abs(M_U - F_U) > 5:
+    F_U = random.randint(20,50)
+
+M_G = 0
+F_G = 0
+
+M_I = 0
+F_I = 0
+
+U_G = 0
+S = 0
+
+U_G, M_G, F_G, S = determine_ghosts_and_stations(M_U, F_U)
+M_I = S
+F_I = S
 
 
 
@@ -125,50 +147,62 @@ def main():
     class Event(Object):
         pass
 
-    EVENT_NUM = get_this_event_num()
-    EVENT_PREFIX = make_event_prefix(EVENT_NUM)
+    # EVENT_NUM = get_this_event_num()
+    # EVENT_PREFIX = make_event_prefix(EVENT_NUM)
 
-    e = create_event_object("2016.11.05", "19:00", "Palo Alto")
+    #e = create_event_object()
 
-    # e = Event(
-    #     eventNum = EVENT_NUM,
-    #     eventPrefix = EVENT_PREFIX,
-    #     location = EVENT_LOCATION,
-    #     startDate = EVENT_DATE,
-    #     startTime = EVENT_TIME,
-    #     start = [this_date, this_time]
-    #     )
+    e = Event(
+        eventNum = EVENT_NUM,
+        eventPrefix = EVENT_PREFIX,
+        location = EVENT_LOCATION,
+        startDate = EVENT_DATE,
+        startTime = EVENT_TIME,
+        start = [EVENT_DATE, EVENT_TIME],
+        numMen = M_U,
+        numWomen = F_U,
+        numUsers = M_U + F_U,
+        numMaleGhosts = M_G,
+        numFemaleGhosts = F_G,
+        numUserGhosts = U_G,
+        numStations = S,
+        numIPads = 2 * S
+
+        )
 
     e.save()
 
-    # Set all simulation setup parameter values.
-    u = 134
-    m = 66
-    f = 68
-    g = 27
-    i = 110
-    q = 85
+    # # Set all simulation setup parameter values.
+    # u = 134
+    # m = 66
+    # f = 68
+    # g = 27
+    # i = 110
+    # q = 85
 
     # Call simulation setup functions.
     #setup_users(u, m, f)
     #setup_ghosts(g)
     #setup_ipads(i)
     #setup_questions(q)
-    eu, mu, fu = setup_event_users()
-    e.numMen = mu
-    e.numWomen = fu
-    e.numUsers = eu
-    eg, es = determine_ghosts_and_stations(mu, fu)
-    e.numGhosts = eg
-    e.numStations = es
-    e.numIPads = es * 2
+    setup_event_users(M_U, F_U, M_G, F_G)
+    # e.numMen = M_U
+    # e.numWomen = F_U
+    # e.numUsers = M_U + F_U
+    #eg, emg, efg, es = determine_ghosts_and_stations(mu, fu)
+    # e.numGhosts = U_G
+    # e.numMaleGhosts = M_G
+    # e.numFemaleGhosts = F_G
+    # e.numStations = S
+    # e.numMaleIPads = S
+    # e.numFemaleIPads = S
 
     e.save()
 
 
     # Call event simulation and analysis functions.
 
-    ### prepare_R1()
+    #prepare_R1(mu, fu, eg, es)
     ### play_R1
     ### analyze_R1()
 

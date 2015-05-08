@@ -21,47 +21,50 @@ from parse_rest.datatypes import ACL, Function, Object
 from parse_rest.role import Role
 from parse_rest.user import User
 
-EVENT_DATE = ""
-EVENT_TIME = ""
-EVENT_LOCATION = ""
+# from __DEV__main import EVENT_NUM
+# from __DEV__main import EVENT_PREFIX
+# from __DEV__main import EVENT_DATE
+# from __DEV__main import EVENT_TIME
+# from __DEV__main import EVENT_LOCATION
 
 
 ###############################################################################
 
-def create_event_object(this_date, this_time, this_location):
-    """
-    Create an Event object, upload it to Parse, return e.
+# def create_event_object():
+#     """
+#     Create an Event object, upload it to Parse, return e.
  
-    this_date has format "YYYY.MM.DD"
-    this_time has format "HH:MM" (24-hour clock)
-    this_location is a string (ex, "Palo Alto")
-    """
+#     this_date has format "YYYY.MM.DD"
+#     this_time has format "HH:MM" (24-hour clock)
+#     this_location is a string (ex, "Palo Alto")
+#     """
 
-    class Event(Object):
-        pass
+#     class Event(Object):
+#         pass
 
-    EVENT_DATE = this_date
-    EVENT_TIME = this_time
-    EVENT_LOCATION = this_location
+    # # EVENT_DATE = this_date
+    # # EVENT_TIME = this_time
+    # # EVENT_LOCATION = this_location
 
 
-    en = get_this_event_num()
-    p = make_event_prefix(en)
+    # # en = get_this_event_num()
+    # # p = make_event_prefix(en)
 
-    e = Event(
-        eventNum = en,
-        eventPrefix = p,
-        location = EVENT_LOCATION,
-        startDate = EVENT_DATE,
-        startTime = EVENT_TIME,
-        start = [this_date, this_time]
-        )
+    # e = Event(
+    #     eventNum = EVENT_NUM,
+    #     eventPrefix = EVENT_PREFIX,
+    #     location = EVENT_LOCATION,
+    #     startDate = EVENT_DATE,
+    #     startTime = EVENT_TIME,
+    #     start = [EVENT_DATE, EVENT_TIME]
+    #     )
 
-    e.save()
+    # e.save()
 
-    print "\nSuccessfully created Daeious Event #{}, {}.\n".format(en, p)
+    # print "\nSuccessfully created Daeious Event #{}, {}.\n".format(
+    #     EVENT_NUM, EVENT_PREFIX)
 
-    return e
+    # return e
 
 ###############################################################################
 
@@ -86,11 +89,11 @@ def determine_ghosts_and_stations(m, f):
     s = -1
 
     # if diff is 0:
-    if m == f:
-        if m%2 == 0: # both even
+    if abs(m-f) == 0:
+        if m%2 == 1: # both odd
             g = 0
             s = m
-        else: # both odd
+        else: # both even
             g = 2 #(1 each)
             s = m + 1
 
@@ -139,10 +142,18 @@ def determine_ghosts_and_stations(m, f):
             g = 7 #(6 min, 1 max)
             s = max(m,f) + 1
 
+    # now determine sexes of ghosts.
+    mg = 0
+    fg = 0
+    if max(m,f) == m:
+        fg = abs(m-f)
+    else:
+        mg = abs(m-f)
+    if max(m,f) %2 == 0:
+        mg += 1
+        fg += 1
 
-    return g, s
-
-
+    return g, mg, fg, s
 
 
 ###############################################################################
@@ -179,9 +190,9 @@ def main():
         master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
     )
 
-    e_num = get_this_event_num()
-    prefix = make_event_prefix(e_num)
-    print create_event_object("2016.11.05", "19:00", "Palo Alto")
+    # e_num = get_this_event_num()
+    # prefix = make_event_prefix(e_num)
+    print create_event_object()
 
 ###############################################################################
 
