@@ -45,7 +45,7 @@ def setup_event_users(m, f, mg, fg, ep):
 
     # Get the correct class name from the ep = Event Prefix (passed in).
     eventUser_ClassName = ep + "_User"
-    eventUser_Class = Object.factory(eventClassName)
+    eventUser_Class = Object.factory(eventUser_ClassName)
 
     # add some Users
     qset_all_users = User.Query.all().order_by("userNum")
@@ -61,7 +61,7 @@ def setup_event_users(m, f, mg, fg, ep):
     li_eu_obj_to_upload = []
 
     for n, eu_obj in enumerate(li_users_at_event):
-        new_EU_object = eventClass(
+        new_EU_object = eventUser_Class(
             user_objectId = eu_obj.objectId,
             event_userNum = n + 1,
             username = eu_obj.username,

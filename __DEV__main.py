@@ -91,6 +91,10 @@ F_U = 0
 while abs(M_U - F_U) > 5:
     F_U = random.randint(20,50)
 
+# comment these 2 lines out when setting it back to random # of people
+M_U = 40
+F_U = 40
+
 M_G = 0
 F_G = 0
 
@@ -200,7 +204,7 @@ def main():
 
     # Call event simulation and analysis functions.
 
-    # prepare_R1(M_U, F_U, M_G, F_G, EVENT_PREFIX, li_event_users)
+    prepare_R1(M_U, F_U, M_G, F_G, EVENT_PREFIX, li_event_users)
     ### play_R1
     ### analyze_R1()
 

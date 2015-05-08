@@ -28,6 +28,8 @@ from parse_rest.user import User
 # from __DEV__main import EVENT_LOCATION
 
 
+
+
 ###############################################################################
 
 # def create_event_object():
@@ -162,6 +164,14 @@ def get_this_event_num():
     """
     Get event number by querying and incrementing highest existing eventNum.
     """
+
+    # Call "register" to allow parse_rest / ParsePy to work. 
+    # --> register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
+    register(
+        "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
+        "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", 
+        master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
+    )
 
     class Event(Object):
         pass
