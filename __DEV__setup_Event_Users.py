@@ -25,14 +25,14 @@ from parse_rest.role import Role
 from parse_rest.user import User
 
 # Import my custom stuff
-from __DEV__helpers_event import determine_ghosts_and_stations
+#from __DEV__helpers_event import determine_ghosts_and_stations
 
 ###############################################################################
 """                                FUNCTIONS                                """
 ###############################################################################
 
 
-def setup_event_users(m, f, mg, fg):
+def setup_event_users(m, f, mg, fg, ep):
     """
     Create zE0001_User objects by "batch_save"-ing them to Parse using 
     ParsePy's ParseBatcher(). Event User objects are _User objects whose 
@@ -43,9 +43,9 @@ def setup_event_users(m, f, mg, fg):
     # Start a function timer.
     function_start_time = time.time()
 
-    ### Need to fetch the correct event_id from this event's Config object. (or from Config itself?)
-    class zE0001_User(Object):
-        pass
+    # Get the correct class name from the ep = Event Prefix (passed in).
+    eventUser_ClassName = ep + "_User"
+    eventUser_Class = Object.factory(eventClassName)
 
     # add some Users
     qset_all_users = User.Query.all().order_by("userNum")
@@ -61,7 +61,7 @@ def setup_event_users(m, f, mg, fg):
     li_eu_obj_to_upload = []
 
     for n, eu_obj in enumerate(li_users_at_event):
-        new_EU_object = zE0001_User(
+        new_EU_object = eventClass(
             user_objectId = eu_obj.objectId,
             event_userNum = n + 1,
             username = eu_obj.username,
@@ -106,10 +106,12 @@ def setup_event_users(m, f, mg, fg):
     print ("\n{} zE0001_User objects uploaded to Parse in {} seconds.\n"
           .format(count_eu, round(time.time() - function_start_time, 2)))
 
+    return li_eu_obj_to_upload
+
 ###############################################################################
 
 def main():
-    setup_event_users(m, f, mg, fg)
+    li = setup_event_users(m, f, mg, fg, ep)
     return "setup_event_users() has finished running.\
             There are {} people - {} men, {} women, {} male ghosts\
              and {} female ghosts ({} total users) - at this event.\

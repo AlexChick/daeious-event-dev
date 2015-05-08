@@ -79,7 +79,7 @@ from __DEV__helpers_event import make_event_prefix
 
 # VARS
 
-EVENT_NUM = 1
+EVENT_NUM = get_this_event_num()
 EVENT_PREFIX = make_event_prefix(EVENT_NUM)
 
 EVENT_DATE = time.strftime("%Y.%m.%d")
@@ -185,7 +185,7 @@ def main():
     #setup_ghosts(g)
     #setup_ipads(i)
     #setup_questions(q)
-    setup_event_users(M_U, F_U, M_G, F_G)
+    li_event_users = setup_event_users(M_U, F_U, M_G, F_G, EVENT_PREFIX)
     # e.numMen = M_U
     # e.numWomen = F_U
     # e.numUsers = M_U + F_U
@@ -197,12 +197,10 @@ def main():
     # e.numMaleIPads = S
     # e.numFemaleIPads = S
 
-    e.save()
-
 
     # Call event simulation and analysis functions.
 
-    #prepare_R1(mu, fu, eg, es)
+    # prepare_R1(M_U, F_U, M_G, F_G, EVENT_PREFIX, li_event_users)
     ### play_R1
     ### analyze_R1()
 
