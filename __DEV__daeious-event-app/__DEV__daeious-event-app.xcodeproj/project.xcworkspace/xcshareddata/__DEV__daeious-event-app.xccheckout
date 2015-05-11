@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>2FF30A27-52CC-4F9A-A6E5-58F12203C827</string>
 	<key>IDESourceControlProjectName</key>
-	<string>__DEV__daeious-event-app</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>6E1793CBB4BEFC7F1183563F4A5E4894F3C7F5D3</key>
 		<string>https://github.com/AlexChick/daeious-event-dev.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>__DEV__daeious-event-app/__DEV__daeious-event-app.xcodeproj</string>
+	<string>__DEV__daeious-event-app/__DEV__daeious-event-app.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>6E1793CBB4BEFC7F1183563F4A5E4894F3C7F5D3</key>
