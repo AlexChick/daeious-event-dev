@@ -108,6 +108,8 @@ def prepare_R1(m, f, mg, fg, ep, li_eu):
             # add the object to a list to upload to Parse
             li_R1_obj_to_upload.append(new_ixn_object)
 
+            print(new_ixn_object.m_thisEvent_objectId)
+
             # add the object to Firebase
             ### INSERT CODE HERE
 
@@ -128,66 +130,81 @@ def prepare_R1(m, f, mg, fg, ep, li_eu):
 
     ### END ITERATIONS ###
 
-    # Save objects to Firebase, grouped by iPad.
-    # Structure looks like:
+    # # Save objects to Firebase, grouped by iPad.
+    # # Structure looks like:
 
-    """
+    # """
 
-    "zE####R1_inx_obj_by_iPadNum": {
+    # "zE####R1_inx_obj_by_iPadNum": {
 
-        "ipadNum_####": {
+    #     "ipadNum_####": {
 
-            "ixnNum_####": {
+    #         "ixnNum_####": {
 
-                "{}".format(li_R1_obj_to_upload.ixnNum): {
+    #             "{}".format(li_R1_obj_to_upload.ixnNum): {
 
-                    "subNum": li_R1_obj_to_upload.subNum,
-                    "staNum": li_R1_obj_to_upload.staNum,
-                    ...      
+    #                 "subNum": li_R1_obj_to_upload.subNum,
+    #                 "staNum": li_R1_obj_to_upload.staNum,
+    #                 ...      
 
-                }, 
+    #             }, 
 
-                ...
+    #             ...
 
-            }, 
+    #         }, 
 
-            ...
+    #         ...
        
-        }, 
+    #     }, 
 
-        ...
+    #     ...
     
-    }
+    # }
 
-    """
+    # """
     
-    # Create references to Firebase.
-    ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
-    ref_R1_ixn_objs_by_iPadNum = ref_root.child(
-        '{}R1_inx_objs_by_iPadNum'.format(ep)
-        )
+    # # Create references to Firebase.
+    # ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
+    # ref_R1_ixn_objs_by_iPadNum = ref_root.child(
+    #     '{}R1_inx_objs_by_iPadNum'.format(ep)
+    #     )
 
-    # Create references for all iPads, and put them in a dictionary
-    dict_ref_ipadNum = {}
-    for a in li_m_ipadNums + li_f_ipadNums:
-        ref_ipadNum = ref_R1_ixn_objs_by_iPadNum.child('{}'.format(a))
-        ref_ipadNum.patch(
-            {
-                "something": "goes here"
-            })
-        print ("iPad {} has been put into Firebase.".format(a))
-        dict_ref_ipadNum["{}".format(ref_ipadNum)] = {}
+    # # Create references for all iPads, and put them in a dictionary.
+    # # In the dictionary, the keys are the ipadNums, and the values are
+    # # lists containing the FB reference and a list of interaction objects.
+    # # { "i" : [ ref, [ ixn_obj, ixn_obj, ... ] ] }
+    # dll_ix_objs = {} 
+    # for a in li_m_ipadNums + li_f_ipadNums:
+    #     ref_ipadNum = ref_R1_ixn_objs_by_iPadNum.child('{}'.format(a))
+    #     # ref_ipadNum.patch(
+    #     #     {
+    #     #         "something": "goes here"
+    #     #     })
+    #     print ("iPad {} has been put into Firebase.".format(a))
+    #     #li_ref_ipadNum["{}".format(a)] = [ref_ipadNum, []]
+    #     #li_ref_ipadNum.append([a, ref_ipadNum, []])
+    #     dll_ix_objs[str(a)] = [ref_ipadNum, []]
 
+    # pprint(dll_ix_objs)
 
-    pprint(dict_ref_ipadNum)
+    # # Iterate through all objects, adding them to the right place in 
+    # # the dictionary, then upload the dictionary into Firebase
+    # for ix_obj in li_R1_obj_to_upload:
+    #     str_correct_m_iPad = str(ix_obj.m_ipadNum)
+    #     str_correct_f_iPad = str(ix_obj.f_ipadNum)
+    #     dll_ix_objs[str_correct_m_iPad][1].append(ix_obj)
+    #     dll_ix_objs[str_correct_f_iPad][1].append(ix_obj)
 
-    # Iterate through all objects, adding them to the right place in 
-    # the dictionary, then upload the dictionary into Firebase
-    for a in li_R1_obj_to_upload:
-        correct_m_iPad = a.m_ipadNum
-        correct_f_iPad = a.f_ipadNum
-        #dict_ref_ipadNum[]
+    # pprint(dll_ix_objs)
 
+    # # put into Firebase
+    # for k,v in dll_ix_objs.iteritems():
+    #     ref = Firebase(v[0])
+    #     #ref.patch(v[1])
+    #     print("List added for iPad with ipadNum = {} at location: {}".format(k, ref))
+
+    # for obj in li_R1_obj_to_upload:
+    #     pprint(vars(obj))
 
 
 

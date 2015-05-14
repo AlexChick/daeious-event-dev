@@ -79,7 +79,8 @@ from __DEV__helpers_event import make_event_prefix
 
 # VARS
 
-EVENT_NUM = get_this_event_num()
+#EVENT_NUM = get_this_event_num()
+EVENT_NUM = 1
 EVENT_PREFIX = make_event_prefix(EVENT_NUM)
 
 EVENT_DATE = time.strftime("%Y.%m.%d")
