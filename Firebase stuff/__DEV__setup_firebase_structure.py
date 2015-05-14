@@ -1,6 +1,6 @@
 """
 
-Sets up an empty Firebase structure for see-again choice counts.
+Set up an empty Firebase structure for see-again choice counts.
 Looks like this:
 
 "see-again-choices-zE0001R1": {
@@ -29,6 +29,12 @@ Looks like this:
         }                  
     }
 }
+"""
+
+"""
+
+
+
 """
 
 # Import Python stuff

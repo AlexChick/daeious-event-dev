@@ -15,10 +15,6 @@ This program creates:
 -          z3 zE0001_R3 objects
 
 
-by importing their functions from the my_own_modules__DEV package inside the
-same directory.
-
-
 """
 
 
@@ -40,6 +36,10 @@ from parse_rest.connection import ParseBatcher, register, SessionToken
 from parse_rest.datatypes import ACL, Function, Object
 from parse_rest.role import Role
 from parse_rest.user import User
+
+# Import Firebase stuff (https://github.com/mikexstudios/python-firebase)
+from firebase import Firebase
+import requests
 
 # Import my custom stuff
 #
@@ -92,8 +92,8 @@ while abs(M_U - F_U) > 5:
     F_U = random.randint(20,50)
 
 # comment these 2 lines out when setting it back to random # of people
-M_U = 40
-F_U = 40
+M_U = 20
+F_U = 20
 
 M_G = 0
 F_G = 0
