@@ -107,7 +107,7 @@ class ViewController: UIViewController {
                         if queryable {
                             println("Yes! The R1 interaction objects are ready to be queried.")
                             self.myR1QueryTimer.invalidate()
-                            //self.fetch_IxObjectsFromParse()
+                            self.fetch_IxObjectsFromParse()
                         }
                         else {
                             println("No! The R1 interaction objects aren't ready yet!")
@@ -134,9 +134,7 @@ class ViewController: UIViewController {
                                 userInfo: nil,
                                 repeats: true)
         
-        self.fetch_IxObjectsFromParse()
-        
-        //fetch_IxObjectsFromParse()
+        //self.fetch_IxObjectsFromParse()
     }
 
     override func didReceiveMemoryWarning() {
