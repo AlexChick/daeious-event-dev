@@ -96,6 +96,8 @@ def prepare_R1(m, f, mg, fg, ep, li_eu):
                 staNum = li_staNums[k],
                 m_userNum = li_males[k].event_userNum,
                 f_userNum = li_females[k].event_userNum,
+                m_username = li_males[k].username,
+                f_username = li_females[k].username,
                 m_user_objectId = li_males[k].user_objectId,
                 f_user_objectId = li_females[k].user_objectId,
                 m_thisEvent_objectId = li_males[k].objectId,
