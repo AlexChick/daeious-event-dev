@@ -78,8 +78,7 @@ def main():
 
 
     # Simulate event
-    e = _Event(1, 50, 50)
-    e.create_event_object_in_Parse()
+    e = _Event(0, 50, 50)
     e.simulate()
 
 

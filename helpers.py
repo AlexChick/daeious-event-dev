@@ -63,7 +63,7 @@ def delete_all_z_E0000_R1_objects_from_Parse():
     li_length = len(all_objects_to_delete)
 
     if li_length == 0:
-        return
+        return # no objects to delete
 
     for x in range(li_length/50 + 1):
 
