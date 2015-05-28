@@ -1,0 +1,1223 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"user",
+				"username"
+			],
+			[
+				"l",
+				"li_Elephant_3"
+			],
+			[
+				"new",
+				"new_ixn_object"
+			],
+			[
+				"str",
+				"str_correct_f_iPad"
+			],
+			[
+				"str_",
+				"str_correct_m_iPad"
+			],
+			[
+				"dic",
+				"dict_ref_ipadNum"
+			],
+			[
+				"ref",
+				"ref_ipadNum"
+			],
+			[
+				"ref_",
+				"ref_ipadNum"
+			],
+			[
+				"li_f",
+				"li_f_ipadNums"
+			],
+			[
+				"li_ip",
+				"li_m_ipadNums"
+			],
+			[
+				"li",
+				"li_R1_obj_to_upload"
+			],
+			[
+				"count",
+				"counter_ixn"
+			],
+			[
+				"li_st",
+				"li_staNums"
+			],
+			[
+				"even",
+				"eventIxnR1_ClassName"
+			],
+			[
+				"eve",
+				"eventClassName"
+			],
+			[
+				"get",
+				"get_this_event_num"
+			],
+			[
+				"li_",
+				"li_meu"
+			],
+			[
+				"EVEN",
+				"EVENT_NUM"
+			],
+			[
+				"EVE",
+				"EVENT_TIME"
+			],
+			[
+				"EVENT",
+				"EVENT_PREFIX"
+			],
+			[
+				"F",
+				"F_AT_EVENT"
+			],
+			[
+				"list",
+				"list_female_ghosts"
+			],
+			[
+				"list_",
+				"list_male_ghosts"
+			],
+			[
+				"list_of",
+				"list_of_eu_objects_to_upload"
+			],
+			[
+				"gu",
+				"gu_num"
+			],
+			[
+				"mg",
+				"mg"
+			],
+			[
+				"userN",
+				"userNum__gte"
+			],
+			[
+				"arr",
+				"array_eventsRegistered__in"
+			],
+			[
+				"num_",
+				"num_ghosts"
+			],
+			[
+				"fe",
+				"feu_count"
+			],
+			[
+				"EV",
+				"EVENT_PREFIX"
+			],
+			[
+				"__DEV",
+				"__DEV__helpers_event"
+			],
+			[
+				"ep",
+				"ep_count"
+			],
+			[
+				"bat",
+				"batch_save"
+			],
+			[
+				"sim",
+				"sim_setup_total_time"
+			],
+			[
+				"ma",
+				"males_at_event_counter"
+			],
+			[
+				"simul",
+				"simulation_setup_total_time"
+			],
+			[
+				"pro",
+				"program_total_time"
+			],
+			[
+				"program",
+				"program_start_time"
+			],
+			[
+				"total",
+				"total_number_of_objects"
+			],
+			[
+				"fun",
+				"function_start_time"
+			],
+			[
+				"gho",
+				"ghost_number"
+			],
+			[
+				"Par",
+				"ParseBatcher"
+			],
+			[
+				"fir",
+				"first_names_dict"
+			],
+			[
+				"full",
+				"full_names_dict"
+			],
+			[
+				"how",
+				"how_long_to_sleep_for_rounded"
+			],
+			[
+				"long_",
+				"long_und_str"
+			],
+			[
+				"print",
+				"print_str"
+			],
+			[
+				"funct",
+				"function_total_time"
+			],
+			[
+				"list_q",
+				"list_q_answer_lists"
+			],
+			[
+				"create",
+				"create_p_players"
+			],
+			[
+				"quest",
+				"question_counter"
+			],
+			[
+				"TH",
+				"THIS_EVENT_R1_CLASS_NAME"
+			],
+			[
+				"T",
+				"THIS_EVENT_PLAYER_CLASS_NAME"
+			],
+			[
+				"THI",
+				"THIS_EVENT_CLASS_ID"
+			],
+			[
+				"my_own_mod",
+				"my_own_modules_DEV"
+			],
+			[
+				"prin",
+				"print_str"
+			],
+			[
+				"creates",
+				"creates"
+			],
+			[
+				"clas",
+				"className"
+			],
+			[
+				"time_",
+				"time_to_sleep"
+			],
+			[
+				"time",
+				"time_spent_uploading"
+			],
+			[
+				"Pa",
+				"ParseBatcher"
+			],
+			[
+				"iPad",
+				"iPadSerialNumber"
+			],
+			[
+				"even_",
+				"event_object"
+			],
+			[
+				"play",
+				"playerNum"
+			],
+			[
+				"eventU",
+				"eventUserClass"
+			],
+			[
+				"request",
+				"requests_list"
+			],
+			[
+				"batch",
+				"batch_upload_counter"
+			],
+			[
+				"reque",
+				"requests_dict_to_upload_4"
+			],
+			[
+				"Ghost",
+				"Ghost"
+			],
+			[
+				"firstN",
+				"firstName"
+			],
+			[
+				"gh",
+				"ghostCounter"
+			],
+			[
+				"name",
+				"name_list"
+			],
+			[
+				"event",
+				"eventsRegistered_list"
+			],
+			[
+				"list_gho",
+				"list_ghost_firstNames"
+			],
+			[
+				"firstName",
+				"firstName_list"
+			],
+			[
+				"list_fem",
+				"list_female_firstNames"
+			],
+			[
+				"list_male",
+				"list_male_firstNames_2"
+			],
+			[
+				"list_male_",
+				"list_male_firstNames_1"
+			],
+			[
+				"player",
+				"playerCounter"
+			],
+			[
+				"list_male_fullNa",
+				"list_male_fullNames_1"
+			],
+			[
+				"event_",
+				"event_object"
+			],
+			[
+				"evn",
+				"eventUserClassName"
+			],
+			[
+				"eventUser",
+				"eventUserClassName"
+			],
+			[
+				"num",
+				"num_string"
+			],
+			[
+				"batch_",
+				"batch_uploading_start_time"
+			],
+			[
+				"tim",
+				"time_taken_so_far"
+			],
+			[
+				"in",
+				"interaction_counter"
+			],
+			[
+				"all",
+				"all_males_at_event"
+			],
+			[
+				"z",
+				"zE0001R1"
+			],
+			[
+				"int",
+				"interactions_list_to_be_saved"
+			],
+			[
+				"station",
+				"station_list"
+			],
+			[
+				"pl",
+				"playerNum"
+			],
+			[
+				"interac",
+				"interaction_counter"
+			],
+			[
+				"Que",
+				"Question"
+			],
+			[
+				"all_",
+				"all_ipads_at_event"
+			],
+			[
+				"class",
+				"class_name_of_this_event"
+			],
+			[
+				"zE",
+				"zE0001_User"
+			],
+			[
+				"my",
+				"myClassName"
+			],
+			[
+				"E",
+				"zE0001_User"
+			],
+			[
+				"cre",
+				"creation_result"
+			],
+			[
+				"P",
+				"ParsePy"
+			],
+			[
+				"ques",
+				"question_counter"
+			],
+			[
+				"answers",
+				"answers_list_of_lists"
+			],
+			[
+				"que",
+				"questions_chunk"
+			],
+			[
+				"chu",
+				"chunk_q2"
+			],
+			[
+				"answ",
+				"answers_list_of_lists"
+			],
+			[
+				"chunk",
+				"chunk_list"
+			],
+			[
+				"ch",
+				"chunk2"
+			],
+			[
+				"re",
+				"results"
+			],
+			[
+				"query",
+				"query_result"
+			],
+			[
+				"obj",
+				"object_dict"
+			],
+			[
+				"resul",
+				"results_dict_to_upload"
+			],
+			[
+				"Parse",
+				"Parse"
+			],
+			[
+				"object",
+				"objectId"
+			],
+			[
+				"mal",
+				"males_at_event"
+			],
+			[
+				"quer",
+				"query_event_user_male"
+			],
+			[
+				"ip",
+				"iPadSerialNumbers_list"
+			],
+			[
+				"us",
+				"userCreator"
+			],
+			[
+				"signup",
+				"signupPlayers"
+			],
+			[
+				"pass",
+				"password"
+			],
+			[
+				"sigu",
+				"signupToPlayGame"
+			],
+			[
+				"set_",
+				"set_stations_both_can_do"
+			],
+			[
+				"set",
+				"set_stations_m_can_do"
+			],
+			[
+				"min_",
+				"min_index"
+			],
+			[
+				"NUM_",
+				"NUM_R2_SUBROUNDS"
+			],
+			[
+				"f_",
+				"f_nearest_station_before"
+			],
+			[
+				"m_ne",
+				"m_nearest_subround_before"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "__DEV__main.py",
+			"settings":
+			{
+				"buffer_size": 7009,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "__DEV__prepare_R1.py",
+			"settings":
+			{
+				"buffer_size": 8849,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "__DEV__setup_Event_Users.py",
+			"settings":
+			{
+				"buffer_size": 4309,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "testing.py",
+			"settings":
+			{
+				"buffer_size": 37,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "__DEV__helpers_event.py",
+			"settings":
+			{
+				"buffer_size": 5316,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "__DEV__setup_IPads.py",
+			"settings":
+			{
+				"buffer_size": 9638,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "__DEV__setup_Users.py",
+			"settings":
+			{
+				"buffer_size": 9456,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 307.0,
+		"last_filter": "Snippet: ",
+		"selected_items":
+		[
+			[
+				"Snippet: ",
+				"Snippet: Function"
+			],
+			[
+				"",
+				"Bookmarks: Select Next"
+			]
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 139.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": true,
+		"side_bar_visible": false,
+		"status_bar_visible": true
+	},
+	"file_history":
+	[
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/z_other/tkinter_practice.py",
+		"/Users/achick/Google Drive (Alex)/Everything Else/Miscellaneous/fun.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/firebase/__init__.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/Firebase stuff/__DEV__setup_firebase_structure.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/__DEV__create_Event_object.py",
+		"/Users/achick/Google Drive (Alex)/Everything Else/Old (Dateable, The Intro Game)/The Intro Game/parse_rest_test.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/tests.py",
+		"/Users/achick/Google Drive (Alex)/Everything Else/Old (Dateable, The Intro Game)/The Intro Game/r1.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/create_q_Questions_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/create_i_IPads_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/create_u_Users_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/create_g_Ghosts_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_2500_zE0001R1_interactions.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/create_zE0001_Players__DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/main_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_100_zE0001_users.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/create_zE****_Players__DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/create_p_Players_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_50m50f2g_zE0001_User_objects.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_100m100f50g.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_100_users.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/get_event_class_name_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_100_questions.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules_DEV/get_event_class_name.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/main.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules/create_i_IPads_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules/create_q_Questions_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/my_own_modules/__init__.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_i_IPads_DEV.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_n_iPads.py",
+		"/Users/achick/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/parse_rest/datatypes.py",
+		"/Users/achick/Google Drive (Alex)/Everything Else/Old (Dateable, The Intro Game)/The Intro Game/main.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_100_iPads.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/test_pieces.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_100m100f_zE0001_User_objects.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/create_100_Users_and_50_Ghosts.py",
+		"/Users/achick/Google Drive (Alex)/Everything Else/Old (Dateable, The Intro Game)/The Intro Game/setup.py",
+		"/Users/achick/Google Drive (Alex)/Everything Else/Old (Dateable, The Intro Game)/The Intro Game/tests.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/daeious-event-dev/settings_local.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private_Files/Tester_Files/create_2500_zE0001R1_interactions.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/testing.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/100_users_v2.json",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/100_users.json",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/settings_local.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/create_100_users.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/create_100_questions.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private_Files/Tester_Files/create_100_zE0001_users.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private_Files/Tester_Files/pythonista_file_transfer.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/create_100_users_in_json_v2.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/Private Files/Tester Files/create_100_zE0001_users.py",
+		"/Users/achick/Google Drive (Alex)/Daeious/DaeiousCloudCode/cloud/create_r1_interactions.js",
+		"/Users/achick/Google Drive (Alex)/Daeious/DaeiousCloudCode/cloud/main.js",
+		"/Users/achick/Developer/Daeious/Tester Files/100_users.json",
+		"/Users/achick/Google Drive (Alex)/Daeious/DaeiousCloudCode/config/global.json",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/tests.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/postgame.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/r3.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/r2.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/r1.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/interaction.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/setup.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/helpers.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/globals.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/main.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/playGame07 (old).py",
+		"/Users/achick/Developer/DaeiousCloudCode/cloud/create_100_users.js",
+		"/Users/achick/Developer/Daeious/Tester Files/100_new_Users.json",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/MyCloudCodeTest/parse_rest_test.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/player.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/settings_local.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/parse_rest_test.py",
+		"/Users/achick/Google Drive (Alex)/Miscellaneous/InterpolationSearch.java",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/2014.07.21 Pairing Algorithms/tests.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/h.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game/helper.py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/algorithm-round1-v012 (working).py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/2014.07.21 Pairing Algorithms/createPairingsForAndRunRound2.py",
+		"/Users/achick/Google Drive (Alex)/The Intro Game (website)/HTML files/home.html",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/algorithm-round1-v003.py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/algorithm-round1-v004.py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/algorithm-round1-v005.py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/algorithm-round1-v007.py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/algorithm-round1-v013.py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/createUniqueDates.py",
+		"/Users/achick/Google Drive (Alex)/Dateable/Databases/test001.sqlite3",
+		"/Users/achick/Google Drive (Alex)/Dateable/Algorithms/Python Programs/algorithm-round1-v002.py",
+		"/Users/achick/Google Drive (Centre)/CSC 271/FINAL PROJECT/Final Project/programs/Program 6 (inscribed circles)/code-for-version05-v02.py",
+		"/Users/achick/Google Drive (Centre)/CSC 271/* Final Project/source_texts.py",
+		"/Users/achick/Google Drive (Centre)/CSC 271/* Final Project/dadaist_poetry_creator.py",
+		"/Users/achick/Google Drive (Centre)/CSC 271/* Final Project/dadaist_with_functions.py",
+		"/Users/achick/Google Drive (Centre)/CSC 271/Class Shared Folder/modern_dadaist_poem.py",
+		"/Users/achick/Documents/Conversations/Stefan, Blaise - CompArt Presentation",
+		"/Users/achick/djangoFolder/bin/django_test_project/views.py",
+		"/Users/achick/djangoFolder/bin/django_test_project/static/css/default.css",
+		"/Users/achick/djangoFolder/bin/django_test_project/article/templates/article.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/article/templates/articles.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/article/views.py",
+		"/Users/achick/djangoFolder/bin/django_test_project/article/urls.py",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/logout.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/invalid_login.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/loggedin.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/login.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/loggedout.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/articles.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/article.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/hello.html",
+		"/Users/achick/djangoFolder/bin/django_test_project/templates/hello_class.html",
+		"/Users/achick/Developer/Dice With Friends/Dice.py",
+		"/Users/achick/Google Drive (Centre)/*Everything Else/Dateable forms/regform.html",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework/Homework 04/hw4Assign.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 04/chickhw4.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 04/chickhw3v01.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 04/chickV3.c",
+		"/Users/achick/Google Drive (Centre)/Fall Term 2013/CSC 221/Homework 04/hw4Assign.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 04/data.txt",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 04/hw3Masks.h",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 02/chickhw2.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 03/chickhw3v01.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 02/data.txt",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 02/cTemplate.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 01/chickDecode1.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 01/chick.txt",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Homework 01/chickEncode.c",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Lab 01/chickLAB1.txt",
+		"/Users/achick/Google Drive (Centre)/CSC 221/Lab 1/Lab 01/Lab 01.txt"
+	],
+	"find":
+	{
+		"height": 36.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"dll_ixn_objs",
+			"ddl_ixn_objs",
+			"en",
+			"en ",
+			"packages.setup.",
+			" en",
+			"DEV__",
+			"create",
+			"setup",
+			"create",
+			"_sim",
+			"list_of_event_player_objects_to_upload",
+			"event_player_number",
+			"attending_this",
+			",  ",
+			"create_n_iPads",
+			"male",
+			"requests",
+			"userCreator",
+			"round_id == 1",
+			"round_id == 2",
+			"R1",
+			"R2",
+			"== 1",
+			"round_id == 1",
+			"R1",
+			"R1_interaction_count",
+			"globals.LIST_INTERACTIONS",
+			"m_",
+			"m",
+			",",
+			"dl_R1_desirabilityRankWithinSex",
+			"md",
+			"createMembersList",
+			"membersList",
+			" Dates",
+			" Members",
+			" Members ",
+			"Members ",
+			"Members",
+			"‘",
+			"’",
+			"‘",
+			"desireability",
+			"wmslCounter",
+			"'p'",
+			"'w'",
+			"fmsl",
+			"%",
+			")",
+			"(",
+			"0",
+			"1",
+			"2",
+			"3",
+			"tableRange",
+			",",
+			"gave",
+			"-",
+			" :",
+			"line_str",
+			"common_25_words_list",
+			"common_25_words_str",
+			"num_of_lines_in_poem",
+			"max2",
+			"max1",
+			"20"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"dll_ix_objs",
+			"dll_ixn_objs",
+			"EVENT_NUM",
+			"",
+			" EVENT_NUM",
+			"__DEV__",
+			"setup",
+			"prepare",
+			"analyze",
+			"play",
+			"pair",
+			"play",
+			"",
+			"### (setup the simulation)\nfrom packages.setup_sim.DEV__create_Users import create_users\nfrom packages.setup_sim.DEV__create_Ghosts import create_ghosts\nfrom packages.setup_sim.DEV__create_IPads import create_ipads\nfrom packages.setup_sim.DEV__create_Questions import create_questions\nfrom packages.setup_sim.DEV__create_Event_Users import create_event_users\n#\n### (simulate the event)\n### from packages.setup_sim.DEV__create_R1 import create_R1\n### from packages.setup_sim.DEV__create_R2 import create_R2\n### from packages.setup_sim.DEV__create_R3 import create_R3\n#\n### (analyze the simulation)\n### from packages.setup_sim.DEV__analyze_R1 import analyze_R1\n### from packages.setup_sim.DEV__analyze_R2 import analyze_R2\n### from packages.setup_sim.DEV__analyze_R3 import analyze_R3\n### from packages.setup_sim.DEV__analyze_event import analyze_event\n#\n### (get other helper functions)\n### from helpers.get_event_class_name import get_event_class_name\n###",
+			"list_of_ep_objects_to_upload",
+			"ep_num",
+			"at",
+			",",
+			"create_i_IPads",
+			"female",
+			"results",
+			"iPadCreator",
+			"round_id == 3",
+			"R2",
+			"R3",
+			"R2",
+			"globals.LIST_R1_INTERACTIONS",
+			"f_",
+			"f",
+			"",
+			"ld_R1_desirabilityRankWithinSex",
+			"pd",
+			"Create_ld_players",
+			"ld_players",
+			" Interaction",
+			" Player",
+			"Player",
+			"'",
+			"desirability",
+			"slCounter",
+			"'self'",
+			"wmsl",
+			"Pct",
+			"pct",
+			"]",
+			"[",
+			"1",
+			"2",
+			"3",
+			"4",
+			"numTables",
+			" = 0",
+			"received",
+			"_"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "__DEV__main.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7009,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2115,
+								2115
+							]
+						],
+						"settings":
+						{
+							"rulers":
+							[
+								80
+							],
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "__DEV__prepare_R1.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8849,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								721,
+								0
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"rulers":
+							[
+								80
+							],
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3243.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "__DEV__setup_Event_Users.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4309,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2229,
+								2229
+							]
+						],
+						"settings":
+						{
+							"rulers":
+							[
+								80
+							],
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1492.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "testing.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 37,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								21,
+								21
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "__DEV__helpers_event.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5316,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4337,
+								4337
+							]
+						],
+						"settings":
+						{
+							"rulers":
+							[
+								80
+							],
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3043.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "__DEV__setup_IPads.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9638,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								745,
+								770
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 258.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "__DEV__setup_Users.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9456,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1868,
+								1630
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 651.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 28.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 28.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "all_Daeious__DEV__python_programs.sublime-project",
+	"replace":
+	{
+		"height": 66.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/Google Drive (Alex)/Dateable/Algorithms/2014.07.21 Pairing Algorithms/createRound1.py"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 247.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 392.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 111.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

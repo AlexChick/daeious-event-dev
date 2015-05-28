@@ -46,7 +46,6 @@ class ViewController: UIViewController {
     // view_questionAndAnswer
     @IBOutlet var label_question: UILabel!
     
-    
     // view_devData
     @IBOutlet var label_m_userNum: UILabel!
     @IBOutlet var label_f_userNum: UILabel!

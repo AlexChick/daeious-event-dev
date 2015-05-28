@@ -210,7 +210,7 @@ def prepare_R1(m, f, mg, fg, ep, li_eu):
 
 
 
-    # Save objects to Parse.
+    # Save multiple objects to Parse.
     # Call batcher.batch_save on slices of the list no larger than 50.
         # Parse will timeout if 1800 requests are made in 60 seconds,
         # hence the time.sleep(1.67) every 50 objects saved. I could probably
