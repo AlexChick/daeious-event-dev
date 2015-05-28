@@ -31,17 +31,21 @@ import requests
 
 # Import custom functions and classes I've written specifically for Daeious.
 from helpers import register_with_Parse
+
+
 ###############################################################################
 
-register_with_Parse()
 
+register_with_Parse()
 
 class Round(Object): pass
 
 class _Round(Object):
 
-    EVENT_NUM = -1
+    EVENT_NUM = -1 # can be changed to be queried from the current event object
     CURRENT_ROUND = -1
+
+    LI_EVENT_USERS = []
 
     def __init__(self):
 
@@ -80,13 +84,18 @@ class Round_0(_Round):
 		print(self.round_num)
 		pass
 
-	def create_event_users_in_Parse(self):
+	def assign_pregame_sel_and_des_ranks(self):
 		pass
 
 	pass
 
 
 class Round_1(_Round):
+
+	def __init__(self):
+		_Round.__init__(self)
+		self.round_num = 1
+		pass
 	pass
 
 

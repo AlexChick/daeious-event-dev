@@ -31,10 +31,15 @@ import requests
 
 # Import custom functions and classes I've written specifically for Daeious.
 from _round import _Round, Round_0, Round_1, Round_2, Round_3, Round_4
+from helpers import batch_upload_to_Parse
+from helpers import batch_delete_from_Parse_all_objects_of_class
+
 
 ###############################################################################
 
-class Event(Object): pass
+class Event(Object): pass # needed for Parse Event class interactivity
+
+###############################################################################
 
 class _Event(Object):
 
@@ -54,24 +59,28 @@ class _Event(Object):
 
         # Calculate Ghosts needed
         mg, fg, s = self.calculate_Ghosts_needed()
-        print(s)
         
         self.event_num = event_num
-        # self.num_men = num_men
-        # self.num_women = num_women
+        self.num_men = num_men
+        self.num_women = num_women
         self.num_m_ghosts = mg
         self.num_f_ghosts = fg
         self.num_stations = s
+        self.num_ipads = s*2
 
         _Event.STR_EVENT_SERIAL_NUM = "{}{}".format(
             "0"*(4 - len(str(event_num))), event_num)
 
-        # Create a corresponding Event object in Parse upon instantiation.
+        # Create a corresponding Event object in Parse upon initialization.
         self.create_event_object_in_Parse()
 
+        # Create event-user (zE_0000_User) objects in Parse upon initialization.
+        self.create_event_users_in_Parse()
+
+
     def create_event_object_in_Parse(self):
-        # Create a corresponding Event object in Parse upon instantiation.
-        e = Event()
+        # Create a corresponding Event object in Parse upon initialization.
+        e = Event() # Remember, this is a _Parse_ Event object, so it's ok!
         e.eventNum = self.event_num
         e.eventPrefix = _Event.STR_EVENT_SERIAL_NUM
         e.location = _Event.EVENT_LOCATION
@@ -88,19 +97,75 @@ class _Event(Object):
         e.save()
         pass
 
+
+    def create_event_users_in_Parse(self):
+
+        # For now, just grab first ones; later, check by array_eventsRegistered.
+
+        """
+        Create zE_0000_User objects by "batch_save"-ing them to Parse using 
+        ParsePy's ParseBatcher(). Event User objects are _User objects whose 
+        array_eventsRegistered contains the eventNum of this current event.
+
+        """
+
+        class zE_0000_User(Object):
+            pass
+
+        # # Get the correct class name from the ep = Event Prefix (passed in).
+        # eventUser_ClassName = ep + "_User"
+        # eventUser_Class = Object.factory(eventUser_ClassName)
+
+        # add some Users to this Event
+        qset_all_users = User.Query.all().order_by("userNum")
+        li_meu = list(qset_all_users.filter(sex = "M").limit(
+            _Event.MEN))
+        li_feu = list(qset_all_users.filter(sex = "F").limit(
+            _Event.WOMEN))
+        li_mgeu = list(qset_all_users.filter(sex = "MG").limit(
+            self.num_m_ghosts))
+        li_fgeu = list(qset_all_users.filter(sex = "FG").limit(
+            self.num_f_ghosts))
+
+        li_users_at_event = li_meu + li_feu + li_mgeu + li_fgeu
+
+        count_eu = len(li_users_at_event)
+
+        li_eu_obj_to_upload = []
+
+        for index, obj_User in enumerate(li_users_at_event):
+            new_EU_object = zE_0000_User(
+                user_objectId = obj_User.objectId,
+                event_userNum = index + 1,
+                username = obj_User.username,
+                first = obj_User.username.split(" ")[0],
+                last = obj_User.username.split(" ")[-1],
+                sex = obj_User.sex
+            )
+            li_eu_obj_to_upload.append(new_EU_object)
+
+
+        # Batch upload in chunks no larger than 50, 
+        # and sleep to avoid timeouts
+        batch_upload_to_Parse("zE_0000_User", li_eu_obj_to_upload)    
+
+        pass
+
+
     def calculate_Ghosts_needed(self):
-    # """
-    # Determine how many ghosts, which lets us know how many stations too.
-    # This code can probably be significantly cleaned up, but right now I'm just
-    # gonna get it written.
+        """
+        Determine how many ghosts, which lets us know how many stations too.
+        This code can probably be significantly cleaned up, but right now I'm just
+        gonna get it written.
 
-    # A single ghost always goes to the min(m,f).
+        A single ghost always goes to the min(m,f).
 
-    # m, f must each be >= 20 and <= 50.
-    # abs(m-f) must be <= 5 (might be low, we'll see).
+        m, f must each be >= 20 and <= 50.
+        abs(m-f) must be <= 5 (might be low, we'll see).
 
-    # """
-    # create aliases for code simplicity
+        """
+
+        # create aliases for code simplicity
         m = _Event.MEN
         f = _Event.WOMEN
 
@@ -178,7 +243,6 @@ class _Event(Object):
 
         return mg, fg, s
 
-###############################################################################
 
     def simulate(self):
         # simulates an entire event (all 3 rounds, plus pregame and postgame)

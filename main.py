@@ -36,10 +36,10 @@ import requests
 from event import _Event
 from _round import _Round, Round_0, Round_1, Round_2, Round_3, Round_4
 from helpers import batch_delete_from_Parse
+from helpers import batch_delete_from_Parse_all_objects_of_class
 from helpers import batch_upload_to_Parse
 from helpers import create_QA_database_in_Firebase
 from helpers import create_SAC_database_in_Firebase
-from helpers import delete_all_z_E0000_R1_objects_from_Parse
 from helpers import fetch_object_from_Parse_of_class
 from helpers import register_with_Parse
 
@@ -48,19 +48,26 @@ from helpers import register_with_Parse
 ###############################################################################
 
 def main():
+    """
+    1. Register with Parse.
+    2. Create an empty class matching each class in Parse.
+    3. Delete existing Event objects from Parse.
+    4. Delete existing Round objects from Parse.
+    5. Delete existing event-user objects (zE_0000_User) from Parse.
+    6. Delete existing interaction objects (zE_0000_R1, etc.) from Parse.
+    """
 
 
-    # Register with Parse.
+
+    # 1. Register with Parse.
     register_with_Parse()
 
 
-    # Connect with Parse classes.
-        # (I tried to put this in a function, but couldn't get it to work)
-
+    # 2. Create an empty class matching each class in Parse.
+    # (I tried to put this in a function, but couldn't get it to work - yet.)
         # event-specific classes
-    class z_E0000_R1(Object): pass
-    class z_E0000_User(Object): pass
-
+    class zE_0000_R1(Object): pass
+    class zE_0000_User(Object): pass
         # general classes
     class Config(Object): pass
     class Employee(Object): pass
@@ -73,12 +80,28 @@ def main():
     class Test_Class(Object): pass    
 
 
-    # Delete existing z_E0000_R1 objects from Parse
-    delete_all_z_E0000_R1_objects_from_Parse()
+    ## Delete existing event-specific objects from Parse 
+    ## to maintain sanity when testing
+    ## (The for: loop should work too, but if I want to save time when testing,
+    ## I can comment out individual lines, so that's how I've kept them)
+    # for cls in ["Event", "Round", "zE_0000_User", "zE_0000_R1", "zE_0000_R2", 
+    # "zE_0000_R3"]:
+    #     batch_delete_from_Parse_all_objects_of_class(cls)
+
+    batch_delete_from_Parse_all_objects_of_class("Event")
+    batch_delete_from_Parse_all_objects_of_class("Round")
+    batch_delete_from_Parse_all_objects_of_class("zE_0000_User")
+    batch_delete_from_Parse_all_objects_of_class("zE_0000_R1")
+    batch_delete_from_Parse_all_objects_of_class("zE_0000_R2")
+    batch_delete_from_Parse_all_objects_of_class("zE_0000_R3")
 
 
     # Simulate event
+
+    # 1. Create _Event object
     e = _Event(0, 50, 50)
+
+    # 2. simulate 
     e.simulate()
 
 

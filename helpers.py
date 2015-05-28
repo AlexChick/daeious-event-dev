@@ -34,55 +34,60 @@ import requests
 """                                FUNCTIONS                                """
 ###############################################################################
 
+
 def fetch_object_from_Parse_of_class(SomeClass):
-    pprint(SomeClass.Query.all())
-    print(SomeClass.Query.all())
-    print(type(SomeClass.Query.all()))
+    pass
+
 
 def register_with_Parse():
     # Call "register(?,?,?)" to allow parse_rest / ParsePy to work. 
     # register(APPLICATION_ID, REST_API_KEY, optional MASTER_KEY)
-
     register(
         "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
         "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", 
         master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
     )
-
     pass
 
 
-def delete_all_z_E0000_R1_objects_from_Parse():
+def batch_delete_from_Parse_all_objects_of_class(classname):
 
-    # Query Parse for all zE0000R1 objects
-    class z_E0000_R1(Object): pass
-    all_objects_to_delete = list(z_E0000_R1.Query.all())
+    while True: # for some reason, batch_delete is only 
+        # Query for all objects of the passed-in class name.
+        myClassName = classname
+        myClass = Object.factory(myClassName)
+        all_objects_to_delete = list(myClass.Query.all())
+        print("About to delete {} objects.".format(len(all_objects_to_delete)))
 
-    # Then, batch delete them.
-    batcher = ParseBatcher()
-    li_length = len(all_objects_to_delete)
+        # Then, batch delete them.
+        batcher = ParseBatcher()
+        li_length = len(all_objects_to_delete)
+        print ("li_length: {}".format(li_length))
 
-    if li_length == 0:
-        return # no objects to delete
+        if li_length == 0:
+            return # no objects to delete, or we're done
 
-    for x in range(li_length/50 + 1):
+        for x in range(li_length/50 + 1):
 
-        lo = 50*x
-        hi = min(50 * (x+1), li_length)
+            lo = 50*x
+            hi = min(50 * (x+1), li_length)
+            batcher.batch_delete(all_objects_to_delete[lo:hi])
 
-        batcher.batch_delete(all_objects_to_delete[lo:hi])
+            sys.stdout.write("\r{} of {} old {}'s deleted ({}{})".format(
+                50 + (50*x), 
+                li_length,
+                classname,
+                int(round((50*(x+1)*100.0)/li_length, 0)), 
+                "%"
+                ))
+            sys.stdout.flush() # must be done for it to work (why?)
+            time.sleep(1.67) # explained above
 
-        sys.stdout.write("\r{} of {} old {}'s deleted ({}{})".format(
-            50 + (50*x), 
-            li_length,
-            "z_E0000_R1",
-            int(round((50*(x+1)*100.0)/li_length, 0)), 
-            "%"
-            ))
-        sys.stdout.flush() # must be done for it to work (why?)
-        time.sleep(1.67) # explained above
+        sys.stdout.write("\n") # move the cursor to the next line after we're done
 
-    sys.stdout.write("\n") # move the cursor to the next line after we're done
+
+
+
 
     pass
 
@@ -99,7 +104,7 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
 
     li_length = len(li_objects)
 
-    for x in range(counter_ixn/50 + 1):
+    for x in range(li_length/50 + 1):
         lo = 50*x
         hi = min(50 * (x+1), li_length)
         batcher.batch_save(li_objects[lo:hi])
@@ -171,7 +176,16 @@ def create_SAC_database_in_Firebase(create_SAC):
             # }
 
 
+def main():
+    register_with_Parse()
+    batch_delete_from_Parse_all_objects_of_class("Event")
+    batch_delete_from_Parse_all_objects_of_class("zE_0000_User")
+    pass
 
+if __name__ == "__main__":
+    status = main()
+    print("\nTesting complete for helpers.py\n")
+    sys.exit(status)
 
 
 
