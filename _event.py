@@ -30,10 +30,21 @@ from firebase import Firebase
 import requests
 
 # Import custom functions and classes I've written specifically for Daeious.
-from _round import _Round, Round_0, Round_1, Round_2, Round_3, Round_4
+from _round import Round_0, Round_1, Round_2, Round_3, Round_4
 from helpers import batch_upload_to_Parse
 from helpers import batch_delete_from_Parse_all_objects_of_class
+from helpers import create_QA_database_in_Firebase
+from helpers import create_SAC_database_in_Firebase
 
+###############################################################################
+"""                                 GLOBALS                                 """
+###############################################################################
+
+
+MEN = 50
+WOMEN = 50
+
+NUM_STATIONS = max(MEN,WOMEN) + 1 if max(MEN,WOMEN)%2==0 else max(MEN,WOMEN)
 
 ###############################################################################
 
@@ -67,6 +78,12 @@ class _Event(Object):
         self.num_f_ghosts = fg
         self.num_stations = s
         self.num_ipads = s*2
+        self.num_r1_ix_pp = s
+        self.num_r2_ix_pp = s/4.0
+
+        self.li_sta_nums = list(x+1 for x in range(s))
+        self.li_m_ipad_nums = list(x+1 for x in range(0, s, 1)) # 0 to (s - 1)
+        self.li_f_ipad_nums = list(x+1 for x in range(s, 2*s, 1)) # s to (2*s - 1)
 
         _Event.STR_EVENT_SERIAL_NUM = "{}{}".format(
             "0"*(4 - len(str(event_num))), event_num)
@@ -75,12 +92,17 @@ class _Event(Object):
         self.create_event_object_in_Parse()
 
         # Create event-user (zE_0000_User) objects in Parse upon initialization.
-        self.create_event_users_in_Parse()
+        self.li_eu = self.create_event_users_in_Parse()
+
+        # Create a skeleton DB in Firebase
+        self.create_QA_and_SAC_databases_in_Firebase()
+
+        pass
 
 
     def create_event_object_in_Parse(self):
         # Create a corresponding Event object in Parse upon initialization.
-        e = Event() # Remember, this is a _Parse_ Event object, so it's ok!
+        e = Event() # Remember, this is a *Parse* Event object, so it's ok!
         e.eventNum = self.event_num
         e.eventPrefix = _Event.STR_EVENT_SERIAL_NUM
         e.location = _Event.EVENT_LOCATION
@@ -103,14 +125,15 @@ class _Event(Object):
         # For now, just grab first ones; later, check by array_eventsRegistered.
 
         """
-        Create zE_0000_User objects by "batch_save"-ing them to Parse using 
+        Create zE0000_User objects by "batch_save"-ing them to Parse using 
         ParsePy's ParseBatcher(). Event User objects are _User objects whose 
         array_eventsRegistered contains the eventNum of this current event.
 
         """
 
-        class zE_0000_User(Object):
-            pass
+        eu_ClassName = "zE" + _Event.STR_EVENT_SERIAL_NUM + "_User"
+        eu_Class = Object.factory(eu_ClassName)
+
 
         # # Get the correct class name from the ep = Event Prefix (passed in).
         # eventUser_ClassName = ep + "_User"
@@ -133,8 +156,9 @@ class _Event(Object):
 
         li_eu_obj_to_upload = []
 
+
         for index, obj_User in enumerate(li_users_at_event):
-            new_EU_object = zE_0000_User(
+            new_EU_object = eu_Class(
                 user_objectId = obj_User.objectId,
                 event_userNum = index + 1,
                 username = obj_User.username,
@@ -147,7 +171,7 @@ class _Event(Object):
 
         # Batch upload in chunks no larger than 50, 
         # and sleep to avoid timeouts
-        batch_upload_to_Parse("zE_0000_User", li_eu_obj_to_upload)    
+        batch_upload_to_Parse(eu_ClassName, li_eu_obj_to_upload)    
 
         pass
 
@@ -170,8 +194,8 @@ class _Event(Object):
         f = _Event.WOMEN
 
         if not ((20 <= m <= 50) and (20 <= f <= 50) and (abs(m-f) <= 5)):
-            raise ValueError("m and f must be between 20 and 50 inclusive, and \
-                they must differ by no more than 5.")
+            raise ValueError("Error: m and f must be between 20 and 50 inclusive, \
+                              and they must differ by no more than 5.")
 
         g = -1
         s = -1
@@ -221,7 +245,7 @@ class _Event(Object):
                 g = 6 #(5 min, 1 max)
                 s = max(m,f) + 1
 
-        # else diff is 5.
+        # ...else diff is 5.
         elif abs(m-f) == 5:
             if max(m,f) %2 == 1: # max is odd
                 g = 5 #(5 min)
@@ -230,7 +254,7 @@ class _Event(Object):
                 g = 7 #(6 min, 1 max)
                 s = max(m,f) + 1
 
-        # now determine sexes of ghosts.
+        # Now determine sexes of ghosts.
         mg = 0
         fg = 0
         if max(m,f) == m:
@@ -243,11 +267,22 @@ class _Event(Object):
 
         return mg, fg, s
 
+    def create_QA_and_SAC_databases_in_Firebase(self):
+        pass
 
     def simulate(self):
         # simulates an entire event (all 3 rounds, plus pregame and postgame)
         r0 = Round_0()
-        r0.prepare()
+        r1 = Round_1()
+        r2 = Round_2()
+        r3 = Round_3()
+        r4 = Round_4()
+
+        for r in [r0, r1, r2, r3, r4]:
+            r.prepare()
+            r.simulate()
+            r.analyze()
+       
         pass
 
 ###############################################################################
@@ -262,7 +297,7 @@ def main():
         master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv"
         )
 
-    this_event = _Event(1, 50, 50)
+    this_event = _Event(0, 50, 50)
     this_event.simulate()
     return "Simulation complete."
 

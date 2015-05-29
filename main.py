@@ -33,7 +33,10 @@ from firebase import Firebase
 import requests
 
 # Import custom functions and classes I've written specifically for Daeious.
-from event import _Event
+# Since this is main, I'm importing everything as a kind of reference to all
+#   the custom classes and helpers functions available, but I don't think
+#   that it's necessary to import all of them here.
+from _event import _Event
 from _round import _Round, Round_0, Round_1, Round_2, Round_3, Round_4
 from helpers import batch_delete_from_Parse
 from helpers import batch_delete_from_Parse_all_objects_of_class
@@ -53,8 +56,8 @@ def main():
     2. Create an empty class matching each class in Parse.
     3. Delete existing Event objects from Parse.
     4. Delete existing Round objects from Parse.
-    5. Delete existing event-user objects (zE_0000_User) from Parse.
-    6. Delete existing interaction objects (zE_0000_R1, etc.) from Parse.
+    5. Delete existing event-user objects (zE0000_User) from Parse.
+    6. Delete existing interaction objects (zE0000_R1, etc.) from Parse.
     """
 
 
@@ -64,10 +67,13 @@ def main():
 
 
     # 2. Create an empty class matching each class in Parse.
+    # (Might not be necessary...but is a good reference list)
     # (I tried to put this in a function, but couldn't get it to work - yet.)
         # event-specific classes
-    class zE_0000_R1(Object): pass
-    class zE_0000_User(Object): pass
+    class zE0000_User(Object): pass
+    class zE0000R1_Ix(Object): pass
+    class zE0000R2_Ix(Object): pass
+    class zE0000R3_Ix(Object): pass
         # general classes
     class Config(Object): pass
     class Employee(Object): pass
@@ -90,20 +96,21 @@ def main():
 
     batch_delete_from_Parse_all_objects_of_class("Event")
     batch_delete_from_Parse_all_objects_of_class("Round")
-    batch_delete_from_Parse_all_objects_of_class("zE_0000_User")
-    batch_delete_from_Parse_all_objects_of_class("zE_0000_R1")
-    batch_delete_from_Parse_all_objects_of_class("zE_0000_R2")
-    batch_delete_from_Parse_all_objects_of_class("zE_0000_R3")
+    batch_delete_from_Parse_all_objects_of_class("zE0000_User")
+    batch_delete_from_Parse_all_objects_of_class("zE0000R1_Ix")
+    batch_delete_from_Parse_all_objects_of_class("zE0000R2_Ix")
+    batch_delete_from_Parse_all_objects_of_class("zE0000R3_Ix")
 
 
     # Simulate event
 
-    # 1. Create _Event object
+    # 1. Create an _Event object.
     e = _Event(0, 50, 50)
 
-    # 2. simulate 
+    # 2. .simulate the entire event.
     e.simulate()
 
+    # 3. Run tests on the results.
 
     pass
 

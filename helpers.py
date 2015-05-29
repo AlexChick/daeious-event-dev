@@ -52,20 +52,20 @@ def register_with_Parse():
 
 def batch_delete_from_Parse_all_objects_of_class(classname):
 
-    while True: # for some reason, batch_delete is only 
+    # for some reason, cls.Query.all() is only returning 100 results,
+    # so just keep querying until there's nothing left.
+    while True: 
         # Query for all objects of the passed-in class name.
         myClassName = classname
         myClass = Object.factory(myClassName)
         all_objects_to_delete = list(myClass.Query.all())
-        print("About to delete {} objects.".format(len(all_objects_to_delete)))
-
+        li_length = len(all_objects_to_delete)
+        if li_length == 0:
+            return # no objects to delete in the first place, or we're done
         # Then, batch delete them.
         batcher = ParseBatcher()
-        li_length = len(all_objects_to_delete)
-        print ("li_length: {}".format(li_length))
-
-        if li_length == 0:
-            return # no objects to delete, or we're done
+        print("\nAbout to delete {} {} objects.".format(
+            len(all_objects_to_delete), classname))
 
         for x in range(li_length/50 + 1):
 
@@ -74,10 +74,10 @@ def batch_delete_from_Parse_all_objects_of_class(classname):
             batcher.batch_delete(all_objects_to_delete[lo:hi])
 
             sys.stdout.write("\r{} of {} old {}'s deleted ({}{})".format(
-                50 + (50*x), 
+                min(50 + (50*x), li_length),
                 li_length,
                 classname,
-                int(round((50*(x+1)*100.0)/li_length, 0)), 
+                min(int(round((50*(x+1)*100.0)/li_length, 0)), 100),
                 "%"
                 ))
             sys.stdout.flush() # must be done for it to work (why?)
@@ -110,10 +110,10 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
         batcher.batch_save(li_objects[lo:hi])
 
         sys.stdout.write("\r{} of {} new {}'s uploaded ({}{})".format(
-            50 + (50*x), 
+            min(50 + (50*x), li_length), 
             li_length,
             Parse_class_name,
-            int(round((50*(x+1)*100.0)/li_length, 0)), 
+            min(int(round((50*(x+1)*100.0)/li_length, 0)), 100),
             "%"
             ))
         sys.stdout.flush() # must be done for it to work (why?)
@@ -176,11 +176,17 @@ def create_SAC_database_in_Firebase(create_SAC):
             # }
 
 
+###############################################################################
+"""                                  MAIN                                   """
+###############################################################################
+
+
 def main():
     register_with_Parse()
     batch_delete_from_Parse_all_objects_of_class("Event")
     batch_delete_from_Parse_all_objects_of_class("zE_0000_User")
     pass
+
 
 if __name__ == "__main__":
     status = main()
