@@ -45,6 +45,7 @@ MEN = 50
 WOMEN = 50
 
 NUM_STATIONS = max(MEN,WOMEN) + 1 if max(MEN,WOMEN)%2==0 else max(MEN,WOMEN)
+print(NUM_STATIONS)
 
 ###############################################################################
 
@@ -82,8 +83,8 @@ class _Event(Object):
         self.num_r2_ix_pp = s/4.0
 
         self.li_sta_nums = list(x+1 for x in range(s))
-        self.li_m_ipad_nums = list(x+1 for x in range(0, s, 1)) # 0 to (s - 1)
-        self.li_f_ipad_nums = list(x+1 for x in range(s, 2*s, 1)) # s to (2*s - 1)
+        self.li_m_ipad_nums = list(x+1 for x in range(0, s, 1)) # 0 to s-1
+        self.li_f_ipad_nums = list(x+1 for x in range(s, 2*s, 1)) # s to 2*s-1
 
         _Event.STR_EVENT_SERIAL_NUM = "{}{}".format(
             "0"*(4 - len(str(event_num))), event_num)
