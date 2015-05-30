@@ -41,9 +41,9 @@ register_with_Parse()
 ################################################################################
 ################################################################################
 ################################################################################
-###																			 ###
+###                                                                          ###
 """                             PARSE CLASSES                                """
-###																			 ###
+###                                                                          ###
 ################################################################################
 ################################################################################
 ################################################################################
@@ -58,21 +58,23 @@ register_with_Parse()
 ################################################################################
 ################################################################################
 ################################################################################
-###																			 ###
+###                                                                          ###
 """                                 GLOBALS                                  """
-###																			 ###
+###                                                                          ###
 ################################################################################
 ################################################################################
 ################################################################################
 
+# programmer-determined globals
 EVENT_NUMBER = 0
 MEN = 50
 WOMEN = 50
 
+# (must be set here so event-specific Parse classes can use it in their names)
 EVENT_SERIAL = "{}{}".format("0"*(4 - len(str(EVENT_NUMBER))), EVENT_NUMBER)
 
 
- # general Parse classes
+# general Parse global classes
 class Config(Object): pass
 class Employee(Object): pass
 class Event(Object): pass
@@ -83,7 +85,7 @@ class Question(Object): pass
 class Round(Object): pass
 class Test_Class(Object): pass 
 
-# event-specific Parse classes
+# event-specific Parse global classes
 str_event_user_class_name = "zE" + EVENT_SERIAL + "_User"
 str_r1_ix_class_name = "zE" + EVENT_SERIAL + "R1_Ix"
 str_r2_ix_class_name = "zE" + EVENT_SERIAL + "R2_Ix"
@@ -93,19 +95,24 @@ cls_R1Ix = Object.factory(str_r1_ix_class_name)
 cls_R2Ix = Object.factory(str_r2_ix_class_name)
 cls_R3Ix = Object.factory(str_r3_ix_class_name)
 
-
+# calculated globals
 MAX_SEX = max(MEN,WOMEN)
 STATIONS = MAX_SEX if MAX_SEX % 2 == 1 else MAX_SEX + 1
 MALE_GHOSTS = STATIONS - MEN
 FEMALE_GHOSTS = STATIONS - WOMEN
 IPADS = 2 * STATIONS
+EVENT_USERS = MEN + WOMEN + MALE_GHOSTS + FEMALE_GHOSTS
 
-LI_EVENT_USERS = list(cls_EventUser.Query.all().order_by("event_userNum"))
+QUERY = cls_EventUser.Query.all()
+count = cls_EventUser.Query.all().count()
+LI_EVENT_USERS = list(
+    cls_EventUser.Query.all().limit(1000).order_by("event_userNum"))
+print(len(QUERY), count, len(LI_EVENT_USERS))
 
-LI_STATION_NUMS = list(x+1 for x in range(STATIONS))
-LI_M_IPAD_NUMS = list(x+1 for x in range(0, STATIONS, 1))
-LI_F_IPAD_NUMS = list(x+1 for x in range(STATIONS, 2*STATIONS, 1))
-LI_QUESTION_NUMS = list(x+1 for x in range(STATIONS))
+LI_STATION_NUMS = range(1, STATIONS + 1)
+LI_M_IPAD_NUMS = range(1, STATIONS + 1)
+LI_F_IPAD_NUMS = range(STATIONS + 1, 2*STATIONS + 1, 1)
+LI_QUESTION_NUMS = range(1, STATIONS + 1)
 
 
 
@@ -114,9 +121,9 @@ LI_QUESTION_NUMS = list(x+1 for x in range(STATIONS))
 ################################################################################
 ################################################################################
 ################################################################################
-###																			 ###
+###                                                                          ###
 """                                 CLASSES                                  """
-###																			 ###
+###                                                                          ###
 ################################################################################
 ################################################################################
 ################################################################################
@@ -250,7 +257,10 @@ class _Event(Object):
         r3 = Round_3()
         r4 = Round_4()
 
+        print("\nRound objects created.")
+
         for r in [r0, r1, r2, r3, r4]:
+            print("\nCurrent Round:", r.round_num)
             r.prepare()
             r.simulate()
             r.analyze()
@@ -259,11 +269,226 @@ class _Event(Object):
 
 
 
-
-
 ################################################################################
 """                                  _ROUND                                  """
 ################################################################################
+
+class _Round(Object):
+
+    CURRENT_ROUND = -1
+
+    print (len(LI_EVENT_USERS))
+
+    LI_EVENT_USERS = []
+
+    print (len(LI_EVENT_USERS))
+
+    def __init__(self):
+
+        # Increment the current round.
+        _Round.CURRENT_ROUND += 1
+
+        # Initialize the round_num variable (Round_3 will set it to 3, for ex.)
+        self.round_num = None
+
+        # Initialize the sec_per_ix variable (differs by round)
+        self.sec_per_ix = None
+
+        # Initialize the round_time variable (equals #stations * sec_per_ix)
+        self.sec_in_round = None
+
+        # Fill the class list of event users.
+        _Round.LI_EVENT_USERS = list(cls_EventUser.Query.all().order_by("euNum"))
+
+        # Refresh the global list of event users
+        LI_EVENT_USERS = _Round.LI_EVENT_USERS
+
+        pass
+
+    def create_round_object_in_Parse(self):
+        # Will be called inside the initiator of Round_0, Round_1, etc.
+        self.r = Round()
+        self.r.roundNum = self.round_num
+        self.r.secPerIx = self.sec_per_ix
+        self.r.secInRound = self.sec_in_round
+        self.r.save()
+        pass
+
+    def create_ix_objects(self):
+        # queries Parse for all event users, 
+        pass
+
+    def prepare(self):
+        self.create_ix_objects()
+        pass
+
+    def simulate(self):
+        pass
+
+    def analyze(self):
+        pass
+
+###############################################################################
+"""                               Round 0                                   """
+###############################################################################
+        
+
+class Round_0(_Round):
+    """
+    --> Pregame stuff. Assume sufficient (>100) Users exist in Parse.
+
+    prepare: 
+        - assign_pregame_sel_and_des_ranks() to all event-users
+        - 
+    simulate:
+        - (Nothing to simulate)
+    analyze:
+        - (Nothing to analyze)
+    ***
+    assign_pregame_sel_and_des_ranks:
+        -
+    """
+
+    def __init__(self):
+        _Round.__init__(self)
+        self.round_num = 0
+        self.create_round_object_in_Parse()
+        pass
+
+    def assign_pregame_sel_and_des_ranks(self):
+        pass
+
+    def prepare(self):
+        pass
+
+    def simulate(self): 
+        # nothing to do here
+        pass
+
+    def analyze(self):
+        pass
+
+    pass
+
+###############################################################################
+"""                               Round 1                                   """
+###############################################################################
+
+class Round_1(_Round):
+    """
+    --> All men and all women have 1 interaction with each other,
+    moving to their right by 1 iPad / station for each new interaction.
+
+    sec_per_ix: 
+    - Given 50m/50w/1mg/1fg,
+        sec_per_ix = 15 --> Round 1 is 51 * 15 = 765s = 12.75min = 12m45s.
+        sec_per_ix = 20 --> Round 1 is 51 * 20 = 1020 = 17.00min = 17m00s.
+    - (Should Round_1 be a constant number of minutes, so that interactions
+        are longer when there are fewer people? Or should the sec_per_ix
+        be a constant for each round? I'll have to play around with that.
+        Right now, I'm leaning towards keeping sec_per_ix constant.)
+
+    prepare: 
+        - 
+    simulate:
+        - 
+    analyze:
+        - 
+    """
+
+    def __init__(self):
+        _Round.__init__(self)
+        self.round_num = 1
+        self.sec_per_ix = 20
+        self.create_round_object_in_Parse()
+        pass
+
+    def prepare(self):
+        # make and upload to Parse all MEN * WOMEN interaction objects
+        pass
+
+    def simulate(self):
+        pass
+
+    def analyze(self):
+        pass
+
+    pass
+
+###############################################################################
+"""                               Round 2                                   """
+###############################################################################
+
+class Round_2(_Round):
+
+    def __init__(self):
+        _Round.__init__(self)
+        self.round_num = 2
+        self.sec_per_ix = 40
+        self.create_round_object_in_Parse()
+        pass
+
+    def prepare(self):
+        pass
+
+    def simulate(self):
+        pass
+
+    def analyze(self):
+        pass
+
+    pass
+
+###############################################################################
+"""                               Round 3                                   """
+###############################################################################
+
+class Round_3(_Round):
+
+    def __init__(self):
+        _Round.__init__(self)
+        self.round_num = 3
+        self.sec_per_ix = 60
+        self.create_round_object_in_Parse()
+        pass
+
+    def prepare(self):
+        pass
+
+    def simulate(self):
+        pass
+
+    def analyze(self):
+        pass
+
+    pass
+
+###############################################################################
+"""                               Round 4                                   """
+###############################################################################
+
+class Round_4(_Round):
+    """
+    Postgame stuff.
+    """
+
+    def __init__(self):
+        _Round.__init__(self)
+        self.round_num = 4
+        self.create_round_object_in_Parse()
+        pass
+
+    def prepare(self):
+        pass
+
+    def simulate(self):
+        pass
+
+    def analyze(self):
+        pass
+
+    pass
+
 
 ################################################################################
 """                               _INTERACTION                               """
@@ -283,9 +508,9 @@ class _Event(Object):
 ################################################################################
 ################################################################################
 ################################################################################
-###															 				 ###
+###                                                                          ###
 """                                  MAIN                                    """
-###															   				 ###
+###                                                                          ###
 ################################################################################
 ################################################################################
 ################################################################################
@@ -336,7 +561,7 @@ def main():
 
 if __name__ == '__main__':
     status = main()
-    print("\n\ndaeious.py has finished running.\n")
+    print("\n---\n\ndaeious.py has finished running.\n")
     sys.exit(status)
 
 

@@ -51,39 +51,54 @@ def register_with_Parse():
 
 
 def batch_delete_from_Parse_all_objects_of_class(classname):
+    # Parse's default limit for query results is 100, and max is 1000,
+    # but each query has to be set that way. I should extend this
+    # function to query more than 1000.
+    #
+    # Fixed; now sleeps for (hi-lo)/30 seconds instead of 50/30 = 1.67 seconds.
+
+    # Query for all objects of the passed-in class name.
+    myClassName = classname
+    myClass = Object.factory(myClassName)
+    # all_objects_to_delete = list(myClass.Query.all())
+    all_objects_to_delete = list(myClass.Query.all().limit(1000))
+    num_to_del = myClass.Query.all().limit(1000).count()
+    num_deleted = 0
+
+    print("\nDeleting {} {} objects.".format(num_to_del, classname))
 
     # for some reason, cls.Query.all() is only returning 100 results,
     # so just keep querying until there's nothing left.
     while True: 
-        # Query for all objects of the passed-in class name.
-        myClassName = classname
-        myClass = Object.factory(myClassName)
-        all_objects_to_delete = list(myClass.Query.all())
-        li_length = len(all_objects_to_delete)
-        if li_length == 0:
-            return # no objects to delete in the first place, or we're done
+
+        # Return if there aren't any existing objects of that class
+        if num_deleted == num_to_del:
+            return
+
         # Then, batch delete them.
         batcher = ParseBatcher()
-        print("\nAbout to delete {} {} objects.".format(
-            len(all_objects_to_delete), classname))
 
-        for x in range(li_length/50 + 1):
+        for x in range((num_to_del-1)/50 + 1):
 
             lo = 50*x
-            hi = min(50 * (x+1), li_length)
+            hi = min(50*(x+1), num_to_del)
+            if lo == hi:
+                return
+            #print("\nx = {}, lo = {}, hi = {}".format(x, lo, hi))
             batcher.batch_delete(all_objects_to_delete[lo:hi])
+            num_deleted += hi - lo
 
             sys.stdout.write("\r{} of {} old {}'s deleted ({}{})".format(
-                min(50 + (50*x), li_length),
-                li_length,
+                min(50 + (50*x), num_to_del),
+                num_to_del,
                 classname,
-                min(int(round((50*(x+1)*100.0)/li_length, 0)), 100),
+                min(int(round((50*(x+1)*100.0)/num_to_del, 0)), 100),
                 "%"
                 ))
             sys.stdout.flush() # must be done for it to work (why?)
-            time.sleep(1.67) # explained above
+            time.sleep((hi-lo)/30.0) # explained above
 
-        sys.stdout.write("\n") # move the cursor to the next line after we're done
+        sys.stdout.write("\n") # move cursor to the next line after we're done
 
 
 
@@ -98,26 +113,28 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
     # Save multiple objects to Parse.
     # Call batcher.batch_save on slices of the list no larger than 50.
         # (Parse will timeout if 1800 requests are made in 60 seconds,
-        # hence the time.sleep(1.67) every 50 objects saved.)
+        # hence the time.sleep((hi-lo)/30.0) every run of objects saved.)
 
     batcher = ParseBatcher()
 
-    li_length = len(li_objects)
+    num_to_up = len(li_objects)
 
-    for x in range(li_length/50 + 1):
+    print("\nUploading {} {} objects.".format(num_to_up, Parse_class_name))
+
+    for x in range(num_to_up/50 + 1):
         lo = 50*x
-        hi = min(50 * (x+1), li_length)
+        hi = min(50 * (x+1), num_to_up)
         batcher.batch_save(li_objects[lo:hi])
 
         sys.stdout.write("\r{} of {} new {}'s uploaded ({}{})".format(
-            min(50 + (50*x), li_length), 
-            li_length,
+            min(50 + (50*x), num_to_up), 
+            num_to_up,
             Parse_class_name,
-            min(int(round((50*(x+1)*100.0)/li_length, 0)), 100),
+            min(int(round((50*(x+1)*100.0)/num_to_up, 0)), 100),
             "%"
             ))
         sys.stdout.flush() # must be done for it to work (why?)
-        time.sleep(1.67) # explained above
+        time.sleep((hi-lo)/30.0) # explained above
 
     sys.stdout.write("\n") # move the cursor to the next line after we're done
 
