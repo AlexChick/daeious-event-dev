@@ -67,11 +67,15 @@ register_with_Parse()
 
 # programmer-determined globals
 EVENT_NUMBER = 0
-MEN = 50
-WOMEN = 50
+MEN = 20
+WOMEN = 20
+CURRENT_ROUND = -1 # (make this equal one less than the round you want to start)
+R1_SEC_PER_IX = 20
+R2_SEC_PER_IX = 40
+R3_SEC_PER_IX = 60
 
 # (must be set here so event-specific Parse classes can use it in their names)
-EVENT_SERIAL = "{}{}".format("0"*(4 - len(str(EVENT_NUMBER))), EVENT_NUMBER)
+EV_SERIAL_NUM = "{}{}".format("0"*(4 - len(str(EVENT_NUMBER))), EVENT_NUMBER)
 
 
 # general Parse global classes
@@ -86,10 +90,10 @@ class Round(Object): pass
 class Test_Class(Object): pass 
 
 # event-specific Parse global classes
-str_event_user_class_name = "zE" + EVENT_SERIAL + "_User"
-str_r1_ix_class_name = "zE" + EVENT_SERIAL + "R1_Ix"
-str_r2_ix_class_name = "zE" + EVENT_SERIAL + "R2_Ix"
-str_r3_ix_class_name = "zE" + EVENT_SERIAL + "R3_Ix"
+str_event_user_class_name = "zE" + EV_SERIAL_NUM + "_User"
+str_r1_ix_class_name = "zE" + EV_SERIAL_NUM + "R1_Ix"
+str_r2_ix_class_name = "zE" + EV_SERIAL_NUM + "R2_Ix"
+str_r3_ix_class_name = "zE" + EV_SERIAL_NUM + "R3_Ix"
 cls_EventUser = Object.factory(str_event_user_class_name)
 cls_R1Ix = Object.factory(str_r1_ix_class_name)
 cls_R2Ix = Object.factory(str_r2_ix_class_name)
@@ -102,20 +106,36 @@ MALE_GHOSTS = STATIONS - MEN
 FEMALE_GHOSTS = STATIONS - WOMEN
 IPADS = 2 * STATIONS
 EVENT_USERS = MEN + WOMEN + MALE_GHOSTS + FEMALE_GHOSTS
+NUM_R1_IX_PP = int(round(STATIONS/1.0, 0))
+NUM_R2_IX_PP = int(round(STATIONS/4.0, 0))
+NUM_R3_IX_PP = int(round(STATIONS/10.0, 0))
+NUM_EV_IX_PP = NUM_R1_IX_PP + NUM_R2_IX_PP + NUM_R3_IX_PP
+SEC_IN_R1 = NUM_R1_IX_PP * R1_SEC_PER_IX
+SEC_IN_R2 = NUM_R2_IX_PP * R2_SEC_PER_IX
+SEC_IN_R3 = NUM_R3_IX_PP * R3_SEC_PER_IX
+SEC_IN_EVENT = SEC_IN_R1 + SEC_IN_R2 + SEC_IN_R3
+
+LI_STATION_NUMS = range(1, STATIONS + 1)
+LI_SUBROUND_NUMS = range(1, STATIONS + 1)
+LI_M_IPAD_NUMS = range(1, STATIONS + 1)
+LI_F_IPAD_NUMS = range(STATIONS + 1, 2*STATIONS + 1, 1)
+LI_Q_NUMS = range(1, STATIONS + 1)
+LI_R1_IX = []
+LI_R2_IX = []
+LI_R3_IX = []
+
+LI_M_EV_USERS = cls_EventUser.Query.all().filter(sex = "M").order_by("euNum")
+LI_F_EV_USERS = cls_EventUser.Query.all().filter(sex = "F").order_by("euNum")
+LI_M_IPAD_OBJS = IPad.Query.all().limit(STATIONS).order_by("iPadNum")
+LI_F_IPAD_OBJS = IPad.Query.all().skip(STATIONS).limit(STATIONS).order_by("iPadNum")
+LI_Q_OBJS = Question.Query.all().limit(1000).order_by("qNum")
+
+
 
 QUERY = cls_EventUser.Query.all()
 count = cls_EventUser.Query.all().count()
 LI_EVENT_USERS = list(
-    cls_EventUser.Query.all().limit(1000).order_by("event_userNum"))
-print(len(QUERY), count, len(LI_EVENT_USERS))
-
-LI_STATION_NUMS = range(1, STATIONS + 1)
-LI_M_IPAD_NUMS = range(1, STATIONS + 1)
-LI_F_IPAD_NUMS = range(STATIONS + 1, 2*STATIONS + 1, 1)
-LI_QUESTION_NUMS = range(1, STATIONS + 1)
-
-
-
+    cls_EventUser.Query.all().limit(1000).order_by("euNum"))
 
 
 ################################################################################
@@ -145,7 +165,7 @@ class _Event(Object):
     def __init__(self):
                 
         # self.event_num = EVENT_NUMBER
-        # self.event_serial = EVENT_SERIAL
+        # self.event_serial = EV_SERIAL_NUM
         # self.event_date = _Event.EVENT_DATE
         # self.event_time = _Event.EVENT_TIME
         # self.event_location = _Event.EVENT_LOCATION
@@ -162,7 +182,7 @@ class _Event(Object):
         # Create a corresponding Event object in Parse upon initialization.
         self.create_event_object_in_Parse()
 
-        # Create event-user (zE_0000_User) objects in Parse upon initialization.
+        # Create event-user (zE0000_User) objects in Parse upon initialization.
         self.li_eu = self.create_event_users_in_Parse()
 
         # Create a skeleton DB in Firebase
@@ -175,7 +195,7 @@ class _Event(Object):
         # Create a corresponding Event object in Parse upon initialization.
         e = Event() # Remember, this is a *Parse* Event object, so it's ok!
         e.eventNum = EVENT_NUMBER
-        e.eventPrefix = EVENT_SERIAL
+        e.eventPrefix = EV_SERIAL_NUM
         e.location = _Event.EVENT_LOCATION
         e.start = [_Event.EVENT_DATE, _Event.EVENT_TIME]
         e.startDate = _Event.EVENT_DATE
@@ -187,9 +207,6 @@ class _Event(Object):
         e.numFemaleGhosts = FEMALE_GHOSTS
         e.numStations = STATIONS
         e.numIPads = 2*STATIONS
-        e.num_r1_ix_pp = STATIONS/1.0
-        e.num_r2_ix_pp = STATIONS/4.0
-        e.num_r3_ix_pp = STATIONS/12.0
         e.save()
         pass
 
@@ -205,7 +222,7 @@ class _Event(Object):
 
         """
 
-        eu_ClassName = "zE" + EVENT_SERIAL + "_User"
+        eu_ClassName = "zE" + EV_SERIAL_NUM + "_User"
         eu_Class = Object.factory(eu_ClassName)
 
 
@@ -229,8 +246,8 @@ class _Event(Object):
 
         for index, obj_User in enumerate(li_users_at_event):
             new_EU_object = eu_Class(
-                user_objectId = obj_User.objectId,
-                event_userNum = index + 1,
+                userObjectId = obj_User.objectId,
+                euNum = index + 1,
                 username = obj_User.username,
                 first = obj_User.username.split(" ")[0],
                 last = obj_User.username.split(" ")[-1],
@@ -287,21 +304,26 @@ class _Round(Object):
 
         # Increment the current round.
         _Round.CURRENT_ROUND += 1
+        #CURRENT_ROUND += 1
 
-        # Initialize the round_num variable (Round_3 will set it to 3, for ex.)
-        self.round_num = None
+        # # Initialize the round_num variable (Round_3 will set it to 3, for ex.)
+        # self.round_num = None
 
-        # Initialize the sec_per_ix variable (differs by round)
-        self.sec_per_ix = None
+        # # Initialize the sec_per_ix variable (differs by round)
+        # self.sec_per_ix = None
 
-        # Initialize the round_time variable (equals #stations * sec_per_ix)
-        self.sec_in_round = None
+        # # Initialize the round_time variable (equals #stations * sec_per_ix)
+        # self.sec_in_round = None
 
         # Fill the class list of event users.
-        _Round.LI_EVENT_USERS = list(cls_EventUser.Query.all().order_by("euNum"))
+        _Round.LI_EVENT_USERS = list(
+            cls_EventUser.Query.all().limit(1000).order_by("euNum"))
 
         # Refresh the global list of event users
         LI_EVENT_USERS = _Round.LI_EVENT_USERS
+
+        if _Round.CURRENT_ROUND in [1, 2, 3]:
+            self.create_ix_objects_in_Parse()
 
         pass
 
@@ -309,13 +331,110 @@ class _Round(Object):
         # Will be called inside the initiator of Round_0, Round_1, etc.
         self.r = Round()
         self.r.roundNum = self.round_num
-        self.r.secPerIx = self.sec_per_ix
-        self.r.secInRound = self.sec_in_round
+        if _Round.CURRENT_ROUND in [1,2,3]:
+            self.r.secPerIx = self.sec_per_ix
+            self.r.secInRound = self.sec_in_round
         self.r.save()
         pass
 
-    def create_ix_objects(self):
-        # queries Parse for all event users, 
+    def create_ix_objects_in_Parse(self):
+        # Queries Parse for all event users, and, depending on which round
+        # it is, creates a different number of Interaction objects in Parse
+
+        if _Round.CURRENT_ROUND == 1:
+            cls = cls_R1Ix
+            str_cls = str_r1_ix_class_name
+            ix_pp = NUM_R1_IX_PP
+        elif _Round.CURRENT_ROUND == 2:
+            cls = cls_R2Ix
+            str_cls = str_r2_ix_class_name
+            ix_pp = NUM_R2_IX_PP
+        elif _Round.CURRENT_ROUND == 3:
+            cls = cls_R3Ix
+            str_cls = str_r3_ix_class_name
+            ix_pp = NUM_R3_IX_PP
+
+        ix_in_round = ix_pp * STATIONS
+
+        li_ix_to_up = []
+
+        # create ix_in_round ix objects in Parse, keep a global list here too.
+        # iterate first through subrounds, then through male event users
+        # ...using a list comprehension!
+        # Source: https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch01s15.html
+        for sr, (index, meu) in [(sr, (index, meu)) for sr in LI_SUBROUND_NUMS for index, meu in enumerate(LI_M_EV_USERS)]:
+            ix = cls()
+            ix.ixNum = ((sr - 1) * STATIONS) + (index+1) # Ex: ((1 - 1) * 51 + 9) = 9
+            ix.subNum = sr
+            ix.staNum = index + 1
+            ix.mEventUserNum = None
+            ix.fEventUserNum = None
+            ix.qNum = None
+            ix.mUsername = None
+            ix.fUsername = None
+            ix.mNextStaNum = None
+            ix.fNextStaNum = None
+            ix.mIpadNum = None
+            ix.fIpadNum = None
+            ix.mUserNum = None
+            ix.fUserNum = None
+            ix.mUserObjectId = None
+            ix.fUserObjectId = None
+            ix.mEventUserObjectId = None
+            ix.fEventUserObjectId = None
+            li_ix_to_up.append(ix)
+
+        """     
+        ### Rotate the lists between subrounds (in "for j in range(s)" loop).
+        ###   (li_staNum will be iterated through correctly without alteration,
+        ###   as will the lists of ipadNums.)
+
+        # the m list will have its last item put in the front
+        li_males = [li_males[-1]] + li_males[:-1]
+
+        [m1, m2, m3, ..., m49, m50, m51]
+        [m51, m1, m2, ..., m48, m49, m50]
+
+        # the f list will have its first item put in the back
+        li_females = li_females[1:] + [li_females[0]]
+
+        [f1, f2, f3, ..., f49, f50, f51]
+        [f2, f3, f4, ..., f50, f51, f1]
+
+        # the qNums list happens to move the first two to the back
+        li_qNums = li_qNums[2:] + li_qNums[:2]  
+
+        [q1, q2, q3, ..., q49, q50, q51]
+        [q3, q4, q5, ..., q51, q1, q2]
+
+        """
+
+
+        for ixNum in range(1, ix_in_round + 1):
+            ix = cls()
+            ix.ixNum = ixNum
+            li_ix_to_up.append(ix)
+
+        # batch upload in chunks to avoid timout in Sublime builds(?)
+        if ix_in_round < 1000:
+            batch_upload_to_Parse(str_cls, li_ix_to_up)
+        else: 
+            if ix_in_round < 2000:
+                batch_upload_to_Parse(str_cls, li_ix_to_up[:1000])
+                batch_upload_to_Parse(str_cls, li_ix_to_up[1000:])
+            else:
+                batch_upload_to_Parse(str_cls, li_ix_to_up[:1000])
+                batch_upload_to_Parse(str_cls, li_ix_to_up[1000:2000])
+                batch_upload_to_Parse(str_cls, li_ix_to_up[2000:])
+
+        # fill global list of this round's interaction objects
+        # 24 is my favorite number! And is completely random/immaterial here.
+        for index, li in enumerate([24, LI_R1_IX, LI_R2_IX, LI_R3_IX]):
+            if _Round.CURRENT_ROUND == index:
+                li = li_ix_to_up
+
+        print(len(LI_R1_IX), len(LI_R2_IX), len(LI_R3_IX))
+
         pass
 
     def prepare(self):
@@ -359,6 +478,8 @@ class Round_0(_Round):
         pass
 
     def prepare(self):
+        self.assign_pregame_sel_and_des_ranks()
+
         pass
 
     def simulate(self): 
@@ -399,7 +520,8 @@ class Round_1(_Round):
     def __init__(self):
         _Round.__init__(self)
         self.round_num = 1
-        self.sec_per_ix = 20
+        self.sec_per_ix = R1_SEC_PER_IX
+        self.sec_in_round = SEC_IN_R1
         self.create_round_object_in_Parse()
         pass
 
@@ -424,7 +546,8 @@ class Round_2(_Round):
     def __init__(self):
         _Round.__init__(self)
         self.round_num = 2
-        self.sec_per_ix = 40
+        self.sec_per_ix = R2_SEC_PER_IX
+        self.sec_in_round = SEC_IN_R2
         self.create_round_object_in_Parse()
         pass
 
@@ -448,7 +571,8 @@ class Round_3(_Round):
     def __init__(self):
         _Round.__init__(self)
         self.round_num = 3
-        self.sec_per_ix = 60
+        self.sec_per_ix = R3_SEC_PER_IX
+        self.sec_in_round = SEC_IN_R3
         self.create_round_object_in_Parse()
         pass
 
@@ -493,6 +617,26 @@ class Round_4(_Round):
 ################################################################################
 """                               _INTERACTION                               """
 ################################################################################
+
+class _Interaction(Object):
+
+    IX_COUNTER = 0
+
+    def __init__(self, round_num):
+        _Interaction.IX_COUNTER += 1
+        self.create_Ix_Object()
+
+    def create_Ix_Object_in_Parse(self):
+        Cls_EU = Object.factory("zE" + EV_SERIAL_NUM + "R" + str(CURRENT_ROUND))
+        self.ix = Cls_EU()
+        self.ix.save()
+
+
+    def simulate(self):
+        mSeeF = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
+        pass
+
+    pass
 
 ################################################################################
 """                                  _USER                                   """

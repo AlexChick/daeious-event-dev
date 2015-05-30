@@ -65,8 +65,8 @@ def setup_ipads(i, purchaseDate = time.strftime("%Y.%m.%d")):
     for index, serial_number in enumerate(list_iPadSerialNumbers):
         
         new_IPad_object = IPad(
-            iPadNum = index + 1,
-            iPadSerialNumber = serial_number,
+            ipNum = index + 1,
+            ipSerialNum = serial_number,
             purchaseDate = purchaseDate
             )
         list_IPad_objects_to_upload.append(new_IPad_object)
@@ -191,6 +191,11 @@ def get_s_ipad_serial_numbers(s):
 ###############################################################################
 
 def main():
+
+    register(
+        "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
+        "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", 
+        master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")
 
     setup_ipads(200)
     #pprint(get_s_ipad_serial_numbers(s))

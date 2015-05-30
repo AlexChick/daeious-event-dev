@@ -63,9 +63,9 @@ def setup_questions(q):
     for index, question_str in enumerate(list_q_question_strings):
 
         new_Question_object = Question(
-            questionNum = index + 1,
-            questionText = question_str,
-            answersArray = list_q_answer_lists[index]
+            qNum = index + 1,
+            qText = question_str,
+            liAnswers = list_q_answer_lists[index]
             )
 
         list_Question_objects_to_upload.append(new_Question_object)
@@ -373,7 +373,12 @@ def get_q_answer_lists(a):
 
 def main():
 
-    setup_ipads(200)
+    register(
+        "AKJFNWcTcG6MUeMt1DAsMxjwU62IJPJ8agbwJZDJ", 
+        "i8o0t6wg9GOTly0yaApY2c1zZNMvOqNhoWNuzHUS", 
+        master_key = "LbaxSV6u64DRUKxdtQphpYQ7kiaopBaRMY1PgCsv")    
+
+    setup_questions(100)
     #pprint(get_s_ipad_serial_numbers(s))
 
 ###############################################################################
