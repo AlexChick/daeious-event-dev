@@ -226,7 +226,6 @@ class _Event(Object):
         self.li_all_feu = self.li_feup + self.li_feug
         self.li_all_eu = self.li_all_meu + self.li_all_feu
         self.li_all_eu.sort(key = lambda x: x.euNum)
-        print(len(self.li_all_eu))
 
         ipq = IPad.Query.all().limit(self.num_ipads).order_by("iPadNum")
         m_ipq = ipq.limit(self.num_stations).order_by("iPadNum")
@@ -385,7 +384,7 @@ class _Round(Object):
             self.num_ix_pp = e.num_r2_ix_pp
             self.sec_per_ix = e.sec_per_r2_ix
         elif self.curr_rd == 3:
-            str_r3_ix_class_name = "zE" + e.event_serial + "R1_3x"
+            str_r3_ix_class_name = "zE" + e.event_serial + "R3_Ix"
             cls_R3Ix = Object.factory(str_r3_ix_class_name)
             self.cls = cls_R3Ix
             self.str_cls = str_r3_ix_class_name
@@ -453,8 +452,6 @@ class _Round(Object):
             ix.mEventUserObjectId = None
             ix.fEventUserObjectId = None
             li_ix_to_up.append(ix)
-
-        print(len(li_ix_to_up))
 
         """     
         ### Rotate the lists between subrounds (in "for j in range(s)" loop).

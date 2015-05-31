@@ -137,7 +137,7 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
         sys.stdout.flush() # must be done for it to work (why?)
         time.sleep((hi-lo)/30.0) # explained above
 
-        sys.stdout.write("\n") # move the cursor to the next line after we're done
+    sys.stdout.write("\n") # move the cursor to the next line after we're done
 
     pass
 
