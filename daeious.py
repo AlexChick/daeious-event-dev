@@ -195,7 +195,7 @@ class _Event(Object):
 
         self.num_r1_ix_pp = int(round(self.num_stations/1.0, 0))
         self.num_r2_ix_pp = int(round(self.num_stations/4.0, 0))
-        self.num_r3_ix_pp = int(round(self.num_stations/12.0, 0))
+        self.num_r3_ix_pp = int(round(self.num_stations/10.0, 0))
         self.num_event_ix_pp = sum(
             [self.num_r1_ix_pp, self.num_r2_ix_pp, self.num_r3_ix_pp]
             )
@@ -586,8 +586,20 @@ class _Round(Object):
 
             ####  END FOR: LOOPS  ####
 
-        # batch_upload in chunks to avoid timout.
-        batch_upload_to_Parse(self.str_cls, li_ix_to_up)
+        # batch_upload in chunks of 1000 or less to stay under limit of 1000.
+
+        #batch_upload_to_Parse(self.str_cls, li_ix_to_up)
+
+        if self.num_ix_in_round < 1000:
+            batch_upload_to_Parse(self.str_cls, li_ix_to_up)
+        else: 
+            if self.num_ix_in_round < 2000:
+                batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
+                batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:])
+            else:
+                batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
+                batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:2000])
+                batch_upload_to_Parse(self.str_cls, li_ix_to_up[2000:])
 
         # # # fill global list of this round's interaction objects
         # # 24 is my favorite number! And is completely random/immaterial here.
@@ -895,8 +907,8 @@ def main():
     """  5. Create an _Event object.  """
     e = _Event(
         EVENT_NUMBER = 0,
-        MEN = 50,
-        WOMEN = 50,
+        MEN = 12,
+        WOMEN = 12,
         START_AT_ROUND = 0,
         SEC_PER_R1_IX = 20,
         SEC_PER_R2_IX = 40,
