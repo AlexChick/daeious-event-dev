@@ -24,7 +24,7 @@ ACCESS_KEYS = {}
 
 
 # Connection can sometimes hang forever on SSL handshake
-CONNECTION_TIMEOUT = 60
+CONNECTION_TIMEOUT = 100
 
 
 def register(app_id, rest_key, **kw):

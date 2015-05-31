@@ -234,7 +234,7 @@ class _Event(Object):
         self.li_m_ipad_objs = list(m_ipq)
         self.li_f_ipad_objs = list(f_ipq)
 
-        self.li_q_objs = Question.Query.all().limit(1000).order_by("qNum")
+        self.li_q_objs = list(Question.Query.all().limit(self.num_stations).order_by("qNum"))
 
         self.start_at_round = START_AT_ROUND
         self.curr_rd = START_AT_ROUND
@@ -318,6 +318,7 @@ class _Event(Object):
             new_EU_object = eu_Class(
                 userObjectId = User_object.objectId,
                 euNum = index + 1,
+                userNum = User_object.userNum,
                 username = User_object.username,
                 first = User_object.username.split(" ")[0],
                 last = User_object.username.split(" ")[-1],
@@ -425,72 +426,94 @@ class _Round(Object):
         # Queries Parse for all event users, and, depending on which round
         # it is, creates a different number of Interaction objects in Parse
 
+        # Initialize list that will hold created but not yet uploaded ix objs.
         li_ix_to_up = []
 
+        # Make copies of lists.
+        li_meu = self.e.li_all_meu # all guy objects (including ghosts)
+        li_feu = self.e.li_all_feu # all girl objects (including ghosts)
+        li_sta = self.e.li_sta_nums # all station nums
+        li_mip = self.e.li_m_ipad_objs # all male ipad objects
+        li_fip = self.e.li_f_ipad_objs # all female ipad objects
+        li_q = self.e.li_q_objs # all question objects
+
         # create num_ix_in_round ix objects in Parse, keep a global list here too.
-        # iterate first through subrounds, then through male event users
-        # ...using a list comprehension!
-        # Source: https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch01s15.html
-        for sr, (index, meu) in [(sr, (index, meu)) for sr in range(1, self.num_ix_pp + 1) for index, meu in enumerate(self.e.li_all_meu)]:
-            ix = self.cls()
-            ix.ixNum = ((sr - 1) * self.e.num_stations) + (index+1) # Ex: ((1 - 1) * 51 + 9) = 9
-            ix.subNum = sr
-            ix.staNum = index + 1
-            ix.mEventUserNum = None
-            ix.fEventUserNum = None
-            ix.qNum = None
-            ix.mUsername = None
-            ix.fUsername = None
-            ix.mNextStaNum = None
-            ix.fNextStaNum = None
-            ix.mIpadNum = None
-            ix.fIpadNum = None
-            ix.mUserNum = None
-            ix.fUserNum = None
-            ix.mUserObjectId = None
-            ix.fUserObjectId = None
-            ix.mEventUserObjectId = None
-            ix.fEventUserObjectId = None
-            li_ix_to_up.append(ix)
+        # iterate first through subrounds, then through station numbers (same)
+        for subr in range(1, self.num_ix_pp + 1):
 
-        """     
-        ### Rotate the lists between subrounds (in "for j in range(s)" loop).
-        ###   (li_staNum will be iterated through correctly without alteration,
-        ###   as will the lists of ipadNums.)
+            for staNum in range(1, self.num_ix_pp + 1):
 
-        # the m list will have its last item put in the front
-        li_males = [li_males[-1]] + li_males[:-1]
+                i = staNum - 1 # i is the index
 
-        [m1, m2, m3, ..., m49, m50, m51]
-        [m51, m1, m2, ..., m48, m49, m50]
+                guy = li_meu[i]
+                girl = li_feu[i]
+                station = li_sta[i]
+                mipad = li_mip[i]
+                fipad = li_fip[i]
+                question = li_q[i]
+                
+                ix = self.cls()
+                
+                ix.ixNum = ((subr - 1)*self.e.num_stations) + (i + 1) # Ex: ((1 - 1) * 51 + 9) = 9
+                ix.subNum = subr
+                ix.staNum = i + 1
+                ix.mEventUserNum = guy.euNum
+                ix.fEventUserNum = girl.euNum
+                ix.qNum = question.qNum
+                ix.mUsername = guy.username
+                ix.fUsername = girl.username
+                ix.mNextStaNum = None
+                ix.fNextStaNum = None
+                ix.mIpadNum = mipad.ipNum
+                ix.fIpadNum = fipad.ipNum
+                ix.mUserNum = guy.userNum
+                ix.fUserNum = girl.userNum
+                ix.mUserObjectId = guy.userObjectId
+                ix.fUserObjectId = girl.userObjectId
+                ix.mEventUserObjectId = guy.objectId
+                ix.fEventUserObjectId = girl.objectId
 
-        # the f list will have its first item put in the back
-        li_females = li_females[1:] + [li_females[0]]
+                li_ix_to_up.append(ix)
 
-        [f1, f2, f3, ..., f49, f50, f51]
-        [f2, f3, f4, ..., f50, f51, f1]
+            """     
+            Rotate the lists between subrounds.
 
-        # the qNums list happens to move the first two to the back
-        li_qNums = li_qNums[2:] + li_qNums[:2]  
+            - The meu list will have its last item put in the front.
+                [m1, m2, m3, ..., m49, m50, m51]
+                [m51, m1, m2, ..., m48, m49, m50]
 
-        [q1, q2, q3, ..., q49, q50, q51]
-        [q3, q4, q5, ..., q51, q1, q2]
+            - The feu list will have its first item put in the back.
+                [f1, f2, f3, ..., f49, f50, f51]
+                [f2, f3, f4, ..., f50, f51, f1]
 
-        """
+            - The q list happens to move the first two to the back.
+                [q1, q2, q3, ..., q49, q50, q51]
+                [q3, q4, q5, ..., q51, q1, q2]
+            
+            - li_sta, li_mip, li_fip will be iterated through correctly 
+                without alteration.
 
-        # batch upload in chunks to avoid timout in Sublime builds(?)
-        if self.num_ix_in_round < 1000:
-            batch_upload_to_Parse(self.str_cls, li_ix_to_up)
-        else: 
-            if self.num_ix_in_round < 2000:
-                batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
-                batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:])
-            else:
-                batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
-                batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:2000])
-                batch_upload_to_Parse(self.str_cls, li_ix_to_up[2000:])
+            """
+            li_meu = [li_meu[-1]] + li_meu[:-1]
+            li_feu = li_feu[1:] + [li_feu[0]]
+            li_q = li_q[2:] + li_q[:2]
 
-        # # fill global list of this round's interaction objects
+            ####  END FOR: LOOPS  ####
+
+        # batch_upload in chunks to avoid timout.
+        batch_upload_to_Parse(self.str_cls, li_ix_to_up)
+        # if self.num_ix_in_round < 1000:
+        #     batch_upload_to_Parse(self.str_cls, li_ix_to_up)
+        # else: 
+        #     if self.num_ix_in_round < 2000:
+        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
+        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:])
+        #     else:
+        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
+        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:2000])
+        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[2000:])
+
+        # # # fill global list of this round's interaction objects
         # # 24 is my favorite number! And is completely random/immaterial here.
         # for index, li in enumerate([24, LI_R1_IX, LI_R2_IX, LI_R3_IX]):
         #     if self.curr_rd == index:
@@ -815,8 +838,10 @@ def main():
 
 
 if __name__ == '__main__':
+    start = time.time()
     status = main()
-    print("\n---\n\ndaeious.py has finished running.\n")
+    print("\n---\n\ndaeious.py has finished running in {} seconds.\n".format(
+        round(time.time() - start, 2)))
     sys.exit(status)
 
 

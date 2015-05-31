@@ -20,35 +20,88 @@
 # 		EVENT_NUMBER += 1
 # 		print EVENT_NUMBER, 7
 
-class Event():
+# class Event():
 
-	global MEN
-	global WOMEN
-	global START_AT_ROUND
-	MEN = 7
-	WOMEN = 9
-	START_AT_ROUND = 0
+# 	global MEN
+# 	global WOMEN
+# 	global START_AT_ROUND
+# 	MEN = 7
+# 	WOMEN = 9
+# 	START_AT_ROUND = 0
 
-	def __init__(self, men = 20, women = 25):
+# 	def __init__(self, men = 20, women = 25):
 
-		#print MEN, WOMEN, 1
-		print men, women, 4
-		#MEN += 1
-		#print MEN, WOMEN, 2
-		self.men = men
-		self.women = women
-		self.something = MEN
+# 		#print MEN, WOMEN, 1
+# 		print men, women, 4
+# 		#MEN += 1
+# 		#print MEN, WOMEN, 2
+# 		self.men = men
+# 		self.women = women
+# 		self.something = MEN
 		
-		#self.MEN = MEN + 2
-		#self.WOMEN = WOMEN + 2
-		#print self.MEN, self.WOMEN, 3
+# 		#self.MEN = MEN + 2
+# 		#self.WOMEN = WOMEN + 2
+# 		#print self.MEN, self.WOMEN, 3
 
-		START_AT_ROUND = 5
+# 		START_AT_ROUND = 5
 
-	def do_something(self):
-		print MEN, WOMEN, 19
+# 	def do_something(self):
+# 		print MEN, WOMEN, 19
 
 
 
-e = Event()
-print e.men, e.something, START_AT_ROUND
+# e = Event()
+# print e.men, e.something, START_AT_ROUND
+
+
+from itertools import cycle
+from time import sleep
+import sys
+
+myList = range(1, 5 + 1) # [1, 2, 3, ..., 19, 20, 21]
+
+myCycle = cycle(myList)
+
+for n in myList:
+	for item in myCycle:
+		sys.stdout.write("{}{}".format(" "*(item-1), item))
+		sys.stdout.flush()
+		sleep(1)
+	myCycle = cycle([myList[-1]] + myList[:-1])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

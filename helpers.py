@@ -66,7 +66,7 @@ def batch_delete_from_Parse_all_objects_of_class(str_cls_name):
     num_to_del = cls.Query.all().limit(1000).count()
     num_deleted = 0
 
-    print("\nDeleting {} {} objects.".format(num_to_del, str_cls_name))
+    print("\n(deleting {} {} objects)".format(num_to_del, str_cls_name))
 
     # for some reason, cls.Query.all() is only returning 100 results,
     # so just keep querying until there's nothing left.
@@ -118,7 +118,7 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
 
     num_to_up = len(li_objects)
 
-    print("\nUploading {} {} objects.".format(num_to_up, Parse_class_name))
+    print("\n(uploading {} {} objects)".format(num_to_up, Parse_class_name))
 
     for x in range((num_to_up-1)/50 + 1):
         batcher = ParseBatcher()
