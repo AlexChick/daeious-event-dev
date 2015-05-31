@@ -263,13 +263,19 @@ class _Event(Object):
         self.li_m_ipad_objs = list(m_ipq)
         self.li_f_ipad_objs = list(f_ipq)
 
-        self.li_q_objs = list(batch_query(
-            Source = "Parse",
-            Cls = Question,
-            Filter = ["qNum", "<=", self.num_event_ix_pp],
-            Limit = self.num_event_ix_pp,
-            OrderBy = "qNum"
-            ))
+        # self.li_q_objs = list(batch_query(
+        #     Source = "Parse",
+        #     Cls = Question,
+        #     Filter = ["qNum", "<=", self.num_event_ix_pp],
+        #     Limit = self.num_event_ix_pp,
+        #     OrderBy = "qNum"
+        #     ))
+        self.li_q_objs = list(
+            Question.Query.all()
+                          .order_by("qNum")
+                          .filter(qNum__lte = self.num_event_ix_pp)
+            )
+        # self.li_q_objs = list(qq)
         #self.li_q_objs = list(Question.Query.all().limit(self.num_stations).order_by("qNum"))
 
 
@@ -339,61 +345,60 @@ class _Event(Object):
         eu_ClassName = "zE" + self.event_serial + "_User"
         eu_Class = Object.factory(eu_ClassName)
 
-        # add some Users to e, which is this event
-        qset_all_users = batch_query(
-            Source = "Parse", 
-            Cls = User, 
-            Limit = self.num_all_eu,
-            OrderBy = "userNum"
-            )
+        # # add some Users to e, which is this event
+        # qset_all_users = batch_query(
+        #     Source = "Parse", 
+        #     Cls = User, 
+        #     Limit = self.num_all_eu,
+        #     OrderBy = "userNum"
+        #     )
 
-        qset_meup = batch_query(
-            Source = "Parse",
-            Cls = User,
-            Filter = ["sex", "=", "M"],
-            Limit = self.num_m_eu_p,
-            OrderBy = "userNum"
-            )
+        # qset_meup = batch_query(
+        #     Source = "Parse",
+        #     Cls = User,
+        #     Filter = ["sex", "=", "M"],
+        #     Limit = self.num_m_eu_p,
+        #     OrderBy = "userNum"
+        #     )
 
-        qset_feup = batch_query(
-            Source = "Parse",
-            Cls = User,
-            Filter = ["sex", "=", "F"],
-            Limit = self.num_f_eu_p,
-            OrderBy = "userNum"
-            )
+        # qset_feup = batch_query(
+        #     Source = "Parse",
+        #     Cls = User,
+        #     Filter = ["sex", "=", "F"],
+        #     Limit = self.num_f_eu_p,
+        #     OrderBy = "userNum"
+        #     )
 
-        qset_meug = batch_query(
-            Source = "Parse",
-            Cls = User,
-            Filter = ["sex", "=", "MG"],
-            Limit = self.num_m_eu_g,
-            OrderBy = "userNum"
-            )
+        # qset_meug = batch_query(
+        #     Source = "Parse",
+        #     Cls = User,
+        #     Filter = ["sex", "=", "MG"],
+        #     Limit = self.num_m_eu_g,
+        #     OrderBy = "userNum"
+        #     )
 
-        qset_feug = batch_query(
-            Source = "Parse",
-            Cls = User,
-            Filter = ["sex", "=", "FG"],
-            Limit = self.num_f_eu_g,
-            OrderBy = "userNum"
-            )
+        # qset_feug = batch_query(
+        #     Source = "Parse",
+        #     Cls = User,
+        #     Filter = ["sex", "=", "FG"],
+        #     Limit = self.num_f_eu_g,
+        #     OrderBy = "userNum"
+        #     )
 
-        li_meup = list(qset_meup)
-        li_feup = list(qset_feup)
-        li_meug = list(qset_meug)
-        li_feug = list(qset_feug)
+        # li_meup = list(qset_meup)
+        # li_feup = list(qset_feup)
+        # li_meug = list(qset_meug)
+        # li_feug = list(qset_feug)
 
-        #qset_all_users = User.Query.all().order_by("userNum")
-        # li_meup = list(qset_all_users.filter(sex = "M").limit(self.num_m_eu_p))
-        # li_feup = list(qset_all_users.filter(sex = "F").limit(self.num_f_eu_p))
-        # li_meug = list(qset_all_users.filter(sex = "MG").limit(self.num_m_eu_g))
-        # li_feug = list(qset_all_users.filter(sex = "FG").limit(self.num_f_eu_g))
+        qset_all_users = User.Query.all().order_by("userNum")
+        li_meup = list(qset_all_users.filter(sex = "M").limit(self.num_m_eu_p))
+        li_feup = list(qset_all_users.filter(sex = "F").limit(self.num_f_eu_p))
+        li_meug = list(qset_all_users.filter(sex = "MG").limit(self.num_m_eu_g))
+        li_feug = list(qset_all_users.filter(sex = "FG").limit(self.num_f_eu_g))
 
         li_users_at_event = li_meup + li_feup + li_meug + li_feug
 
         li_eu_obj_to_upload = []
-
 
         for index, User_object in enumerate(li_users_at_event):
             new_EU_object = eu_Class(
@@ -537,14 +542,14 @@ class _Round(Object):
                 
                 ix.ixNum = ((subr - 1)*self.e.num_stations) + (i + 1) # Ex: ((1 - 1) * 51 + 9) = 9
                 ix.subNum = subr
-                ix.staNum = i + 1
+                ix.staNum = staNum
                 ix.mEventUserNum = guy.euNum
                 ix.fEventUserNum = girl.euNum
                 ix.qNum = question.qNum
                 ix.mUsername = guy.username
                 ix.fUsername = girl.username
-                ix.mNextStaNum = None
-                ix.fNextStaNum = None
+                ix.mNextStaNum = 1 if staNum==self.e.num_stations else staNum+1
+                ix.fNextStaNum = self.e.num_stations if staNum==1 else staNum-1
                 ix.mIpadNum = mipad.ipNum
                 ix.fIpadNum = fipad.ipNum
                 ix.mUserNum = guy.userNum
@@ -583,16 +588,6 @@ class _Round(Object):
 
         # batch_upload in chunks to avoid timout.
         batch_upload_to_Parse(self.str_cls, li_ix_to_up)
-        # if self.num_ix_in_round < 1000:
-        #     batch_upload_to_Parse(self.str_cls, li_ix_to_up)
-        # else: 
-        #     if self.num_ix_in_round < 2000:
-        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
-        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:])
-        #     else:
-        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
-        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:2000])
-        #         batch_upload_to_Parse(self.str_cls, li_ix_to_up[2000:])
 
         # # # fill global list of this round's interaction objects
         # # 24 is my favorite number! And is completely random/immaterial here.
