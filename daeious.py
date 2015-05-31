@@ -69,7 +69,8 @@ register_with_Parse()
 EVENT_NUMBER = 0
 MEN = 20
 WOMEN = 20
-CURRENT_ROUND = -1 # (make this equal one less than the round you want to start)
+START_AT_ROUND = 0 # (make this the round you want to start at)
+CURRENT_ROUND = 0
 R1_SEC_PER_IX = 20
 R2_SEC_PER_IX = 40
 R3_SEC_PER_IX = 60
@@ -268,19 +269,22 @@ class _Event(Object):
 
     def simulate(self):
         # simulates an entire event (all 3 rounds, plus pregame and postgame)
-        r0 = Round_0()
-        r1 = Round_1()
-        r2 = Round_2()
-        r3 = Round_3()
-        r4 = Round_4()
+
+        r0 = Round_0() if START_AT_ROUND <= 0 else 0
+        r1 = Round_1() if START_AT_ROUND <= 1 else 0
+        r2 = Round_2() if START_AT_ROUND <= 2 else 0
+        r3 = Round_3() if START_AT_ROUND <= 3 else 0
+        r4 = Round_4() if START_AT_ROUND <= 4 else 0
 
         print("\nRound objects created.")
 
         for r in [r0, r1, r2, r3, r4]:
-            print("\nCurrent Round:", r.round_num)
-            r.prepare()
-            r.simulate()
-            r.analyze()
+            if isinstance(r, _Round):
+                print("\nCurrent Round:", r.round_num, CURRENT_ROUND)
+                r.prepare()
+                r.simulate()
+                r.analyze()
+                CURRENT_ROUND += 1
        
         pass
 
@@ -292,19 +296,7 @@ class _Event(Object):
 
 class _Round(Object):
 
-    CURRENT_ROUND = -1
-
-    print (len(LI_EVENT_USERS))
-
-    LI_EVENT_USERS = []
-
-    print (len(LI_EVENT_USERS))
-
     def __init__(self):
-
-        # Increment the current round.
-        _Round.CURRENT_ROUND += 1
-        #CURRENT_ROUND += 1
 
         # # Initialize the round_num variable (Round_3 will set it to 3, for ex.)
         # self.round_num = None
@@ -322,7 +314,7 @@ class _Round(Object):
         # Refresh the global list of event users
         LI_EVENT_USERS = _Round.LI_EVENT_USERS
 
-        if _Round.CURRENT_ROUND in [1, 2, 3]:
+        if CURRENT_ROUND in [1, 2, 3]:
             self.create_ix_objects_in_Parse()
 
         pass
@@ -331,7 +323,7 @@ class _Round(Object):
         # Will be called inside the initiator of Round_0, Round_1, etc.
         self.r = Round()
         self.r.roundNum = self.round_num
-        if _Round.CURRENT_ROUND in [1,2,3]:
+        if CURRENT_ROUND in [1,2,3]:
             self.r.secPerIx = self.sec_per_ix
             self.r.secInRound = self.sec_in_round
         self.r.save()
@@ -341,15 +333,15 @@ class _Round(Object):
         # Queries Parse for all event users, and, depending on which round
         # it is, creates a different number of Interaction objects in Parse
 
-        if _Round.CURRENT_ROUND == 1:
+        if CURRENT_ROUND == 1:
             cls = cls_R1Ix
             str_cls = str_r1_ix_class_name
             ix_pp = NUM_R1_IX_PP
-        elif _Round.CURRENT_ROUND == 2:
+        elif CURRENT_ROUND == 2:
             cls = cls_R2Ix
             str_cls = str_r2_ix_class_name
             ix_pp = NUM_R2_IX_PP
-        elif _Round.CURRENT_ROUND == 3:
+        elif CURRENT_ROUND == 3:
             cls = cls_R3Ix
             str_cls = str_r3_ix_class_name
             ix_pp = NUM_R3_IX_PP
@@ -409,12 +401,6 @@ class _Round(Object):
 
         """
 
-
-        for ixNum in range(1, ix_in_round + 1):
-            ix = cls()
-            ix.ixNum = ixNum
-            li_ix_to_up.append(ix)
-
         # batch upload in chunks to avoid timout in Sublime builds(?)
         if ix_in_round < 1000:
             batch_upload_to_Parse(str_cls, li_ix_to_up)
@@ -430,8 +416,9 @@ class _Round(Object):
         # fill global list of this round's interaction objects
         # 24 is my favorite number! And is completely random/immaterial here.
         for index, li in enumerate([24, LI_R1_IX, LI_R2_IX, LI_R3_IX]):
-            if _Round.CURRENT_ROUND == index:
+            if CURRENT_ROUND == index:
                 li = li_ix_to_up
+                print (len(li), len(li_ix_to_up))
 
         print(len(LI_R1_IX), len(LI_R2_IX), len(LI_R3_IX))
 

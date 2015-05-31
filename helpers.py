@@ -201,7 +201,7 @@ def create_SAC_database_in_Firebase(create_SAC):
 def main():
     register_with_Parse()
     batch_delete_from_Parse_all_objects_of_class("Event")
-    batch_delete_from_Parse_all_objects_of_class("zE_0000_User")
+    batch_delete_from_Parse_all_objects_of_class("zE0000_User")
     pass
 
 
