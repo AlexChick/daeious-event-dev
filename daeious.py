@@ -8,6 +8,7 @@ simulates a Daeious event from start to finish.
 from __future__ import print_function # apparently, has to be on first line
 from pprint import pprint
 import itertools
+import logging
 import math
 import os
 import random
@@ -27,9 +28,13 @@ from parse_rest.user import User
 from firebase import Firebase
 import requests
 
+# # Import backoff, which avoids timeouts
+import backoff
+
 # Import custom functions and classes I've written specifically for Daeious.
 from helpers import batch_delete_from_Parse
 from helpers import batch_delete_from_Parse_all_objects_of_class
+from helpers import batch_query
 from helpers import batch_upload_to_Parse
 from helpers import create_QA_database_in_Firebase
 from helpers import create_SAC_database_in_Firebase
@@ -194,6 +199,12 @@ class _Event(Object):
         self.num_event_ix_pp = sum(
             [self.num_r1_ix_pp, self.num_r2_ix_pp, self.num_r3_ix_pp]
             )
+        self.num_r1_ix = self.max_sex*self.num_r1_ix_pp
+        self.num_r2_ix = self.max_sex*self.num_r2_ix_pp
+        self.num_r3_ix = self.max_sex*self.num_r3_ix_pp
+        self.num_event_ix = sum(
+            [self.num_r1_ix, self.num_r2_ix, self.num_r3_ix]
+            )
 
         self.sec_per_r1_ix = SEC_PER_R1_IX
         self.sec_per_r2_ix = SEC_PER_R2_IX
@@ -217,24 +228,50 @@ class _Event(Object):
 
         eu_cls_name = "zE" + self.event_serial + "_User"
         eu_cls = Object.factory(eu_cls_name)
-        euq = eu_cls.Query.all().limit(1000)
-        self.li_meup = list(euq.filter(sex = "M").order_by("euNum"))
-        self.li_feup = list(euq.filter(sex = "F").order_by("euNum"))
-        self.li_meug = list(euq.filter(sex = "MG").order_by("euNum"))
-        self.li_feug = list(euq.filter(sex = "FG").order_by("euNum"))
+        euq = batch_query(
+            Source = "Parse",
+            Cls = eu_cls,
+            Limit = self.num_all_eu,
+            OrderBy = "euNum")
+        #euq = eu_cls.Query.all().limit(1000)
+        self.li_meup = list(euq.filter(sex = "M"))
+        self.li_feup = list(euq.filter(sex = "F"))
+        self.li_meug = list(euq.filter(sex = "MG"))
+        self.li_feug = list(euq.filter(sex = "FG"))
         self.li_all_meu = self.li_meup + self.li_meug
         self.li_all_feu = self.li_feup + self.li_feug
         self.li_all_eu = self.li_all_meu + self.li_all_feu
         self.li_all_eu.sort(key = lambda x: x.euNum)
 
-        ipq = IPad.Query.all().limit(self.num_ipads).order_by("iPadNum")
-        m_ipq = ipq.limit(self.num_stations).order_by("iPadNum")
-        f_ipq = ipq.skip(self.num_stations).limit(self.num_stations)
-        f_ipq = f_ipq.order_by("iPadNum")
+        m_ipq = batch_query(
+            Source = "Parse",
+            Cls = IPad,
+            Limit = self.num_stations,
+            OrderBy = "ipNum"
+            )
+        f_ipq = batch_query(
+            Source = "Parse",
+            Cls = IPad,
+            Limit = self.num_stations,
+            OrderBy = "ipNum",
+            Skip = self.num_stations
+            )
+        #ipq = IPad.Query.all().limit(self.num_ipads).order_by("iPadNum")
+        # m_ipq = ipq.limit(self.num_stations).order_by("iPadNum")
+        # f_ipq = ipq.skip(self.num_stations).limit(self.num_stations)
+        # f_ipq = f_ipq.order_by("iPadNum")
         self.li_m_ipad_objs = list(m_ipq)
         self.li_f_ipad_objs = list(f_ipq)
 
-        self.li_q_objs = list(Question.Query.all().limit(self.num_stations).order_by("qNum"))
+        self.li_q_objs = list(batch_query(
+            Source = "Parse",
+            Cls = Question,
+            Filter = ["qNum", "<=", self.num_event_ix_pp],
+            Limit = self.num_event_ix_pp,
+            OrderBy = "qNum"
+            ))
+        #self.li_q_objs = list(Question.Query.all().limit(self.num_stations).order_by("qNum"))
+
 
         self.start_at_round = START_AT_ROUND
         self.curr_rd = START_AT_ROUND
@@ -303,13 +340,57 @@ class _Event(Object):
         eu_Class = Object.factory(eu_ClassName)
 
         # add some Users to e, which is this event
-        qset_all_users = User.Query.all().order_by("userNum")
-        li_meu = list(qset_all_users.filter(sex = "M").limit(self.num_m_eu_p))
-        li_feu = list(qset_all_users.filter(sex = "F").limit(self.num_f_eu_p))
-        li_mgeu = list(qset_all_users.filter(sex = "MG").limit(self.num_m_eu_g))
-        li_fgeu = list(qset_all_users.filter(sex = "FG").limit(self.num_f_eu_g))
+        qset_all_users = batch_query(
+            Source = "Parse", 
+            Cls = User, 
+            Limit = self.num_all_eu,
+            OrderBy = "userNum"
+            )
 
-        li_users_at_event = li_meu + li_feu + li_mgeu + li_fgeu
+        qset_meup = batch_query(
+            Source = "Parse",
+            Cls = User,
+            Filter = ["sex", "=", "M"],
+            Limit = self.num_m_eu_p,
+            OrderBy = "userNum"
+            )
+
+        qset_feup = batch_query(
+            Source = "Parse",
+            Cls = User,
+            Filter = ["sex", "=", "F"],
+            Limit = self.num_f_eu_p,
+            OrderBy = "userNum"
+            )
+
+        qset_meug = batch_query(
+            Source = "Parse",
+            Cls = User,
+            Filter = ["sex", "=", "MG"],
+            Limit = self.num_m_eu_g,
+            OrderBy = "userNum"
+            )
+
+        qset_feug = batch_query(
+            Source = "Parse",
+            Cls = User,
+            Filter = ["sex", "=", "FG"],
+            Limit = self.num_f_eu_g,
+            OrderBy = "userNum"
+            )
+
+        li_meup = list(qset_meup)
+        li_feup = list(qset_feup)
+        li_meug = list(qset_meug)
+        li_feug = list(qset_feug)
+
+        #qset_all_users = User.Query.all().order_by("userNum")
+        # li_meup = list(qset_all_users.filter(sex = "M").limit(self.num_m_eu_p))
+        # li_feup = list(qset_all_users.filter(sex = "F").limit(self.num_f_eu_p))
+        # li_meug = list(qset_all_users.filter(sex = "MG").limit(self.num_m_eu_g))
+        # li_feug = list(qset_all_users.filter(sex = "FG").limit(self.num_f_eu_g))
+
+        li_users_at_event = li_meup + li_feup + li_meug + li_feug
 
         li_eu_obj_to_upload = []
 
@@ -441,7 +522,7 @@ class _Round(Object):
         # iterate first through subrounds, then through station numbers (same)
         for subr in range(1, self.num_ix_pp + 1):
 
-            for staNum in range(1, self.num_ix_pp + 1):
+            for staNum in range(1, self.e.num_stations + 1):
 
                 i = staNum - 1 # i is the index
 
@@ -776,6 +857,8 @@ def main():
     7. Run tests on results.
     """
 
+    start = time.time()
+
     """  1. Register with Parse.  """
     register_with_Parse() 
 
@@ -817,8 +900,8 @@ def main():
     """  5. Create an _Event object.  """
     e = _Event(
         EVENT_NUMBER = 0,
-        MEN = 20,
-        WOMEN = 20,
+        MEN = 50,
+        WOMEN = 50,
         START_AT_ROUND = 0,
         SEC_PER_R1_IX = 20,
         SEC_PER_R2_IX = 40,
@@ -834,10 +917,13 @@ def main():
 
     # 4. Run tests on the results.
 
-    pass
+    end = time.time()
+
+    return round(end-start, 2)
 
 
 if __name__ == '__main__':
+    logging.getLogger('backoff').addHandler(logging.StreamHandler())
     start = time.time()
     status = main()
     print("\n---\n\ndaeious.py has finished running in {} seconds.\n".format(

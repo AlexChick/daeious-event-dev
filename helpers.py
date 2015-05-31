@@ -66,7 +66,7 @@ def batch_delete_from_Parse_all_objects_of_class(str_cls_name):
     num_to_del = cls.Query.all().limit(1000).count()
     num_deleted = 0
 
-    print("\n(deleting {} {} objects)".format(num_to_del, str_cls_name))
+    print("\n(deleting {} {} objects from Parse)".format(num_to_del, str_cls_name))
 
     # for some reason, cls.Query.all() is only returning 100 results,
     # so just keep querying until there's nothing left.
@@ -118,7 +118,7 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
 
     num_to_up = len(li_objects)
 
-    print("\n(uploading {} {} objects)".format(num_to_up, Parse_class_name))
+    print("\n(uploading {} {} objects to Parse)".format(num_to_up, Parse_class_name))
 
     for x in range((num_to_up-1)/50 + 1):
         batcher = ParseBatcher()
@@ -140,6 +140,58 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
     sys.stdout.write("\n") # move the cursor to the next line after we're done
 
     pass
+
+
+
+
+
+def batch_query(
+                Source, 
+                Cls, 
+                Filter = [None, None, None], 
+                Limit = 1000, 
+                OrderBy = None, 
+                Skip = 0
+                ):
+
+    if Source == "Parse":
+
+        # if Cls == User:
+        #     q = User.Query.all().limit(Limit)
+        # else:
+        #     q = Cls.Query.all().limit(Limit)
+        q_start = time.time()
+
+        if Filter == [None, None, None]:
+            q = Cls.Query.all().limit(Limit).skip(Skip)
+        else:
+            f = Filter[0]
+            op = Filter[1]
+            val = Filter[2]        
+            if f == "sex" and op == "=":
+                q = Cls.Query.all().filter(sex = val).limit(Limit).skip(Skip)
+            if f == "qNum" and op == "<=":
+                q = Cls.Query.all().filter(qNum__lte = val).limit(Limit).skip(Skip)
+
+        len_q = len(q)
+
+        q_time_taken = time.time() - q_start
+        q_time_taken = 0
+
+        print("\n(Sleeping for {} seconds after {} {} objects were batch queried from Parse)"\
+            .format(round(len_q/30.0 - q_time_taken, 2), len_q, Cls.__name__)
+            )
+        time.sleep(len_q/30.0 - q_time_taken)
+
+        if OrderBy != None:
+            q.order_by(OrderBy)
+
+        return q
+
+    pass
+
+
+
 
 
 def batch_delete_from_Parse(Parse_class_name, li_objects):
