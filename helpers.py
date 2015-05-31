@@ -80,12 +80,10 @@ def batch_delete_from_Parse_all_objects_of_class(str_cls_name):
         batcher = ParseBatcher()
 
         for x in range((num_to_del-1)/50 + 1):
-
             lo = 50*x
             hi = min(50*(x+1), num_to_del)
             if lo == hi:
                 return
-            #print("\nx = {}, lo = {}, hi = {}".format(x, lo, hi))
             batcher.batch_delete(all_objects_to_delete[lo:hi])
             num_deleted += hi - lo
 
@@ -122,9 +120,11 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
 
     print("\nUploading {} {} objects.".format(num_to_up, Parse_class_name))
 
-    for x in range(num_to_up/50 + 1):
+    for x in range((num_to_up-1)/50 + 1):
+        batcher = ParseBatcher()
         lo = 50*x
         hi = min(50 * (x+1), num_to_up)
+
         batcher.batch_save(li_objects[lo:hi])
 
         sys.stdout.write("\r{} of {} new {}'s uploaded ({}{})".format(
@@ -137,7 +137,7 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
         sys.stdout.flush() # must be done for it to work (why?)
         time.sleep((hi-lo)/30.0) # explained above
 
-    sys.stdout.write("\n") # move the cursor to the next line after we're done
+        sys.stdout.write("\n") # move the cursor to the next line after we're done
 
     pass
 
@@ -203,6 +203,7 @@ def main():
     register_with_Parse()
     batch_delete_from_Parse_all_objects_of_class("Event")
     batch_delete_from_Parse_all_objects_of_class("zE0000_User")
+   # batch_upload_to_Parse()
     pass
 
 

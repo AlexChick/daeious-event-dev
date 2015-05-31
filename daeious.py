@@ -66,15 +66,14 @@ register_with_Parse()
 ################################################################################
 ################################################################################
 
-# programmer-determined globals
-global EVENT_NUMBER
-global MEN
-global WOMEN
-global START_AT_ROUND
-global SEC_PER_R1_IX
-global SEC_PER_R2_IX
-global SEC_PER_R3_IX
-global EV_SERIAL_NUM 
+# # programmer-determined globals
+# global EVENT_NUMBER
+# global MEN
+# global WOMEN
+# global START_AT_ROUND
+# global SEC_PER_R1_IX
+# global SEC_PER_R2_IX
+# global SEC_PER_R3_IX
 
 # general Parse global classes
 class Config(Object): pass
@@ -184,7 +183,7 @@ class _Event(Object):
         self.num_ipads = self.num_stations * 2
 
         self.num_m_eu_g = self.num_stations - MEN
-        self.num_f_eu_g = self.num_stations = WOMEN
+        self.num_f_eu_g = self.num_stations - WOMEN
         self.num_all_eu_g = self.num_m_eu_g + self.num_f_eu_g 
 
         self.num_all_eu = self.num_all_eu_p + self.num_all_eu_g
@@ -196,9 +195,13 @@ class _Event(Object):
             [self.num_r1_ix_pp, self.num_r2_ix_pp, self.num_r3_ix_pp]
             )
 
-        self.sec_in_r1 = self.num_r1_ix_pp * SEC_PER_R1_IX
-        self.sec_in_r2 = self.num_r2_ix_pp * SEC_PER_R2_IX
-        self.sec_in_r3 = self.num_r3_ix_pp * SEC_PER_R3_IX
+        self.sec_per_r1_ix = SEC_PER_R1_IX
+        self.sec_per_r2_ix = SEC_PER_R2_IX
+        self.sec_per_r3_ix = SEC_PER_R3_IX
+
+        self.sec_in_r1 = self.num_r1_ix_pp * self.sec_per_r1_ix
+        self.sec_in_r2 = self.num_r2_ix_pp * self.sec_per_r2_ix
+        self.sec_in_r3 = self.num_r3_ix_pp * self.sec_per_r3_ix
         self.sec_in_event = sum(
             [self.sec_in_r1, self.sec_in_r2, self.sec_in_r3]
             )
@@ -278,7 +281,7 @@ class _Event(Object):
         pe.numPeople = sum([self.num_m_eu_p, self.num_f_eu_p])
         pe.numMaleGhosts = self.num_m_eu_g
         pe.numFemaleGhosts = self.num_f_eu_g
-        pe.num_Ghosts = sum([self.num_m_eu_g, self.num_f_eu_g])
+        pe.numGhosts = sum([self.num_m_eu_g, self.num_f_eu_g])
         pe.numStations = self.num_stations
         pe.numIPads = self.num_ipads
         pe.save()
@@ -333,28 +336,6 @@ class _Event(Object):
     def create_QA_and_SAC_databases_in_Firebase(self):
         pass
 
-    def simulate(self):
-        # simulates an entire event (all 3 rounds, plus pregame and postgame)
-
-        r0 = Round_0(self) if self.start_at_round <= 0 else 0
-        r1 = Round_1(self) if self.start_at_round <= 1 else 0
-        r2 = Round_2(self) if self.start_at_round <= 2 else 0
-        r3 = Round_3(self) if self.start_at_round <= 3 else 0
-        r4 = Round_4(self) if self.start_at_round <= 4 else 0
-
-        print("\nRound objects created.")
-
-        for r in [r0, r1, r2, r3, r4]:
-            if isinstance(r, _Round):
-                print("\nCurrent Round:", r.round_num, "=", self.curr_rd)
-                r.prepare()
-                r.simulate()
-                r.analyze()
-                self.curr_rd += 1
-       
-        pass
-
-
 
 ################################################################################
 """                                  _ROUND                                  """
@@ -383,25 +364,33 @@ class _Round(Object):
 
         """ Set instance variables. """
 
+        self.e = e # proper and allows access to e without having to pass it
+
+        self.event_number = e.event_number
+
         self.curr_rd = e.curr_rd
 
-        print("Current Round:", self.curr_rd)
-
         if self.curr_rd == 1:
+            str_r1_ix_class_name = "zE" + e.event_serial + "R1_Ix"
+            cls_R1Ix = Object.factory(str_r1_ix_class_name)
             self.cls = cls_R1Ix
             self.str_cls = str_r1_ix_class_name
             self.num_ix_pp = e.num_r1_ix_pp
-            self.sec_per_ix = SEC_PER_R1_IX
+            self.sec_per_ix = e.sec_per_r1_ix
         elif self.curr_rd == 2:
+            str_r2_ix_class_name = "zE" + e.event_serial + "R2_Ix"
+            cls_R2Ix = Object.factory(str_r2_ix_class_name)
             self.cls = cls_R2Ix
             self.str_cls = str_r2_ix_class_name
             self.num_ix_pp = e.num_r2_ix_pp
-            self.sec_per_ix = SEC_PER_R2_IX
+            self.sec_per_ix = e.sec_per_r2_ix
         elif self.curr_rd == 3:
+            str_r3_ix_class_name = "zE" + e.event_serial + "R1_3x"
+            cls_R3Ix = Object.factory(str_r3_ix_class_name)
             self.cls = cls_R3Ix
             self.str_cls = str_r3_ix_class_name
             self.num_ix_pp = e.num_r3_ix_pp
-            self.sec_per_ix = SEC_PER_R3_IX
+            self.sec_per_ix = e.sec_per_r3_ix
         else:
             self.num_ix_pp = 0
             self.sec_per_ix = 0
@@ -416,20 +405,21 @@ class _Round(Object):
 
         self.li_ix_in_round = []
 
-        if self.curr_rd in [1, 2, 3]:
-            self.li_ix_in_round = self.create_ix_objects_in_Parse()
+        # if self.curr_rd in [1, 2, 3]:
+        #     self.li_ix_in_round = self.create_ix_objects_in_Parse()
 
         pass
 
     def create_round_object_in_Parse(self):
         # Will be called inside the initiator of Round_0, Round_1, etc.
-        self.pr = Round()
-        self.pr.roundNum = self.curr_rd
-        self.pr.numIxPP = self.num_ix_pp
-        self.pr.numIxInRound = self.num_ix_in_round
-        self.pr.secPerIx = self.sec_per_ix
-        self.pr.secInRound = self.sec_in_round 
-        self.pr.save()
+        pr = Round()
+        pr.eventNum = self.event_number
+        pr.roundNum = self.curr_rd
+        pr.numIxPP = self.num_ix_pp
+        pr.numIxInRound = self.num_ix_in_round
+        pr.secPerIx = self.sec_per_ix
+        pr.secInRound = self.sec_in_round 
+        pr.save()
         pass
 
     def create_ix_objects_in_Parse(self):
@@ -442,9 +432,9 @@ class _Round(Object):
         # iterate first through subrounds, then through male event users
         # ...using a list comprehension!
         # Source: https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch01s15.html
-        for sr, (index, meu) in [(sr, (index, meu)) for sr in e.li_sub_nums for index, meu in enumerate(e.li_all_meu)]:
+        for sr, (index, meu) in [(sr, (index, meu)) for sr in range(1, self.num_ix_pp + 1) for index, meu in enumerate(self.e.li_all_meu)]:
             ix = self.cls()
-            ix.ixNum = ((sr - 1) * e.num_stations) + (index+1) # Ex: ((1 - 1) * 51 + 9) = 9
+            ix.ixNum = ((sr - 1) * self.e.num_stations) + (index+1) # Ex: ((1 - 1) * 51 + 9) = 9
             ix.subNum = sr
             ix.staNum = index + 1
             ix.mEventUserNum = None
@@ -463,6 +453,8 @@ class _Round(Object):
             ix.mEventUserObjectId = None
             ix.fEventUserObjectId = None
             li_ix_to_up.append(ix)
+
+        print(len(li_ix_to_up))
 
         """     
         ### Rotate the lists between subrounds (in "for j in range(s)" loop).
@@ -490,10 +482,10 @@ class _Round(Object):
         """
 
         # batch upload in chunks to avoid timout in Sublime builds(?)
-        if num_ix_in_round < 1000:
+        if self.num_ix_in_round < 1000:
             batch_upload_to_Parse(self.str_cls, li_ix_to_up)
         else: 
-            if num_ix_in_round < 2000:
+            if self.num_ix_in_round < 2000:
                 batch_upload_to_Parse(self.str_cls, li_ix_to_up[:1000])
                 batch_upload_to_Parse(self.str_cls, li_ix_to_up[1000:])
             else:
@@ -509,10 +501,9 @@ class _Round(Object):
         #         print (len(li), len(li_ix_to_up))
         # print(len(LI_R1_IX), len(LI_R2_IX), len(LI_R3_IX))
 
-        pass
+        return li_ix_to_up
 
     def prepare(self):
-        self.create_ix_objects_in_Parse()
         pass
 
     def simulate(self):
@@ -545,23 +536,22 @@ class Round_0(_Round):
     def __init__(self, e):
         _Round.__init__(self, e)
         self.round_num = 0
-        self.create_round_object_in_Parse()
         pass
 
     def assign_pregame_sel_and_des_ranks(self):
         pass
 
-    def prepare(self):
-        self.assign_pregame_sel_and_des_ranks()
+    # def prepare(self):
+    #     self.assign_pregame_sel_and_des_ranks()
 
-        pass
+    #     pass
 
-    def simulate(self): 
-        # nothing to do here
-        pass
+    # def simulate(self): 
+    #     # nothing to do here
+    #     pass
 
-    def analyze(self):
-        pass
+    # def analyze(self):
+    #     pass
 
     pass
 
@@ -594,18 +584,19 @@ class Round_1(_Round):
     def __init__(self, e):
         _Round.__init__(self, e)
         self.round_num = 1
-        self.create_round_object_in_Parse()
         pass
 
     def prepare(self):
         # make and upload to Parse all MEN * WOMEN interaction objects
+        self.li_ix_in_round = self.create_ix_objects_in_Parse()
+
         pass
 
-    def simulate(self):
-        pass
+    # def simulate(self):
+    #     pass
 
-    def analyze(self):
-        pass
+    # def analyze(self):
+    #     pass
 
     pass
 
@@ -618,17 +609,18 @@ class Round_2(_Round):
     def __init__(self, e):
         _Round.__init__(self, e)
         self.round_num = 2
-        self.create_round_object_in_Parse()
         pass
 
     def prepare(self):
+        self.li_ix_in_round = self.create_ix_objects_in_Parse()
+
         pass
 
-    def simulate(self):
-        pass
+    # def simulate(self):
+    #     pass
 
-    def analyze(self):
-        pass
+    # def analyze(self):
+    #     pass
 
     pass
 
@@ -641,17 +633,17 @@ class Round_3(_Round):
     def __init__(self, e):
         _Round.__init__(self, e)
         self.round_num = 3
-        self.create_round_object_in_Parse()
         pass
 
     def prepare(self):
+        self.li_ix_in_round = self.create_ix_objects_in_Parse()
         pass
 
-    def simulate(self):
-        pass
+    # def simulate(self):
+    #     pass
 
-    def analyze(self):
-        pass
+    # def analyze(self):
+    #     pass
 
     pass
 
@@ -667,17 +659,16 @@ class Round_4(_Round):
     def __init__(self, e):
         _Round.__init__(self, e)
         self.round_num = 4
-        self.create_round_object_in_Parse()
         pass
 
-    def prepare(self):
-        pass
+    # def prepare(self):
+    #     pass
 
-    def simulate(self):
-        pass
+    # def simulate(self):
+    #     pass
 
-    def analyze(self):
-        pass
+    # def analyze(self):
+    #     pass
 
     pass
 
@@ -693,10 +684,11 @@ class _Interaction(Object):
     def __init__(self, e, r):
         _Interaction.COUNTER += 1
         self.ixNum = _Interaction.COUNTER
+        self.event_serial = e.event_serial
         self.create_Ix_Object_in_Parse()
 
     def create_Ix_Object_in_Parse(self):
-        Cls_EU = Object.factory("zE" + EV_SERIAL_NUM + "R" + str(CURRENT_ROUND))
+        Cls_EU = Object.factory("zE" + e.event_serial + "R" + str(CURRENT_ROUND))
         self.ix = Cls_EU()
         self.ix.save()
 
@@ -715,8 +707,33 @@ class _Interaction(Object):
 """                                _QUESTION                                 """
 ################################################################################
 
+################################################################################
+"""                                SIMULATE                                 """
+################################################################################
 
+def simulate(e):
+    # simulates an entire event (all 3 rounds, plus pregame and postgame)
 
+    r0 = Round_0(e) if e.start_at_round <= 0 else 0
+    e.curr_rd += 1
+    r1 = Round_1(e) if e.start_at_round <= 1 else 0
+    e.curr_rd += 1
+    r2 = Round_2(e) if e.start_at_round <= 2 else 0
+    e.curr_rd += 1
+    r3 = Round_3(e) if e.start_at_round <= 3 else 0
+    e.curr_rd += 1
+    r4 = Round_4(e) if e.start_at_round <= 4 else 0
+
+    # print("\n{} Round objects created.".format([r0,r1,r2,r3,r4])))
+
+    for r in [r0, r1, r2, r3, r4]:
+        if isinstance(r, _Round):
+            print("\nCurrent Round:", r.round_num)
+            r.prepare()
+            r.simulate()
+            r.analyze()
+   
+    pass
 
 ################################################################################
 ################################################################################
@@ -731,20 +748,19 @@ class _Interaction(Object):
 def main():
     """
     1. Register with Parse.
-    2. Delete all existing objects in desired general classes from Parse.
+    2. Delete all objects in desired general classes from Parse.
     3. Set the Parse event-specific global classes.
-    4. Create an _Event object.
-    5. Delete all existing objects in desired event-specific classes from Parse.
+    4. Delete all objects in desired event-specific classes from Parse.
+    5. Create an _Event object.
     6. Simulate event.
     7. Run tests on results.
-
     """
 
-    """   1. Register with Parse.   """
+    """  1. Register with Parse.  """
     register_with_Parse() 
 
 
-    """ 2. Delete all existing objects in desired general classes from Parse."""
+    """  2. Delete all objects in desired general classes from Parse.  """
     ## (Maintain sanity when testing.)
     ## (The for: loop should work too, but if I want to save time when testing,
     ## I can comment out individual lines, so that's how I've kept them)
@@ -754,7 +770,8 @@ def main():
     batch_delete_from_Parse_all_objects_of_class("Event")
     batch_delete_from_Parse_all_objects_of_class("Round")
 
-    """    3. Set the Parse event-specific global classes.    """
+
+    """  3. Set the Parse event-specific global classes.   """
     #e.set_Parse_specific_global_classes(e.event_number)
 
     EVENT_NUMBER = 0
@@ -769,7 +786,15 @@ def main():
     cls_R3Ix = Object.factory(str_r3_ix_class_name) 
 
 
-    """    4. Create an _Event object.    """
+    """  4. Delete all objects in event-specific classes from Parse.  """
+
+    batch_delete_from_Parse_all_objects_of_class(str_event_user_class_name)
+    batch_delete_from_Parse_all_objects_of_class(str_r1_ix_class_name)
+    batch_delete_from_Parse_all_objects_of_class(str_r2_ix_class_name)
+    batch_delete_from_Parse_all_objects_of_class(str_r3_ix_class_name)
+
+
+    """  5. Create an _Event object.  """
     e = _Event(
         EVENT_NUMBER = 0,
         MEN = 20,
@@ -781,14 +806,9 @@ def main():
         )
 
 
-    batch_delete_from_Parse_all_objects_of_class(str_event_user_class_name)
-    batch_delete_from_Parse_all_objects_of_class(str_r1_ix_class_name)
-    batch_delete_from_Parse_all_objects_of_class(str_r2_ix_class_name)
-    batch_delete_from_Parse_all_objects_of_class(str_r3_ix_class_name)
-
-    # 3. Simulate event
+    """  6. Simulate event.  """
     # . Simulate the entire event.
-    e.simulate()
+    simulate(e)
 
 
 
