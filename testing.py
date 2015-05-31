@@ -66,7 +66,7 @@ logging.getLogger('').addHandler(logging.StreamHandler())
 
 li_times = []
 
-for i in range(1):
+for i in range(2):
 	li_times.append(daeious.main())
 	# if i == 0:
 	# 	time.sleep(10)
