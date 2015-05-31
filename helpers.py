@@ -38,6 +38,9 @@ import requests
 def fetch_object_from_Parse_of_class(SomeClass):
     pass
 
+def mk_serial(eNum):
+    return "{}{}".format("0"*(4 - len(str(eNum))), eNum)
+
 
 def register_with_Parse():
     # Call "register(?,?,?)" to allow parse_rest / ParsePy to work. 
@@ -50,7 +53,7 @@ def register_with_Parse():
     pass
 
 
-def batch_delete_from_Parse_all_objects_of_class(classname):
+def batch_delete_from_Parse_all_objects_of_class(str_cls_name):
     # Parse's default limit for query results is 100, and max is 1000,
     # but each query has to be set that way. I should extend this
     # function to query more than 1000.
@@ -58,14 +61,12 @@ def batch_delete_from_Parse_all_objects_of_class(classname):
     # Fixed; now sleeps for (hi-lo)/30 seconds instead of 50/30 = 1.67 seconds.
 
     # Query for all objects of the passed-in class name.
-    myClassName = classname
-    myClass = Object.factory(myClassName)
-    # all_objects_to_delete = list(myClass.Query.all())
-    all_objects_to_delete = list(myClass.Query.all().limit(1000))
-    num_to_del = myClass.Query.all().limit(1000).count()
+    cls = Object.factory(str_cls_name)
+    all_objects_to_delete = list(cls.Query.all().limit(1000))
+    num_to_del = cls.Query.all().limit(1000).count()
     num_deleted = 0
 
-    print("\nDeleting {} {} objects.".format(num_to_del, classname))
+    print("\nDeleting {} {} objects.".format(num_to_del, str_cls_name))
 
     # for some reason, cls.Query.all() is only returning 100 results,
     # so just keep querying until there's nothing left.
@@ -91,7 +92,7 @@ def batch_delete_from_Parse_all_objects_of_class(classname):
             sys.stdout.write("\r{} of {} old {}'s deleted ({}{})".format(
                 min(50 + (50*x), num_to_del),
                 num_to_del,
-                classname,
+                str_cls_name,
                 min(int(round((50*(x+1)*100.0)/num_to_del, 0)), 100),
                 "%"
                 ))
