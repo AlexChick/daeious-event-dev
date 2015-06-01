@@ -35,8 +35,45 @@ import requests
 ###############################################################################
 
 
-def fetch_object_from_Parse_of_class(SomeClass):
-    pass
+
+def filter_by_value(sequence, value):
+    """
+    A generator than yields all elements of a sequence whose attrName 
+    matches value.
+
+    More readable than a list comprehension, though accomplishes the same thing.
+
+    http://stackoverflow.com/questions/3013449/list-filtering-list-comprehension-vs-lambda-filter?lq=1
+    """
+    for element in sequence:
+        # for index, att in enumerate(["asdf", "event_number", "ix_num"]):
+        #     if hasattr(element, att):
+        #         if element.asdf == value \
+        #         or element.event_number == value \
+        #         or element.ix_num % value == 0:
+        #             yield element
+        #             pass
+                # yield element if element.adsf == value
+                # yield element if element.event_number == value
+                # yield element if element.ix_num % value == 0
+
+        if hasattr(element, "asdf"):
+            if element.adsf == value: 
+                yield element
+
+        elif hasattr(element, "event_number"):
+            if element.event_number == value:
+                yield element
+
+        elif hasattr(element, "ix_num"):
+            if element.ix_num % value == 0:
+                yield element
+
+        elif hasattr(element, "m_see_f"):
+            if element.m_see_f == value:
+                yield element
+
+
 
 def mk_serial(eNum):
     return "{}{}".format("0"*(4 - len(str(eNum))), eNum)
@@ -190,13 +227,6 @@ def batch_query(
 
     pass
 
-
-
-
-
-def batch_delete_from_Parse(Parse_class_name, li_objects):
-    # avoids timeout
-    pass
 
 
 def create_QA_database_in_Firebase(create_QA):
