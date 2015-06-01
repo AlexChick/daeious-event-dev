@@ -95,7 +95,7 @@ def batch_delete_from_Parse_all_objects_of_class(str_cls_name):
                 "%"
                 ))
             sys.stdout.flush() # must be done for it to work (why?)
-            time.sleep((hi-lo)/30.0) # explained above
+            #time.sleep((hi-lo)/30.0) # explained above
 
         sys.stdout.write("\n") # move cursor to the next line after we're done
 
@@ -135,7 +135,7 @@ def batch_upload_to_Parse(Parse_class_name, li_objects):
             "%"
             ))
         sys.stdout.flush() # must be done for it to work (why?)
-        time.sleep((hi-lo)/30.0) # explained above
+        #time.sleep((hi-lo)/30.0) # explained above
 
     sys.stdout.write("\n") # move the cursor to the next line after we're done
 
@@ -150,7 +150,7 @@ def batch_query(
                 Cls, 
                 Filter = [None, None, None], 
                 Limit = 1000, 
-                OrderBy = None, 
+                OrderBy = "objectId", 
                 Skip = 0
                 ):
 
@@ -160,28 +160,29 @@ def batch_query(
         #     q = User.Query.all().limit(Limit)
         # else:
         #     q = Cls.Query.all().limit(Limit)
-        q_start = time.time()
+        
+        # q_start = time.time()
 
         if Filter == [None, None, None]:
-            q = Cls.Query.all().limit(Limit).skip(Skip)
+            q = Cls.Query.all().skip(Skip).limit(Limit).order_by(OrderBy)
         else:
             f = Filter[0]
             op = Filter[1]
             val = Filter[2]        
             if f == "sex" and op == "=":
-                q = Cls.Query.all().filter(sex = val).limit(Limit).skip(Skip)
+                q = Cls.Query.all().filter(sex = val).order_by(OrderBy).skip(Skip).limit(Limit)
             if f == "qNum" and op == "<=":
-                q = Cls.Query.all().filter(qNum__lte = val).limit(Limit).skip(Skip)
+                q = Cls.Query.all().filter(qNum__lte = val).order_by(OrderBy).skip(Skip).limit(Limit)
 
-        len_q = len(q)
+        # len_q = len(q)
 
-        q_time_taken = time.time() - q_start
-        q_time_taken = 0
+        # q_time_taken = time.time() - q_start
+        # q_time_taken = 0
 
-        print("\n(Sleeping for {} seconds after {} {} objects were batch queried from Parse)"\
-            .format(round(len_q/30.0 - q_time_taken, 2), len_q, Cls.__name__)
-            )
-        time.sleep(len_q/30.0 - q_time_taken)
+        # print("\n(Sleeping for {} seconds after {} {} objects were batch queried from Parse)"\
+        #     .format(round(len_q/30.0 - q_time_taken, 2), len_q, Cls.__name__)
+        #     )
+        # time.sleep(len_q/30.0 - q_time_taken)
 
         if OrderBy != None:
             q.order_by(OrderBy)

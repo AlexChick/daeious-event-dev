@@ -151,7 +151,7 @@ def fibo(max_value=None):
             yield max_value
 
 
-def constant(interval=1):
+def constant(interval=60):
     """Generator for constant intervals.
 
     Args:
@@ -218,8 +218,9 @@ def on_predicate(wait_gen,
                         break
 
                     seconds = next(wait) + jitter()
-                    logger.info("Backing off %s: %.1fs" %
-                                (invoc, round(seconds, 1)))
+                    # logger.info("Backing off %s: %.1fs" %
+                    #             (invoc, round(seconds, 1)))
+                    logger.info("Backing off for %.1fsec" % (round(seconds,3 )))
                     time.sleep(seconds)
                     continue
                 else:

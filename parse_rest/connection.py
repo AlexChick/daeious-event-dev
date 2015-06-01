@@ -11,6 +11,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import backoff
+
 from six.moves.urllib.request import Request, urlopen
 from six.moves.urllib.error import HTTPError
 from six.moves.urllib.parse import urlencode
@@ -67,6 +69,8 @@ class ParseBase(object):
     ENDPOINT_ROOT = API_ROOT
 
     @classmethod
+    @backoff.on_predicate(backoff.constant, interval = 60)
+    @backoff.on_exception(backoff.constant, core.ResourceRequestBadRequest, max_tries = None)
     def execute(cls, uri, http_verb, extra_headers=None, batch=False, body=None, **kw):
         """
         if batch == False, execute a command with the given parameters and

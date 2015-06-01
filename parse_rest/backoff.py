@@ -151,8 +151,10 @@ def fibo(max_value=None):
             yield max_value
 
 
-def constant(interval=1):
+def constant(interval=30):
     """Generator for constant intervals.
+
+    AWC: "Works when interal = 60."
 
     Args:
         interval: The constant value in seconds to yield.
@@ -218,8 +220,9 @@ def on_predicate(wait_gen,
                         break
 
                     seconds = next(wait) + jitter()
-                    logger.info("Backing off %s: %.1fs" %
-                                (invoc, round(seconds, 1)))
+                    # logger.info("Backing off %s: %.1fs" %
+                    #             (invoc, round(seconds, 1)))
+                    logger.info("Backing off for %.1fsec" % (round(seconds,3 )))
                     time.sleep(seconds)
                     continue
                 else:

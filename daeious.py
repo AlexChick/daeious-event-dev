@@ -410,10 +410,11 @@ class _Event(Object):
                 last = User_object.username.split(" ")[-1],
                 sex = User_object.sex
                 )
+            #new_EU_object.save()
             li_eu_obj_to_upload.append(new_EU_object)
 
 
-        # Batch upload in chunks no larger than 50, and sleep to avoid timeouts
+        # Batch upload in chunks no larger than 50 (throws error if > 50).
         batch_upload_to_Parse(eu_ClassName, li_eu_obj_to_upload)    
 
         return li_eu_obj_to_upload
@@ -907,8 +908,8 @@ def main():
     """  5. Create an _Event object.  """
     e = _Event(
         EVENT_NUMBER = 0,
-        MEN = 12,
-        WOMEN = 12,
+        MEN = 50,
+        WOMEN = 50,
         START_AT_ROUND = 0,
         SEC_PER_R1_IX = 20,
         SEC_PER_R2_IX = 40,

@@ -66,13 +66,10 @@ logging.getLogger('').addHandler(logging.StreamHandler())
 
 li_times = []
 
-for i in range(2):
+for i in range(1):
 	li_times.append(daeious.main())
-	# if i == 0:
-	# 	time.sleep(10)
 
 print (li_times)
-pprint(li_times)
 print ("\nAverage time: {}\n".format(sum(li_times)/len(li_times)))
 
 
