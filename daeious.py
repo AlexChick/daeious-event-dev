@@ -56,8 +56,9 @@ from parse_rest.user import User
 from firebase import Firebase
 import requests
 
-# # Import backoff, which avoids timeouts
+# Import custom modules, mostly from GitHub
 import backoff
+import xlwt
 
 # Import custom functions and classes I've written specifically for Daeious.
 #from helpers import batch_delete_from_Parse_all_objects_of_class
@@ -160,24 +161,24 @@ class _Event(object):
         self.li_f_ipad_nums = range(self.num_stations+1, 2*self.num_stations+1)
         self.li_q_nums = range(1, self.num_stations + 1)
 
-        # Create event-user (zE0000_User) objects in Parse.
-        #  self.li_eu = self.create_event_users_in_Parse()
+        # Create event-user objects.
+        self.li_eu = self.get_event_users()
 
         
-        # euq = batch_query(
-        #     Source = "Parse",
-        #     Cls = eu_cls,
-        #     Limit = self.num_all_eu,
-        #     OrderBy = "euNum")
-        # #euq = eu_cls.Query.all().limit(1000)
-        # self.li_meup = list(euq.filter(sex = "M"))
-        # self.li_feup = list(euq.filter(sex = "F"))
-        # self.li_meug = list(euq.filter(sex = "MG"))
-        # self.li_feug = list(euq.filter(sex = "FG"))
+        # self.li_meup = 
+        # self.li_feup = 
+        # self.li_meug = 
+        # self.li_feug = 
         # self.li_all_meu = self.li_meup + self.li_meug
         # self.li_all_feu = self.li_feup + self.li_feug
         # self.li_all_eu = self.li_all_meu + self.li_all_feu
-        # self.li_all_eu.sort(key = lambda x: x.euNum)
+        # self.li_all_eu.sort(key = lambda x: x.eu_num)
+
+        # self.li_m_ipad_objs = list(m_ipq)
+        # self.li_f_ipad_objs = list(f_ipq)
+
+        # self.li_q_objs = list(Question.Query.all().limit(self.num_stations).order_by("qNum"))
+
 
         # m_ipq = batch_query(
         #     Source = "Parse",
@@ -196,8 +197,6 @@ class _Event(object):
         # m_ipq = ipq.limit(self.num_stations).order_by("iPadNum")
         # f_ipq = ipq.skip(self.num_stations).limit(self.num_stations)
         # f_ipq = f_ipq.order_by("iPadNum")
-        # self.li_m_ipad_objs = list(m_ipq)
-        # self.li_f_ipad_objs = list(f_ipq)
 
         # self.li_q_objs = list(batch_query(
         #     Source = "Parse",
@@ -212,11 +211,9 @@ class _Event(object):
        #                    .filter(qNum__lte = self.num_event_ix_pp)
        #      )
        #  # self.li_q_objs = list(qq)
-        #self.li_q_objs = list(Question.Query.all().limit(self.num_stations).order_by("qNum"))
 
 
         self.start_at_round = START_AT_ROUND
-        self.curr_rd = START_AT_ROUND
 
         #########   END INSTANCE VARIABLES   ##########
 
@@ -228,28 +225,13 @@ class _Event(object):
 
         pass
 
+    def get_event_users(self):
+        """
+        Returns a list of the desired event users.
+        """
+        pass
 
-    # def create_event_object_in_Parse(self):
-    #     # Create a corresponding Event object in Parse upon initialization.
-    #     pe = Event() # Remember, this is a Parse Event object, so it's ok
-    #                 # to do this from inside _Event!
-    #     pe.eventNum = self.event_number
-    #     pe.eventSerial = self.event_serial
-    #     pe.location = self.event_location
-    #     pe.start = [self.event_date, self.event_time]
-    #     pe.startDate = self.event_date
-    #     pe.startTime = self.event_time
-    #     pe.numMen = self.num_m_eu_p
-    #     pe.numWomen = self.num_f_eu_p
-    #     pe.numPeople = sum([self.num_m_eu_p, self.num_f_eu_p])
-    #     pe.numMaleGhosts = self.num_m_eu_g
-    #     pe.numFemaleGhosts = self.num_f_eu_g
-    #     pe.numGhosts = sum([self.num_m_eu_g, self.num_f_eu_g])
-    #     pe.numStations = self.num_stations
-    #     pe.numIPads = self.num_ipads
-    #     pe.save()
 
-    #     pass
 
 
     # def create_event_users_in_Parse(self):
@@ -300,10 +282,11 @@ class _Event(object):
 
 class _Round(object):
 
+    CURR_ROUND = -1
+
     def __init__(self, e):
 
-        # # Initialize the round_num variable (Round_3 will set it to 3, for ex.)
-        # self.round_num = None
+        _Round.CURR_ROUND += 1
 
         # # Fill the class list of event users.
         # _Round.LI_EVENT_USERS = list(
@@ -320,7 +303,7 @@ class _Round(object):
 
         self.event_number = e.event_number
 
-        self.curr_rd = e.curr_rd
+        self.curr_rd = _Round.CURR_ROUND
 
         if self.curr_rd == 1:
             self.num_ix_pp = e.num_r1_ix_pp
@@ -520,21 +503,92 @@ class _Interaction(object):
 
     COUNTER = 0
 
-    def __init__(self, e, r):
+    def __init__(self, e, r, mEU, fEU):
         _Interaction.COUNTER += 1
         self.e = e
         self.r = r
         self.ix_num = _Interaction.COUNTER
+        self.m_eu_num = mEU.eu_num
+        self.f_eu_num = fEU.eu_num
+        self.simuate()
 
     def simulate(self):
-        self.m_see_f = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
-        self.f_see_m = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
+        self.m_see_f = random.randint(0, 3)
+        self.f_see_m = random.randint(0, 3)
+        # self.m_see_f = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
+        # self.f_see_m = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
         pass
+
+    def __iter__(self):
+        # first start by grabbing the Class items
+        iters = dict((x,y) for x,y in _Interaction.__dict__.items() 
+            if x[:2] != '__' 
+                and x != "simulate"
+                and x != "COUNTER"
+            )
+        # then update the class items with the instance items
+        iters.update(self.__dict__)
+        # now 'yield' through the items
+        for x,y in iters.items():
+            yield x,y
 
     pass
 
 ################################################################################
 """                                  _USER                                   """
+################################################################################
+
+class _User(object):
+
+    CURR_USER_NUM = 0
+
+    def __init__(self):
+        _User.CURR_USER_NUM += 1
+        self.u_num = _User.CURR_USER_NUM
+        if self.u_num <= 1000:
+            self.sex = 'M'
+        elif self.u_num <= 2000:
+            self.sex = 'F'
+        elif self.u_num <= 2100:
+            self.sex = 'MG'
+        elif self.u_num <= 2200:
+            self.sex = 'FG'
+        else:
+            raise ValueError("self.u_num {} is out of bounds.".format(self.u_num))
+        pass
+
+    def __iter__(self):
+        # first start by grabbing the Class items
+        iters = dict((x,y) for x,y in _User.__dict__.items() 
+            if x[:2] != '__' 
+                and x != "simulate"
+                and x != "CURR_USER_NUM"
+            )
+        # then update the class items with the instance items
+        iters.update(self.__dict__)
+        # now 'yield' through the items
+        for x,y in iters.items():
+            yield x,y
+    
+    pass
+
+################################################################################
+"""                                _EVENTUSER                                 """
+################################################################################
+
+class _EventUser(_User):
+
+    CURR_EVENTUSER_NUM = 0
+
+    def __init__(self):
+        _EventUser.__init__(self)
+        _EventUser.CURR_EVENTUSER_NUM += 1
+        self.eu_num = _EventUser.CURR_EVENTUSER_NUM
+        pass
+
+    pass
+################################################################################
+"""                                  _IPAD                                   """
 ################################################################################
 
 ################################################################################
@@ -551,15 +605,11 @@ def simulate(e):
     """  Create 5 _Round objects.  """
 
     r0 = Round_0(e) if e.start_at_round <= 0 else 0
-    e.curr_rd += 1
     r1 = Round_1(e) if e.start_at_round <= 1 else 0
-    e.curr_rd += 1
     r2 = Round_2(e) if e.start_at_round <= 2 else 0
-    e.curr_rd += 1
     r3 = Round_3(e) if e.start_at_round <= 3 else 0
-    e.curr_rd += 1
     r4 = Round_4(e) if e.start_at_round <= 4 else 0
-    # print("\n{} Round objects created.".format([r0,r1,r2,r3,r4])))
+    print("\n{} Round objects created.".format(len([r0,r1,r2,r3,r4])))
 
     """  Simulate the rounds.  """
     for r in [r0, r1, r2, r3, r4]:
@@ -604,9 +654,39 @@ def main():
     """  Simulate event.  """
     simulate(e)
 
+    """  Write all 3 lists of ix objects to Excel. """
+
+    global WB
+
+    WB = xlwt.Workbook()
+
+    ws_User = WB.add_sheet('Users', cell_overwrite_ok = True)
+    ws_eu = WB.add_sheet('Event Users', cell_overwrite_ok = True)
+    ws_r1_ix = WB.add_sheet('R1 Ix', cell_overwrite_ok = True)
+    ws_r2_ix = WB.add_sheet('R2 Ix', cell_overwrite_ok = True)
+    ws_r3_ix = WB.add_sheet('R3 Ix', cell_overwrite_ok = True)
 
 
-    # 4. Run tests on the results.
+    """  Create 1,000 men, 1,000 women, 100 male ghosts, 100 female ghosts.  """
+    li_meup = list((_User() for i in range(1000)))
+    li_feup = list((_User() for i in range(1000)))
+    li_meug = list((_User() for i in range(100)))
+    li_feug = list((_User() for i in range(100)))
+    li_all_eu = li_meup + li_feup + li_meug + li_feug
+
+    """  Write the column label names for the Users sheet in Excel  """
+    for c, label in enumerate(dict(li_meup[0]).keys()):
+            ws_User.write(0, c, label)
+
+    """  Write the rows of Users in Excel (too early?)  """
+    for c, label in enumerate(dict(li_all_eu[0]).keys()):
+        for r, user in enumerate(li_all_eu):
+            ws_User.write(r+1, c, getattr(user, label))   
+
+    WB.save('example.xls')    
+
+
+    # Run tests on the results.
 
     end = time.time()
 
