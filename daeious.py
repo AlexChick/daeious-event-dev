@@ -118,6 +118,7 @@ from helpers import create_QA_database_in_Firebase
 from helpers import create_SAC_database_in_Firebase
 from helpers import filter_by_value
 from helpers import mk_serial
+from helpers import optimize_event_timing
 
 ################################################################################
 ################################################################################
@@ -160,7 +161,10 @@ class _Event(object):
         # You CAN'T SET GLOBALS from within __init__ 
         # But you CAN assign to self.whatever
 
+
+
         # Set instance variables
+        self.start_at_round = START_AT_ROUND
         self.event_number = EVENT_NUMBER
         self.event_serial = mk_serial(EVENT_NUMBER)
         self.event_date = time.strftime("%Y.%m.%d")
@@ -211,116 +215,9 @@ class _Event(object):
         self.li_f_ipad_nums = range(self.num_stations+1, 2*self.num_stations+1)
         self.li_q_nums = range(1, self.num_stations + 1)
 
-        # Create event-user objects.
-        self.li_eu = self.get_event_users()
-
-        
-        # self.li_mpeu = 
-        # self.li_fpeu = 
-        # self.li_mgeu = 
-        # self.li_fgeu = 
-        # self.li_all_meu = self.li_mpeu + self.li_mgeu
-        # self.li_all_feu = self.li_fpeu + self.li_fgeu
-        # self.li_all_eu = self.li_all_meu + self.li_all_feu
-        # self.li_all_eu.sort(key = lambda x: x.eu_num)
-
-        # self.li_m_ipad_objs = list(m_ipq)
-        # self.li_f_ipad_objs = list(f_ipq)
-
-        # self.li_q_objs = list(Question.Query.all().limit(self.num_stations).order_by("qNum"))
-
-
-        # m_ipq = batch_query(
-        #     Source = "Parse",
-        #     Cls = IPad,
-        #     Limit = self.num_stations,
-        #     OrderBy = "ipNum"
-        #     )
-        # f_ipq = batch_query(
-        #     Source = "Parse",
-        #     Cls = IPad,
-        #     Limit = self.num_stations,
-        #     OrderBy = "ipNum",
-        #     Skip = self.num_stations
-        #     )
-        #ipq = IPad.Query.all().limit(self.num_ipads).order_by("iPadNum")
-        # m_ipq = ipq.limit(self.num_stations).order_by("iPadNum")
-        # f_ipq = ipq.skip(self.num_stations).limit(self.num_stations)
-        # f_ipq = f_ipq.order_by("iPadNum")
-
-        # self.li_q_objs = list(batch_query(
-        #     Source = "Parse",
-        #     Cls = Question,
-        #     Filter = ["qNum", "<=", self.num_event_ix_pp],
-        #     Limit = self.num_event_ix_pp,
-        #     OrderBy = "qNum"
-       #  #     ))
-       # # self.li_q_objs = list(
-       #      Question.Query.all()
-       #                    .order_by("qNum")
-       #                    .filter(qNum__lte = self.num_event_ix_pp)
-       #      )
-       #  # self.li_q_objs = list(qq)
-
-
-        self.start_at_round = START_AT_ROUND
-
-        #########   END INSTANCE VARIABLES   ##########
-
-        # Create a corresponding Event object in Parse.
-        #  self.create_event_object_in_Parse()
-
-        # Create a skeleton DB in Firebase
+        # Create a skeleton DB in Firebase.
         self.create_QA_and_SAC_databases_in_Firebase()
-
         pass
-
-    def get_event_users(self):
-        """
-        Returns a list of the desired event users.
-        """
-        pass
-
-
-
-
-    # def create_event_users_in_Parse(self):
-
-    #     """
-    #     Create zE0000_User objects by "batch_save"-ing them to Parse using 
-    #     ParsePy's ParseBatcher(). Event User objects are _User objects whose 
-    #     array_eventsRegistered contains the eventNum of this current event.
-
-    #     """
-
-    #     qset_all_users = User.Query.all().order_by("userNum")
-    #     li_mpeu = list(qset_all_users.filter(sex = "M").limit(self.num_m_eu_p))
-    #     li_fpeu = list(qset_all_users.filter(sex = "F").limit(self.num_f_eu_p))
-    #     li_mgeu = list(qset_all_users.filter(sex = "MG").limit(self.num_m_eu_g))
-    #     li_fgeu = list(qset_all_users.filter(sex = "FG").limit(self.num_f_eu_g))
-
-    #     li_users_at_event = li_mpeu + li_fpeu + li_mgeu + li_fgeu
-
-    #     li_eu_obj_to_upload = []
-
-    #     for index, User_object in enumerate(li_users_at_event):
-    #         new_EU_object = eu_Class(
-    #             userObjectId = User_object.objectId,
-    #             euNum = index + 1,
-    #             userNum = User_object.userNum,
-    #             username = User_object.username,
-    #             first = User_object.username.split(" ")[0],
-    #             last = User_object.username.split(" ")[-1],
-    #             sex = User_object.sex
-    #             )
-    #         li_eu_obj_to_upload.append(new_EU_object)
-
-
-    #     # Batch upload in chunks no larger than 50, and sleep to avoid timeouts
-    #     batch_upload_to_Parse(eu_ClassName, li_eu_obj_to_upload)    
-
-    #     return li_eu_obj_to_upload
-
 
     def create_QA_and_SAC_databases_in_Firebase(self):
         pass
@@ -337,14 +234,6 @@ class _Round(object):
     def __init__(self, e):
 
         _Round.CURR_ROUND += 1
-
-        # # Fill the class list of event users.
-        # _Round.LI_EVENT_USERS = list(
-        #     cls_EventUser.Query.all().limit(1000).order_by("euNum"))
-
-        # # Refresh the global list of event users
-        # LI_EVENT_USERS = _Round.LI_EVENT_USERS
-
 
         """ Set instance variables. """
 
@@ -451,6 +340,21 @@ class Round_1(_Round):
         _Round.__init__(self, e)
         self.round_num = 1
         pass
+
+    def simulate(self, li = []):
+        """
+        Take a list of interaction objects to simulate.
+        Return the same list, with updated values.
+        """
+
+        if li: # equivalent to, and faster than, if li != []
+            for ix in li:
+                ix.m_see_f = random.randint(0,3) # 0 to 3 inclusive
+                ix.f_see_m = random.randint(0,3)
+                ix.quality = ix.m_see_f + ix.f_see_m
+                ix.same_sac = (ix.m_see_f == ix.f_see_m)
+
+        return li
     pass
 
 ###############################################################################
@@ -551,8 +455,18 @@ class _User(object):
             self.sex = 'MG'
         elif self.u_num <= 2200:
             self.sex = 'FG'
-        # else:
-        #     raise ValueError("self.u_num {} is out of bounds.".format(self.u_num))
+
+        # desirability means that, out of 100 people, d would say "yes" to you.
+        # selectivity means that, out of 100 people, you would say "no" to s.
+        # Should they be someone loosely related to each other?
+        # If you're hot, aren't you more selective?
+        # Let's say selectivity is within 30 of desirability.
+        # 95 = very desirable
+        # 100 = very selective
+        self.desirability = random.randint(5,95)
+        self.selectivity =  random.randint(
+            max(self.desirability-30, 5), min(self.desirability+30, 95))
+
         pass
 
     def __iter__(self):
@@ -651,6 +565,17 @@ def main():
         SEC_PER_R2_IX = 40,
         SEC_PER_R3_IX = 60
         )
+
+
+    """  Optimize event timing.  """
+    sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix = optimize_event_timing(
+        m = e.num_m_eu_p, 
+        w = e.num_f_eu_p,
+        sec_per_r1_ix = 20,
+        multiplier = 2.0,
+        minutes_in_entire_event = 60
+        )
+
 
     """  Create Users: 1,000 men, 1,000 women, 100 male ghosts, 100 female ghosts.  """
     _User.CURR_USER_NUM = 0

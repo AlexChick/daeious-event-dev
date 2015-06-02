@@ -34,24 +34,51 @@ import requests
 """                                FUNCTIONS                                """
 ###############################################################################
 
-def optimize_event_timing(m, w, mg, wg, num_sec_in_entire_event = 60 * 60):
+def optimize_event_timing(
+                        m = 50, 
+                        w = 50, 
+                        sec_per_r1_ix = 15, 
+                        multiplier = 2,
+                        minutes_in_entire_event = 60):
     """
     Should each round be the same length of time?
+    Should each event?
+    Should break times depend on how many people are at the event?
     """
 
-    sec_pregame = 60 * 10 # 600
-    sec_break_1 = 60 * 5  # 300
-    sec_break_2 = 60 * 5  # 300
-    sec_postgame = 60 * 5 # 300
+    sec_pregame = 60 * 10 # 600 = 10 minutes
+    sec_break_1 = 60 * 5  # 300 = 5 minutes
+    sec_break_2 = 60 * 5  # 300 = 5 minutes
+    sec_postgame = 60 * 5 # 300 = 5 minutes
 
     sec_not_playing = sec_pregame + sec_break_1 + sec_break_2 + sec_postgame
-    sec_playing = num_sec_in_entire_event - sec_not_playing
+    sec_playing = (minutes_in_entire_event * 60) - sec_not_playing
 
-    r1_ix = (m + mg) ** 2
-    r2_ix = round(r1_ix / 4.0, 
+    stations = max(m,w) if max(m,w) % 2 == 1 else max(m,w) + 1
+    mg = stations - m
+    fg = stations - w
 
-    return [sec_pregame, sec_break_1, sec_break_2, sec_postgame], \
-           [sec_r1, sec_r2, sec_r3]
+    num_r1_ix_pp = int(round(stations/1.0, 0))
+    num_r2_ix_pp = int(round(stations/4.0, 0))
+    num_r3_ix_pp = int(round(stations/12.0, 0))
+
+    # make all rounds be the same length, and set sec_per_r1_ix, etc accordingly
+    sec_per_round = sec_playing / 3
+    sec_per_r1_ix = int(sec_per_round / float(num_r1_ix_pp))
+    sec_per_r2_ix = int(sec_per_round / float(num_r2_ix_pp))
+    sec_per_r3_ix = int(sec_per_round / float(num_r3_ix_pp))
+
+    print ([sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix])
+
+    # make rounds be specific lengths according to multipliers
+
+    #
+
+
+
+    return sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix
+
+
 
 def filter_by_value(sequence, value):
     """
@@ -159,51 +186,6 @@ if __name__ == "__main__":
     sys.exit(status)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def connect_with_Parse_classes():
-
-
-#     # event-specific classes
-
-#     class z_E0000_R1(Object): pass
-
-#     class z_E0000_User(Object): pass
-
-#     # general classes
-
-#     class Config(Object): pass
-
-#     class Employee(Object): pass
- 
-#     class Event(Object): pass
-
-#     class Ghost(Object): pass
-
-#     class Interaction(Object): pass
-
-#     class IPad(Object): pass
-
-#     class Question(Object): pass
-
-#     class Round(Object): pass
-
-#     class Test_Class(Object): pass
-
-#     pass
 
 
 
