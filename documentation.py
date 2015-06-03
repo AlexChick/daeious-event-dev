@@ -9,7 +9,7 @@
 It is passed a list of all event users, including ghosts. These event users are assigned semi-random values for things like:
 '''
 hotness # (a Round-0 / pregame desirability) — 100 = very desirable (out of 100 ppl, 100 would say “yes”)
-openness # (a Round-0 / pregame selectivity) — 0 = very selective (they would say “no” to 100 out of 100 ppl)
+nixness # (a Round-0 / pregame selectivity) — 0 = very selective (they would say “no” to 100 out of 100 ppl)
 personality # (A random int, 0-100. If your personalities are similar, you might be somewhat more likely to choose each other.)
 (?) clothing (how well you’re displaying yourself)
 (?) hair color
@@ -23,7 +23,7 @@ personality # (A random int, 0-100. If your personalities are similar, you might
  
 The code in main() is:
 --------------------------------- 
-li_all_eu = r0.analyze(li_all_eu)    
+r0.analyze(li_all_eu)    
 ---------------------------------
 
 
@@ -32,15 +32,35 @@ li_all_eu = r0.analyze(li_all_eu)
 '''
 Once the event users are assigned those pregame attributes, the li_all_eu is iterated through (first by subround, then by station) and, for each station in each subround, a basic interaction object is created containing:
 '''
-ix_num
-sta_num
-sub_num
-q_num
-m_ipad_num, f_ipad_num
-m_eu_num, f_eu_num 
-m_hotness, f_hotness
-m_openness, f_openness
-m_personality, f_personality
+
+Carried over from _Interaction:
+
+    e # event object
+    r # round object
+
+    ix_num
+    event_nm
+    round_num
+
+    meu # male and female event user objects
+    feu 
+    m_eu_num
+    f_eu_num 
+
+Newly created:
+
+    sub_num
+    sta_num
+    q_num
+    m_ipad_num
+    f_ipad_num
+
+    m_hotness
+    f_hotness
+    m_nixness
+    f_nixness
+    m_personality
+    f_personality
 
 '''These objects are put into a list of planned round-1 interactions (li_r1_ix_planned).'''
 
@@ -115,7 +135,7 @@ li_r1_ix_analyzed = r1.analyze(li_r1_ix_simulated)
 """
 Now, Round 2 is prepared — it is decided which R1 interactions will happen again. This is a tricky process. It’s the heart of the algorithm. It can be done many different ways:
 1.
-Rank each r1-ix according to sum_sac first, then things like agree, score_r1_sel, score_r1_des, hotness, openness, et cetera. Then start at interaction ranked #1 and go down the list, trying to make each interaction happen by checking to see if (a) the person already has 15 planned R2 interactions, and (b) both people have a free subround. If so, plop them into their next available subround. … This seems tricky.
+Rank each r1-ix according to sum_sac first, then things like agree, score_r1_sel, score_r1_des, hotness, nixness, et cetera. Then start at interaction ranked #1 and go down the list, trying to make each interaction happen by checking to see if (a) the person already has 15 planned R2 interactions, and (b) both people have a free subround. If so, plop them into their next available subround. … This seems tricky.
 2.
 Make some algorithm that takes the top 13 * 51 = 663 interactions and does several random auto-placements of them into the 663 slots, keeping the best (defined as placing the most, or the highest inverse-value sum of ix_num) after each new try, and trying for as many times as is practical before stopping. When it stops, take the number it couldn’t place and go through the rest of the list (#664, #665, etc) and try to place that many, stopping when no more can be placed. … This could work. It could also give an optimal solution for the 663 best ix’s, and then be unable to completely fill the event. You don’t want any interactions happening again where either person said “no”. Maybe those should be thrown out. And maybe every auto-placement attempt of the first 663 should include placement of the rest, and only then could it be considered valid. Goes through entire list only once. (+)
 3.
@@ -133,7 +153,7 @@ Only make one subround’s ix’s at a time. Iterate through the (2,600-member) 
     m_eu_num, f_eu_num 
     m_r1_sac, f_r1_sac
     m_hotness, f_hotness
-    m_openness, f_openness
+    m_nixness, f_nixness
     m_personality, f_personality
     m_r1_des, f_r1_des
     m_r1_sel, f_r1_sel
@@ -180,7 +200,7 @@ Similar to R1.plan and R2.plan. No matter how the algorithm functions, it return
     m_r1_sac, f_r1_sac
     m_r2_sac, f_r2_sac
     m_hotness, f_hotness
-    m_openness, f_openness
+    m_nixness, f_nixness
     m_personality, f_personality
     m_r1_des, f_r1_des
     m_r2_des, f_r2_des

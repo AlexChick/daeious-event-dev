@@ -151,8 +151,8 @@ class _Event(object):
 
     def __init__(self, EVENT_NUMBER = 0,
                        START_AT_ROUND = 0,
-                       MEN = 20,
-                       WOMEN = 20,
+                       MEN = 50,
+                       WOMEN = 50,
                        SEC_PER_R1_IX = 20,
                        SEC_PER_R2_IX = 40,
                        SEC_PER_R3_IX = 60
@@ -165,7 +165,7 @@ class _Event(object):
 
         # Set instance variables
         self.start_at_round = START_AT_ROUND
-        self.event_number = EVENT_NUMBER
+        self.event_num = EVENT_NUMBER
         self.event_serial = mk_serial(EVENT_NUMBER)
         self.event_date = time.strftime("%Y.%m.%d")
         self.event_time = random.choice(["19:00", "19:30", "20:00", "20:30"])
@@ -222,6 +222,21 @@ class _Event(object):
     def create_QA_and_SAC_databases_in_Firebase(self):
         pass
 
+    def __repr__(self):
+        return "{} {}".format(self.__class__.__name__, self.event_num)
+
+    def __iter__(self):
+        # first start by grabbing the Class items
+        iters = dict((x,y) for x,y in _Event.__dict__.items() 
+            if x[:2] != '__' 
+                and x != "create_QA_and_SAC_databases_in_Firebase"
+            )
+        # then update the class items with the instance items
+        iters.update(self.__dict__)
+        # now 'yield' through the items
+        for x,y in iters.items():
+            yield x,y
+
 
 ################################################################################
 """                                  _ROUND                                  """
@@ -240,7 +255,7 @@ class _Round(object):
         self.e = e # proper and allows access to e in functions 
                    # without having to pass it
 
-        self.event_number = e.event_number
+        self.event_num = e.event_num
 
         self.curr_rd = _Round.CURR_ROUND
 
@@ -262,24 +277,52 @@ class _Round(object):
 
         pass
 
-    def prepare(self):
-        pass
 
-    def simulate(self, li = []):
-        """
-        Take a list of interaction objects to simulate.
-        Return the same list, with updated values.
-        """
 
-        if li: # equivalent to, and faster than, if li != []
-            for ix in li:
-                ix.simulate()
+    # def prepare(self, li_all_eu):
+    #     """
+    #     Take a list of the previous round's interactions (unless R1).
+    #     Assign this round's pairings by calculating an ix's power
+    #     and returning a list of eu tuples (eum,euf) in descending order of power.
+    #     Create the interaction objects representing their 
+    #     eu-num pairings, with station, ipad, and question nums (no simulation),
+    #     and return a list of them.
+    #     """
 
-            return li
-        pass
+    #     if 
 
-    def analyze(self):
-        pass
+    #     # loop through the subrounds
+    #     for subround in range(1, self.num_ix_pp+1):
+    #         # loop through the stations
+    #         for station in self.e.li_sta_nums:
+
+    #     for eu in li_all_eu:
+
+
+
+
+    #     pass
+
+    # def simulate(self, li_ix_to_sim):
+    #     """
+    #     Take a list of interaction objects.
+    #     Simulate the results of the interactions,
+    #     and return the same (now updated) list.
+    #     """
+
+    #     if li_ix_to_sim: # equivalent to, and faster than, if li != []
+    #         for ix in li_ix_to_sim:
+    #             ix.simulate()
+
+    #     return li_ix_to_sim
+
+
+    # def analyze(self):
+    #     """
+    #     Take a list of simulated interaction objects and assign an "energy"
+    #     value which represents how much the interaction should happen again.
+    #     """
+    #     pass
 
 ###############################################################################
 """                               Round 0                                   """
@@ -289,25 +332,11 @@ class _Round(object):
 class Round_0(_Round):
     """
     --> Pregame stuff. Assume sufficient (>100) Users exist in Parse.
-
-    prepare: 
-        - assign_pregame_sel_and_des_ranks() to all event-users
-        - 
-    simulate:
-        - (Nothing to simulate)
-    analyze:
-        - (Nothing to analyze)
-    ***
-    assign_pregame_sel_and_des_ranks:
-        -
     """
 
     def __init__(self, e):
         _Round.__init__(self, e)
         self.round_num = 0
-        pass
-
-    def assign_pregame_sel_and_des_ranks(self):
         pass
 
     # def prepare(self):
@@ -319,7 +348,30 @@ class Round_0(_Round):
     #     # nothing to do here
     #     pass
 
-    # def analyze(self):
+    # def analyze(self, li_all_u, li_all_eu):
+
+    #     # hotness means that, out of 100 people, d would say "yes" to you.
+    #     # nixness means that, out of 100 people, you would say "no" to s.
+    #     # Should they be somewhat loosely related to each other?
+    #     # If you're hot, aren't you more selective?
+    #     # Let's say nixness is within 30 of hotness.
+    #     # hotness of 95 = very attractive (entering event)
+    #     # nixness of 95 = very selective (entering event)
+
+    #     hotness = random.randint(5, 95)
+    #     nixness = random.randint(max(hotness-30, 5), min(hotness+30, 95))
+    #     personality = random.randint(5, 95)
+    #     age = random.randint(18, 22)
+    #     eyes = random.choice(["blue", "brown", "black", "green", "hazel"])
+
+    #     for li in [li_all_u, li_all_eu]:
+    #         for obj in li:
+    #             obj.hotness = hotness
+    #             obj.nixness = nixness
+    #             obj.personality = personality
+    #             obj.age = age
+    #             obj.eyes = eyes
+    #         #return li_all_eu # necessary?
     #     pass
 
     pass
@@ -339,11 +391,54 @@ class Round_1(_Round):
         self.round_num = 1
         pass
 
-    # def simulate(self, li = []):
-    #     """
-    #     Take a list of interaction objects to simulate.
-    #     Return the same list, with updated values.
-    #     """
+    def plan(self, li_all_eu):
+
+        li_r1_ix_planned = []
+
+        li_all_meu = [eu for eu in li_all_eu if eu.sex in ['M', 'MG']]
+        li_all_feu = [eu for eu in li_all_eu if eu.sex in ['F', 'FG']]
+
+        print (self.e.li_sta_nums)
+        print ([x.eu_num for x in li_all_meu])
+
+        for subround in range(1, self.e.num_r1_ix_pp+1):
+
+            for n, station in enumerate(self.e.li_sta_nums):
+
+                meu = li_all_meu[n]
+                feu = li_all_feu[n]
+                ix = _Interaction(self.e, self, meu, feu)
+                ix.sub_num = subround
+                ix.sta_num = station
+                ix.q_num = self.e.li_q_nums[n]
+                ix.m_ipad_num = self.e.li_m_ipad_nums[n]
+                ix.f_ipad_num = self.e.li_f_ipad_nums[n]
+
+                ix.m_hotness = meu.hotness
+                ix.f_hotness = feu.hotness
+                ix.m_nixness = meu.nixness
+                ix.f_nixness = feu.nixness
+                ix.m_personality = meu.personality
+                ix.f_personality = feu.personality
+
+                li_r1_ix_planned.append(ix)
+
+            ### Rotate the lists between subrounds.
+            ### The lists of station nums and m and f ipad nums
+            ### will be iterated through correctly without alteration.
+
+            # the m list will have its last item put in the front
+            li_all_meu = [li_all_meu[-1]] + li_all_meu[:-1]
+
+            # the f list will have its first item put in the back
+            li_all_feu = li_all_feu[1:] + [li_all_feu[0]]
+
+            # the qNums list happens to move the first two to the back
+            self.e.li_q_nums = self.e.li_q_nums[2:] + self.e.li_q_nums[:2] 
+
+        return li_r1_ix_planned
+
+
 
     pass
 
@@ -398,20 +493,23 @@ class _Interaction(object):
         _Interaction.CURR_IX_NUM += 1
         self.e = e
         self.r = r
-        self.meu = mEU,
-        self.feu = fEU,
-        self.round_num = r.round_num
-        self.ix_num = _Interaction.CURR_IX_NUM
-        self.m_eu_num = mEU.eu_num
-        self.f_eu_num = fEU.eu_num
-        self.simuate()
+        self.meu = mEU
+        self.feu = fEU
 
-    def simulate(self):
-        self.m_see_f = random.randint(0, 3)
-        self.f_see_m = random.randint(0, 3)
-        # self.m_see_f = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
-        # self.f_see_m = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
-        pass
+        self.ix_num = _Interaction.CURR_IX_NUM
+        self.event_num = self.e.event_num
+        self.round_num = self.r.round_num
+
+        self.m_eu_num = self.meu.eu_num
+        self.f_eu_num = self.feu.eu_num
+        #self.simuate()
+
+    # def simulate(self):
+    #     self.m_see_f = random.randint(0, 3)
+    #     self.f_see_m = random.randint(0, 3)
+    #     # self.m_see_f = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
+    #     # self.f_see_m = random.choice(["no", "maybe-no", "maybe-yes", "yes"])
+    #     pass
 
     def __iter__(self):
         # first start by grabbing the Class items
@@ -448,18 +546,44 @@ class _User(object):
         elif self.u_num <= 2200:
             self.sex = 'FG'
 
-        # desirability means that, out of 100 people, d would say "yes" to you.
-        # selectivity means that, out of 100 people, you would say "no" to s.
-        # Should they be someone loosely related to each other?
-        # If you're hot, aren't you more selective?
-        # Let's say selectivity is within 30 of desirability.
-        # 95 = very desirable
-        # 100 = very selective
-        self.desirability = random.randint(5,95)
-        self.selectivity =  random.randint(
-            max(self.desirability-30, 5), min(self.desirability+30, 95))
+        self.hotness = random.randint(5, 95)
+        self.nixness = random.randint(max(self.hotness-30, 5), 
+                                      min(self.hotness+30, 95))
+        self.personality = random.randint(5, 95)
+        self.age = random.randint(18, 22)
+        self.eyes = random.choice(["blue", "brown", "black", "green", "hazel"])
+
+
+        # # desirability means that, out of 100 people, d would say "yes" to you.
+        # # selectivity means that, out of 100 people, you would say "no" to s.
+        # # Should they be somewhat loosely related to each other?
+        # # If you're hot, aren't you more selective?
+        # # Let's say selectivity is within 30 of desirability.
+        # # 95 = very desirable
+        # # 95 = very selective
+        # self.desirability = random.randint(5,95)
+        # self.selectivity =  random.randint(
+        #     max(self.desirability-30, 5), min(self.desirability+30, 95))
 
         pass
+
+    def ordered_attr_names(self):
+        """  
+        Returns an ordered list of attribute names for Excel. 
+        Useful for ignoring class instances (objects) when writing to Excel.
+        """
+        li_names = []
+        li_keys = dict(self).keys()
+        print (li_keys)
+
+        for name in ["u_num", "eu_num", 
+                    "hotness", "nixness", "personality",
+                    "sex", "age", "eyes"]:
+            if name in li_keys:
+                li_names.append([key for key in li_keys if key == name][0])
+                print(li_names)
+
+        return li_names
 
     def __iter__(self):
         # first start by grabbing the Class items
@@ -473,6 +597,10 @@ class _User(object):
         # now 'yield' through the items
         for x,y in iters.items():
             yield x,y
+
+    # def __repr__(self):
+    #     return "{} {}".format(self.__class__.__name__, self.u_num)
+
     
     pass
 
@@ -484,12 +612,52 @@ class _EventUser(_User):
 
     CURR_EVENTUSER_NUM = 0
 
-    def __init__(self):
+    def __init__(self, e):
         _User.__init__(self)
         self.u_num -= 2200 # (because I added 2200 users)
         _EventUser.CURR_EVENTUSER_NUM += 1
         self.eu_num = _EventUser.CURR_EVENTUSER_NUM
+
+        self.e = e
+
+        if self.eu_num <= self.e.num_all_eu_p:
+            self.sex = 'M' if self.eu_num <= self.e.num_m_eu_p else 'F'
+        else:
+            if self.eu_num <= self.e.num_all_eu_p + self.e.num_m_eu_g:
+                self.sex = 'MG'
+            else:
+                self.sex = 'FG'
+
         pass
+
+    # def ordered_attr_names(self):
+    #     """  
+    #     Returns an ordered list of attribute names for Excel. 
+    #     Useful for ignoring class instances (objects) when writing to Excel.
+    #     """
+    #     li_names = []
+    #     li_keys = dict(self).keys()
+    #     print (li_keys)
+
+    #     for name in ["u_num", "eu_num", 
+    #                 "hotness", "nixness", "personality",
+    #                 "sex", "age", "eyes"]:
+    #         li_names.append([key for key in li_keys if key == name][0])
+    #         print (li_names)
+
+    #     return li_names
+
+    def __iter__(self):
+        # first start by grabbing the Class items
+        iters = dict((x,y) for x,y in _EventUser.__dict__.items() 
+            if x[:2] != '__' 
+                and x != "CURR_EVENTUSER_NUM"
+            )
+        # then update the class items with the instance items
+        iters.update(self.__dict__)
+        # now 'yield' through the items
+        for x,y in iters.items():
+            yield x,y
 
     pass
 ################################################################################
@@ -579,13 +747,10 @@ def main():
 
 
     """  Create correct number and type of EventUsers.  """
-    ################
-    ######   I THINK THIS IS WRONG.
-    ######   I should be using li_mpu, li_fpu, etc to get correct eu_nums...shouldn't I?
-    li_mpeu = list((_EventUser() for i in range(e.num_m_eu_p)))
-    li_fpeu = list((_EventUser() for i in range(e.num_f_eu_p)))
-    li_mgeu = list((_EventUser() for i in range(e.num_m_eu_g)))
-    li_fgeu = list((_EventUser() for i in range(e.num_f_eu_g)))
+    li_mpeu = list((_EventUser(e) for i in range(e.num_m_eu_p)))
+    li_fpeu = list((_EventUser(e) for i in range(e.num_f_eu_p)))
+    li_mgeu = list((_EventUser(e) for i in range(e.num_m_eu_g)))
+    li_fgeu = list((_EventUser(e) for i in range(e.num_f_eu_g)))
     li_all_eu = li_mpeu + li_fpeu + li_mgeu + li_fgeu
 
 
@@ -597,28 +762,44 @@ def main():
     r4 = Round_4(e) if e.start_at_round <= 4 else 0
     print("\n{} Round objects created.".format(len([r0,r1,r2,r3,r4])))
 
+
     """  Simulate the rounds.  """
     # simulates an entire event (all 3 rounds, plus pregame and postgame)
 
-    li_r1_ix = []
+    # li_all_eu2 = r0.analyze(li_all_eu)
+    # pprint(dict(li_all_eu2[0]))
+    # assert li_all_eu == li_all_eu2
+
+    #r0.analyze(li_all_u, li_all_eu)
+    li_r1_ix_planned = r1.plan(li_all_eu)
+
+    # reset _Interaction.CURR_IX_NUM
+    _Interaction.CURR_IX_NUM = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    li_r1_ix = li_r1_ix_planned
     li_r2_ix = []
     li_r3_ix = []
 
-    # li_r1_ix = r1.simulate(li_all_eu)
-    li_r = [r0, r1, r2, r3, r4]
-    li_li_ix_by_r = [0,li_r1_ix, li_r2_ix, li_r3_ix, 0]
-    for r, (index, li) in zip(li_r, enumerate(li_li_ix_by_r)):
-        if isinstance(r, _Round):
-            print("\nCurrent Round:", r.round_num)
-            r.prepare()
-            li = r.simulate(li_all_eu)
-            r.analyze()
-            if index == 1:
-                li_r1_ix = li
-            elif index == 2:
-                li_r2_ix = li
-            else: # index == 3:
-                li_r3_ix = li
+    # # li_r1_ix = r1.simulate(li_all_eu)
+    # li_r = [r0, r1, r2, r3, r4]
+
+    # li_li_ix_by_r = [0, li_r1_ix, li_r2_ix, li_r3_ix, 0]
+
 
 
 
@@ -639,36 +820,27 @@ def main():
     ws_r3_ix = WB.add_sheet('R3 Ix', cell_overwrite_ok = True)
 
     #  Users
-
-    # """  Write the column label names for the Users sheet in Excel  """
-    # for c, label in enumerate(dict(li_mpu[0]).keys()):
-    #         ws_User.write(0, c, label)
-
     """  Write the rows of Users in Excel (too early?)  """
-    for c, label in enumerate(dict(li_all_u[0]).keys()):
+    for c, label in enumerate(li_all_u[0].ordered_attr_names()):
         ws_User.write(0, c, label)
         for r, user in enumerate(li_all_u):
             ws_User.write(r+1, c, getattr(user, label))   
 
     #  Event Users
-
-    # """  Write the column label names for the EventUsers sheet in Excel  """
-    # for c, label in enumerate(dict(li_mpeu[0]).keys()):
-    #         ws_EventUser.write(0, c, label)
-
     """  Write the rows of EventUsers in Excel (too early?)  """ # _EventUser
-    for c, label in enumerate(dict(li_all_eu[0]).keys()): # for each attribute
+    for c, label in enumerate(li_all_eu[0].ordered_attr_names()): # for each attribute
         ws_EventUser.write(0, c, label) # make the column label in the first row
         for r, event_user in enumerate(li_all_eu): # for each EventUser
             ws_EventUser.write(r+1, c, getattr(event_user, label))
 
     #  R1_Ix
-
+    """  Write the rows of Interactions in Excel  """
     for sheet, li in zip([ws_r1_ix, ws_r2_ix, ws_r3_ix], [li_r1_ix, li_r2_ix, li_r3_ix]): # for each round
-        for c, label in enumerate(dict(li[0]).keys()): # for each column / attribute of an interaction
-            sheet.write(0, c, label) # make the column label in the first row
-            for r, ix in enumerate(li):
-                sheet.write(r+1, c, getattr(ix, label))
+        if li:
+            for c, label in enumerate(dict(li[0]).keys()): # for each column / attribute of an interaction
+                sheet.write(0, c, label) # make the column label in the first row
+                for r, ix in enumerate(li):
+                    sheet.write(r+1, c, getattr(ix, label))
 
     #  R2_Ix
 
