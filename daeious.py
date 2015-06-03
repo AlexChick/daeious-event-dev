@@ -273,12 +273,10 @@ class _Round(object):
 
         if li: # equivalent to, and faster than, if li != []
             for ix in li:
-                ix.m_see_f = random.randint(0,3) # 0 to 3 inclusive
-                ix.f_see_m = random.randint(0,3)
-                ix.quality = ix.m_see_f + ix.f_see_m
-                ix.same_sac = (ix.m_see_f == ix.f_see_m)
+                ix.simulate()
 
-        return li
+            return li
+        pass
 
     def analyze(self):
         pass
@@ -341,20 +339,12 @@ class Round_1(_Round):
         self.round_num = 1
         pass
 
-    def simulate(self, li = []):
-        """
-        Take a list of interaction objects to simulate.
-        Return the same list, with updated values.
-        """
+    # def simulate(self, li = []):
+    #     """
+    #     Take a list of interaction objects to simulate.
+    #     Return the same list, with updated values.
+    #     """
 
-        if li: # equivalent to, and faster than, if li != []
-            for ix in li:
-                ix.m_see_f = random.randint(0,3) # 0 to 3 inclusive
-                ix.f_see_m = random.randint(0,3)
-                ix.quality = ix.m_see_f + ix.f_see_m
-                ix.same_sac = (ix.m_see_f == ix.f_see_m)
-
-        return li
     pass
 
 ###############################################################################
@@ -408,6 +398,8 @@ class _Interaction(object):
         _Interaction.CURR_IX_NUM += 1
         self.e = e
         self.r = r
+        self.meu = mEU,
+        self.feu = fEU,
         self.round_num = r.round_num
         self.ix_num = _Interaction.CURR_IX_NUM
         self.m_eu_num = mEU.eu_num
