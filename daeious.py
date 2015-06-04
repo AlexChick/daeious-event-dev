@@ -88,6 +88,7 @@ from pprint import pprint
 import itertools
 import logging
 import math
+import numpy # used for matrices for placing R2 and R3 ix's
 import os
 import random
 import sys
@@ -160,8 +161,6 @@ class _Event(object):
 
         # You CAN'T SET GLOBALS from within __init__ 
         # But you CAN assign to self.whatever
-
-
 
         # Set instance variables
         self.start_at_round = START_AT_ROUND
@@ -289,17 +288,6 @@ class _Round(object):
     #     and return a list of them.
     #     """
 
-    #     if 
-
-    #     # loop through the subrounds
-    #     for subround in range(1, self.num_ix_pp+1):
-    #         # loop through the stations
-    #         for station in self.e.li_sta_nums:
-
-    #     for eu in li_all_eu:
-
-
-
 
     #     pass
 
@@ -310,19 +298,7 @@ class _Round(object):
     #     and return the same (now updated) list.
     #     """
 
-    #     if li_ix_to_sim: # equivalent to, and faster than, if li != []
-    #         for ix in li_ix_to_sim:
-    #             ix.simulate()
-
     #     return li_ix_to_sim
-
-
-    # def analyze(self):
-    #     """
-    #     Take a list of simulated interaction objects and assign an "energy"
-    #     value which represents how much the interaction should happen again.
-    #     """
-    #     pass
 
 ###############################################################################
 """                               Round 0                                   """
@@ -333,47 +309,10 @@ class Round_0(_Round):
     """
     --> Pregame stuff. Assume sufficient (>100) Users exist in Parse.
     """
-
     def __init__(self, e):
         _Round.__init__(self, e)
         self.round_num = 0
         pass
-
-    # def prepare(self):
-    #     self.assign_pregame_sel_and_des_ranks()
-
-    #     pass
-
-    # def simulate(self): 
-    #     # nothing to do here
-    #     pass
-
-    # def analyze(self, li_all_u, li_all_eu):
-
-    #     # hotness means that, out of 100 people, d would say "yes" to you.
-    #     # nixness means that, out of 100 people, you would say "no" to s.
-    #     # Should they be somewhat loosely related to each other?
-    #     # If you're hot, aren't you more selective?
-    #     # Let's say nixness is within 30 of hotness.
-    #     # hotness of 95 = very attractive (entering event)
-    #     # nixness of 95 = very selective (entering event)
-
-    #     hotness = random.randint(5, 95)
-    #     nixness = random.randint(max(hotness-30, 5), min(hotness+30, 95))
-    #     personality = random.randint(5, 95)
-    #     age = random.randint(18, 22)
-    #     eyes = random.choice(["blue", "brown", "black", "green", "hazel"])
-
-    #     for li in [li_all_u, li_all_eu]:
-    #         for obj in li:
-    #             obj.hotness = hotness
-    #             obj.nixness = nixness
-    #             obj.personality = personality
-    #             obj.age = age
-    #             obj.eyes = eyes
-    #         #return li_all_eu # necessary?
-    #     pass
-
     pass
 
 ###############################################################################
@@ -391,12 +330,12 @@ class Round_1(_Round):
         self.round_num = 1
         pass
 
-    def plan(self, li_all_eu):
+    def plan(self, leu):
 
         li_r1_ix_planned = []
 
-        li_all_meu = [eu for eu in li_all_eu if eu.sex in ['M', 'MG']]
-        li_all_feu = [eu for eu in li_all_eu if eu.sex in ['F', 'FG']]
+        li_all_meu = [eu for eu in leu if eu.sex in ['M', 'MG']]
+        li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
 
         print (self.e.li_sta_nums)
         print ([x.eu_num for x in li_all_meu])
@@ -423,9 +362,9 @@ class Round_1(_Round):
 
                 li_r1_ix_planned.append(ix)
 
-            ### Rotate the lists between subrounds.
-            ### The lists of station nums and m and f ipad nums
-            ### will be iterated through correctly without alteration.
+            # Rotate the lists between subrounds.
+            # The lists of station nums and m and f ipad nums
+            # will be iterated through correctly without alteration.
 
             # the m list will have its last item put in the front
             li_all_meu = [li_all_meu[-1]] + li_all_meu[:-1]
@@ -434,10 +373,120 @@ class Round_1(_Round):
             li_all_feu = li_all_feu[1:] + [li_all_feu[0]]
 
             # the qNums list happens to move the first two to the back
+            # ... But oops, doesn't work when num_q is divisible by 3.
             self.e.li_q_nums = self.e.li_q_nums[2:] + self.e.li_q_nums[:2] 
 
         return li_r1_ix_planned
 
+
+
+    def simulate(self, lix):
+
+        li_r1_ix_planned = lix
+
+        for ix in li_r1_ix_planned:
+
+            ix.m_sac = random.randint(0,3)
+            ix.f_sac = random.randint(0,3)
+            ix.m_qa = random.choice(['A','B','C','D'])
+            ix.f_qa = random.choice(['A','B','C','D'])
+
+            ix.sac_total = ix.m_sac + ix.f_sac
+            ix.sac_same = 1 if ix.m_sac == ix.f_sac else 0
+            ix.qa_same = 1 if ix.m_qa == ix.f_qa else 0
+
+        return li_r1_ix_planned # necessary?
+
+
+
+    def analyze(self, leu, lix):
+
+        li_r1_ix_analyzed = lix # DON'T modify li_r1_ix_simulated
+
+        m_sel = 0
+        f_sel = 0
+        m_des = 0
+        f_des = 0
+
+        for eu in leu: # 51x
+            sel = 0
+            des = 0
+            li_rcvd = [0,0,0,0] # no, mn, my, yes
+            li_gave = [0,0,0,0] # yes, my, mn, no
+            # for ix in li_r1_ix_analyzed: # 2601x
+            for ix in [ixobj for ixobj in li_r1_ix_analyzed
+                if eu.eu_num in [ixobj.m_eu_num, ixobj.f_eu_num]
+                ]: # 2601x
+                if eu.eu_num == ix.m_eu_num: # male or male ghost
+                    sel += ix.m_sac
+                    des += ix.f_sac
+                    li_gave[ix.m_sac] += 1
+                    li_rcvd[ix.f_sac] += 1
+                    
+                else: # female or female ghost
+                    sel += ix.f_sac
+                    des += ix.m_sac
+                    li_gave[ix.f_sac] += 1
+                    li_rcvd[ix.m_sac] += 1
+                    
+
+            eu.r1_sel = sel
+            eu.r1_des = des
+
+            eu.nr1g_no = li_gave[3]
+            eu.nr1g_mn = li_gave[2]
+            eu.nr1g_my = li_gave[1]
+            eu.nr1g_yes = li_gave[0]
+
+            eu.nr1r_no = li_rcvd[0]
+            eu.nr1r_mn = li_rcvd[1]
+            eu.nr1r_my = li_rcvd[2]
+            eu.nr1r_yes = li_rcvd[3]
+
+            eu.nr1g_total = li_gave[0] + 2*li_gave[1] + 3*li_gave[2] + 4*li_gave[3] # should = sel
+            eu.nr1r_total = li_rcvd[0] + 2*li_rcvd[1] + 3*li_rcvd[2] + 4*li_rcvd[3] # should = des
+
+        # go back into ix's and put in m_r1_des, m_r1_sel, etc., and selectivity
+        # (tiebreaker for determining energy)
+        for ix in li_r1_ix_analyzed:
+            for eu in leu:
+                if eu.eu_num == ix.m_eu_num:
+                    ix.m_r1_des = eu.r1_des
+                    ix.m_r1_sel = eu.r1_sel
+                elif eu.eu_num == ix.f_eu_num:
+                    ix.f_r1_des = eu.r1_des
+                    ix.f_r1_sel = eu.r1_sel
+            ix.r1_likeness = ( # closer to 0 is better
+                abs((ix.m_r1_des+ix.m_hotness) - (ix.f_r1_des+ix.f_hotness)) 
+              + abs((ix.m_r1_sel+ix.m_nixness) - (ix.f_r1_sel+ix.f_nixness))
+                 ) * (-1)
+
+        # Sort list according to energy descending.
+        # Energy is a loose term for how much the ix deserves to happen again.
+        li_r1_ix_analyzed = sorted(
+            [ix for ix in li_r1_ix_analyzed], key = lambda i: [
+                 # (3,3)>(3,2)>(2,2)>(3,1)>(2,1)>(1,1)>(3,0)>(2,0)>(1,0)>(0,0)
+
+                 i.sac_total - abs(i.m_sac - i.f_sac), # (6)>(4)>(4)>(3)>(2)>(2)>(0)>(0)>(0)>(0)
+                 i.sac_total, # makes (3,2)>(2,2); makes (2,1)>(1,1); makes (3,0)>(2,0)>(1,0)>(0,0)
+
+                 i.r1_likeness, # most similar in desirability and selectivity
+                                # (have lowest differences in them)
+
+                 i.m_r1_sel + i.f_r1_sel, # most selective pair of round
+                 i.m_nixness + i.f_nixness, # most selective pregame pair
+                 i.m_r1_des + i.f_r1_des, # most desirable pair of round
+                 i.m_hotness + i.f_hotness # most desirable pregame pair
+
+            ],
+            reverse = True)     
+
+        # add r1_rank to all ix's
+        for index, ix in enumerate(li_r1_ix_analyzed):
+            ix.r1_rank = index + 1
+
+
+        return li_r1_ix_analyzed
 
 
     pass
@@ -452,6 +501,60 @@ class Round_2(_Round):
         _Round.__init__(self, e)
         self.round_num = 2
         pass
+
+    def plan(self, leu, lix):
+        """
+        Takes the 51 * 13 = 663 highest-ranked inx in li_r1_ix_by_energy 
+        and does several random auto-placements into 51 * 13 = 663 slots, 
+        keeping the best (placing the most, or the most of the highest-ranked 
+        ix's) after each new try. Try for as many times as is practical. Then,
+        for however many couldn't be placed, try filling with the 664th, 665th,
+        and so on until all slots are filled. 
+        """
+
+        li = lix # make a copy so as not to change li_r1_ix_by_energy
+
+        li_663 = li[:663]
+
+        # make list of slots representing ix's.
+        li_m_slots = numpy.zeros((13, 51))
+        li_f_slots = numpy.zeros((13, 51))
+        # array([[ 0.,  0.,  0.,  0.,  0.],
+               # [ 0.,  0.,  0.,  0.,  0.],
+               # [ 0.,  0.,  0.,  0.,  0.]])
+        # put the women in their stations for all subrounds; 
+        # they start at a station 51 less than their eu num
+        # and they move CC right 1 from outer circle (decrease 1) after each ix
+        li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
+
+        # for index, feu in enumerate(li_all_feu):
+        #     for sub in range(13):
+        #         li_f_slots[sub][index-sub] = feu.eu_num
+        #     # rotate list -- first eu moved to back of list
+
+        print(li_f_slots)
+
+        
+
+        li_ix_count_by_eu = [0] * 102
+        print(li_ix_count_by_eu)
+        # [0, 0, 0, ..., 0]
+
+        for x in range(1): # try the auto-placement algorithm 10 times
+
+            for ix in li_663: # for the 663 best interactions of r1:
+
+                m = ix.m_eu_num
+                f = ix.f_eu_num
+
+                if li_ix_count_by_eu[m-1] <= 13 and li_ix_count_by_eu[f-1] <= 13: # if they're not "full":
+                    pass
+
+
+
+
+
+        #return li_r2_ix_planned
     pass
 
 ###############################################################################
@@ -487,9 +590,11 @@ class Round_4(_Round):
 
 class _Interaction(object):
 
-    CURR_IX_NUM = 0
+    TOTAL_IX_NUM = 0
+    CURR_IX_NUM = 0 # will be reset after each round
 
     def __init__(self, e, r, mEU, fEU):
+        _Interaction.TOTAL_IX_NUM += 1
         _Interaction.CURR_IX_NUM += 1
         self.e = e
         self.r = r
@@ -535,8 +640,10 @@ class _User(object):
     CURR_USER_NUM = 0
 
     def __init__(self):
+
         _User.CURR_USER_NUM += 1
         self.u_num = _User.CURR_USER_NUM
+
         if self.u_num <= 1000:
             self.sex = 'M'
         elif self.u_num <= 2000:
@@ -553,37 +660,7 @@ class _User(object):
         self.age = random.randint(18, 22)
         self.eyes = random.choice(["blue", "brown", "black", "green", "hazel"])
 
-
-        # # desirability means that, out of 100 people, d would say "yes" to you.
-        # # selectivity means that, out of 100 people, you would say "no" to s.
-        # # Should they be somewhat loosely related to each other?
-        # # If you're hot, aren't you more selective?
-        # # Let's say selectivity is within 30 of desirability.
-        # # 95 = very desirable
-        # # 95 = very selective
-        # self.desirability = random.randint(5,95)
-        # self.selectivity =  random.randint(
-        #     max(self.desirability-30, 5), min(self.desirability+30, 95))
-
         pass
-
-    def ordered_attr_names(self):
-        """  
-        Returns an ordered list of attribute names for Excel. 
-        Useful for ignoring class instances (objects) when writing to Excel.
-        """
-        li_names = []
-        li_keys = dict(self).keys()
-        print (li_keys)
-
-        for name in ["u_num", "eu_num", 
-                    "hotness", "nixness", "personality",
-                    "sex", "age", "eyes"]:
-            if name in li_keys:
-                li_names.append([key for key in li_keys if key == name][0])
-                print(li_names)
-
-        return li_names
 
     def __iter__(self):
         # first start by grabbing the Class items
@@ -630,23 +707,6 @@ class _EventUser(_User):
 
         pass
 
-    # def ordered_attr_names(self):
-    #     """  
-    #     Returns an ordered list of attribute names for Excel. 
-    #     Useful for ignoring class instances (objects) when writing to Excel.
-    #     """
-    #     li_names = []
-    #     li_keys = dict(self).keys()
-    #     print (li_keys)
-
-    #     for name in ["u_num", "eu_num", 
-    #                 "hotness", "nixness", "personality",
-    #                 "sex", "age", "eyes"]:
-    #         li_names.append([key for key in li_keys if key == name][0])
-    #         print (li_names)
-
-    #     return li_names
-
     def __iter__(self):
         # first start by grabbing the Class items
         iters = dict((x,y) for x,y in _EventUser.__dict__.items() 
@@ -669,32 +729,68 @@ class _EventUser(_User):
 ################################################################################
 
 ################################################################################
-"""                                SIMULATE                                 """
+"""                          LI_ORDERED_ATTR_NAMES                           """
 ################################################################################
 
-# def simulate(e):
-#     # simulates an entire event (all 3 rounds, plus pregame and postgame)
+def li_ordered_attr_names(obj):
+    """  
+    Returns an ordered list of attribute names for each class (each tab in Excel).
+    Useful for ignoring class instances (objects) when writing to Excel,
+    and for making sure everything stays in a familiar order when testing.
+    """
+    li_names = []
+    li_keys = dict(obj).keys()
+    print("\n", type(obj).__name__, "\nUnsorted:", li_keys)
 
-#     """  Create 5 _Round objects.  """
+    for name in [
 
-#     r0 = Round_0(e) if e.start_at_round <= 0 else 0
-#     r1 = Round_1(e) if e.start_at_round <= 1 else 0
-#     r2 = Round_2(e) if e.start_at_round <= 2 else 0
-#     r3 = Round_3(e) if e.start_at_round <= 3 else 0
-#     r4 = Round_4(e) if e.start_at_round <= 4 else 0
-#     print("\n{} Round objects created.".format(len([r0,r1,r2,r3,r4])))
+                "e_num", "r_num", # for all classes?
+                "sub_num", "sta_num", "ix_num", # for Interactions
 
-#     """  Simulate the rounds.  """
-#     for r in [r0, r1, r2, r3, r4]:
-#         if isinstance(r, _Round):
-#             print("\nCurrent Round:", r.round_num)
-#             r.prepare()
-#             r.simulate()
-#             r.analyze()
+                "m_eu_num", "f_eu_num", # for Interactions
+                "u_num", "eu_num", # for Users and EventUsers
+                
+                "m_sac", "f_sac", "sac_total", "sac_same", # for Interactions
+                "m_qa", "f_qa", "qa_same", "q_num", # for Interactions
 
+                "sac_total_r1", "sac_total_r2", # for Ix in R2 and R3
+                                
+                "hotness", "nixness", "personality", # for all classes
+                "sex", "age", "height", "eyes", "experience", # for all classes
 
-   
-#     pass
+                "m_hotness", "m_nixness", "m_personality", # for all classes
+                "m_sex", "m_age", "m_height", "m_eyes", "m_experience", # for all classes
+
+                "f_hotness", "f_nixness", "f_personality", # for all classes
+                "f_sex", "f_age", "f_height", "f_eyes", "f_experience", # for all classes
+
+                "r1_sel", "r2_sel", "r3_sel", # for EventUsers
+                "r1_des", "r2_des", "r3_des", # for EventUsers
+
+                "m_r1_sel", "m_r2_sel", "m_r3_sel", # for Interactions
+                "m_r1_des", "m_r2_des", "m_r3_des", # for Interactions
+                "f_r1_sel", "f_r2_sel", "f_r3_sel", # for Interactions
+                "f_r1_des", "f_r2_des", "f_r3_des", # for Interactions
+
+                "nr1r_yes", "nr1r_my", "nr1r_mn", "nr1r_no", # for EventUsers
+                "nr1g_yes", "nr1g_my", "nr1g_mn", "nr1g_no", # for EventUsers
+                "nr2r_yes", "nr2r_my", "nr2r_mn", "nr2r_no", # for EventUsers
+                "num_r2_gave_yes", "num_r2_gave_my", "num_r2_gave_mn", "num_r2_gave_no", # for EventUsers
+                "nr3r_yes", "nr3r_my", "nr3r_mn", "nr3r_no", # for EventUsers
+                "num_r3_gave_yes", "num_r3_gave_my", "num_r3_gave_mn", "num_r3_gave_no", # for EventUsers
+
+                "r1_likeness", # for Interactions
+                "r1_rank", # for Interactions
+
+                "m_ipad_num", "f_ipad_num", # for Interactions
+                "m_next_ix_ipad_num", "f_next_ix_ipad_num" # for Interactions
+
+                ]:
+        if name in li_keys:
+            li_names.append([key for key in li_keys if key == name][0])
+    print("Sorted:", li_names)
+
+    return li_names
 
 ################################################################################
 ################################################################################
@@ -727,7 +823,8 @@ def main():
         )
 
 
-    """  Optimize event timing.  """
+    """  Optimize event timing.  
+    """
     sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix = optimize_event_timing(
         m = e.num_m_eu_p, 
         w = e.num_f_eu_p,
@@ -737,7 +834,8 @@ def main():
         )
 
 
-    """  Create Users: 1,000 men, 1,000 women, 100 male ghosts, 100 female ghosts.  """
+    """  Create Users: 1,000 men, 1,000 women, 100 male ghosts, 100 female ghosts.  
+    """
     _User.CURR_USER_NUM = 0
     li_mpu = list((_User() for i in range(1000)))
     li_fpu = list((_User() for i in range(1000)))
@@ -746,7 +844,8 @@ def main():
     li_all_u = li_mpu + li_fpu + li_mgu + li_fgu
 
 
-    """  Create correct number and type of EventUsers.  """
+    """  Create correct number and type of EventUsers.  
+    """
     li_mpeu = list((_EventUser(e) for i in range(e.num_m_eu_p)))
     li_fpeu = list((_EventUser(e) for i in range(e.num_f_eu_p)))
     li_mgeu = list((_EventUser(e) for i in range(e.num_m_eu_g)))
@@ -754,24 +853,22 @@ def main():
     li_all_eu = li_mpeu + li_fpeu + li_mgeu + li_fgeu
 
 
-    """  Create up to 5 _Round objects.  """
+    """  Create up to 5 _Round objects.  
+    """
     r0 = Round_0(e) if e.start_at_round <= 0 else 0
     r1 = Round_1(e) if e.start_at_round <= 1 else 0
     r2 = Round_2(e) if e.start_at_round <= 2 else 0
     r3 = Round_3(e) if e.start_at_round <= 3 else 0
     r4 = Round_4(e) if e.start_at_round <= 4 else 0
-    print("\n{} Round objects created.".format(len([r0,r1,r2,r3,r4])))
 
 
-    """  Simulate the rounds.  """
-    # simulates an entire event (all 3 rounds, plus pregame and postgame)
+    """  Plan, simulate, and analyze the rounds.  
+    """
+    li_r1_ix_planned = r1.plan(leu = li_all_eu)
+    li_r1_ix_simulated = r1.simulate(lix = li_r1_ix_planned)
+    li_r1_ix_analyzed = r1.analyze(leu = li_all_eu, lix = li_r1_ix_simulated)
 
-    # li_all_eu2 = r0.analyze(li_all_eu)
-    # pprint(dict(li_all_eu2[0]))
-    # assert li_all_eu == li_all_eu2
-
-    #r0.analyze(li_all_u, li_all_eu)
-    li_r1_ix_planned = r1.plan(li_all_eu)
+    li_r2_ix_planned = r2.plan(leu = li_all_eu, lix = li_r1_ix_analyzed)
 
     # reset _Interaction.CURR_IX_NUM
     _Interaction.CURR_IX_NUM = 0
@@ -791,7 +888,7 @@ def main():
 
 
 
-    li_r1_ix = li_r1_ix_planned
+    li_r1_ix = li_r1_ix_analyzed
     li_r2_ix = []
     li_r3_ix = []
 
@@ -821,32 +918,26 @@ def main():
 
     #  Users
     """  Write the rows of Users in Excel (too early?)  """
-    for c, label in enumerate(li_all_u[0].ordered_attr_names()):
+    for c, label in enumerate(li_ordered_attr_names(li_all_u[0])):
         ws_User.write(0, c, label)
         for r, user in enumerate(li_all_u):
             ws_User.write(r+1, c, getattr(user, label))   
 
     #  Event Users
     """  Write the rows of EventUsers in Excel (too early?)  """ # _EventUser
-    for c, label in enumerate(li_all_eu[0].ordered_attr_names()): # for each attribute
+    for c, label in enumerate(li_ordered_attr_names(li_all_eu[0])): # for each attribute
         ws_EventUser.write(0, c, label) # make the column label in the first row
         for r, event_user in enumerate(li_all_eu): # for each EventUser
             ws_EventUser.write(r+1, c, getattr(event_user, label))
 
-    #  R1_Ix
+    #  Interactions
     """  Write the rows of Interactions in Excel  """
     for sheet, li in zip([ws_r1_ix, ws_r2_ix, ws_r3_ix], [li_r1_ix, li_r2_ix, li_r3_ix]): # for each round
         if li:
-            for c, label in enumerate(dict(li[0]).keys()): # for each column / attribute of an interaction
+            for c, label in enumerate(li_ordered_attr_names(li[0])): # for each column / attribute of an interaction
                 sheet.write(0, c, label) # make the column label in the first row
                 for r, ix in enumerate(li):
                     sheet.write(r+1, c, getattr(ix, label))
-
-    #  R2_Ix
-
-
-    #  R3_Ix
-
 
     WB.save('example.xls')    
 

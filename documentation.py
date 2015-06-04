@@ -160,7 +160,7 @@ Only make one subround’s ix’s at a time. Iterate through the (2,600-member) 
 
 The code in main is:
 ---------------------------------------------
-li_r2_ix_planned = r2.plan(li_r1_ix_analyzed)        
+li_r2_ix_planned = r2.plan(li_r1_ix_by_energy)        
 ---------------------------------------------
 
 
