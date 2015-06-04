@@ -138,6 +138,12 @@ Now, Round 2 is prepared — it is decided which R1 interactions will happen aga
 Rank each r1-ix according to sum_sac first, then things like agree, score_r1_sel, score_r1_des, hotness, nixness, et cetera. Then start at interaction ranked #1 and go down the list, trying to make each interaction happen by checking to see if (a) the person already has 15 planned R2 interactions, and (b) both people have a free subround. If so, plop them into their next available subround. … This seems tricky.
 2.
 Make some algorithm that takes the top 13 * 51 = 663 interactions and does several random auto-placements of them into the 663 slots, keeping the best (defined as placing the most, or the highest inverse-value sum of ix_num) after each new try, and trying for as many times as is practical before stopping. When it stops, take the number it couldn’t place and go through the rest of the list (#664, #665, etc) and try to place that many, stopping when no more can be placed. … This could work. It could also give an optimal solution for the 663 best ix’s, and then be unable to completely fill the event. You don’t want any interactions happening again where either person said “no”. Maybe those should be thrown out. And maybe every auto-placement attempt of the first 663 should include placement of the rest, and only then could it be considered valid. Goes through entire list only once. (+)
+    --  It looks like, since the womens' stations are essentially fixed (b/c they can only move one station right), there's only one unique outcome achieved by iterating through the list of the highest-ranked interactions, no matter where the women start. Which makes sense.
+    --  The question now becomes: is this the best, and can I fill in the un-filled subround stations, either efficiently or at all? I'm going to try to fill them in.
+    --  The best way to do this is to try to fill in all the (3,3)'s, then all the (3,2)'s, and so on, ...
+    --  Try to give everyone 12 r2ix's, then add a 13th if necessary for people already with 12 to get everyone under 12 up to 12.
+    --  The best way to do this is to try to fill in all the (3,3)'s, then all the (3,2)'s, and so on, to get people up to 12, and then do it again, to get people under 12 up to 12.
+
 3.
 Only make one subround’s ix’s at a time. Iterate through the (2,600-member) list once for each subround, trying to give each person a pairing for that subround. This is possible, but might be slow, and could result in several low-quality interactions happening again.
 
