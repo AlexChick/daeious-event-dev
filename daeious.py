@@ -121,6 +121,7 @@ from helpers import create_SAC_database_in_Firebase
 from helpers import filter_by_value
 from helpers import mk_serial
 from helpers import optimize_event_timing
+from helpers import xfrange
 
 ################################################################################
 ################################################################################
@@ -547,21 +548,13 @@ class Round_2(_Round):
                 chain(li_33, li_32, li_22, li_31),
                 chain(li_33, li_32, li_22, li_31, li_21),
                 chain(li_33, li_32, li_22, li_31, li_21, li_11)
-                # li_sac_pairs[0], 
-                # li_sac_pairs[0] + li_sac_pairs[1], 
-                # li_sac_pairs[0] + li_sac_pairs[1] + li_sac_pairs[2],
-                # li_sac_pairs[0] + li_sac_pairs[1] + li_sac_pairs[2] + li_sac_pairs[3]
                 ]):
             print(try_num)
             for index, ix in enumerate(li_of_iteration):
-            # for ix in li: # for all interactions of r1:
                 m = ix.m_eu_num
                 f = ix.f_eu_num
                 meu = ix.meu
                 feu = ix.feu
-                #feu = li_all_feu[f-len(li_all_feu)-1]
-                # ix.will_sa = 0
-
                 m_count = li_ix_count_by_eu[m-1]
                 f_count = li_ix_count_by_eu[f-1]
 
@@ -573,7 +566,6 @@ class Round_2(_Round):
                     (try_num == 3 and ((m_count < 11 and f_count < 12) or (m_count < 12 and f_count < 11)))
                     or
                     (try_num > 3 and ((m_count < 12 and f_count < 13) or (m_count < 13 and f_count < 12)))
-                    #(try_num != -1 and ((m_count < 12 and f_count < 13) or (m_count < 13 and f_count < 12)))
                     ):
                     li_random_sub = random.sample(range(13), 13)
                     for sub in li_random_sub: # for each subround, randomly ordered:
@@ -1026,96 +1018,90 @@ def li_ordered_attr_names(obj):
 
 def create_QA_and_SAC_databases_in_Firebase(e):
     """
-    Setups up an empty database in Firebase with 3 main nodes: IX, SAC and QA.
-    It's structured like this:
+    Sets up an empty database in Firebase with 3 main nodes: IX, SAC and QA.
 
-    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> IX, SAC, QA
+    Firebase seems to be able to create or update about 11-12 records / second,
+    = 700 / minute, so keep that in mind when creating this database. Try to
+    minimize how much data needs to be (temporarily) stored in Firebase during
+    an event.
 
-    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> IX -> (ix_num =) ix0001 -> _Interaction(meu, feu, q_num, etc.)
+    These DB nodes have different functions:
 
-    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> SAC_yes -> nr1g_yes
-    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> SAC_my -> nr1g_my
-    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> SAC_mn -> nr1g_mn
-    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> SAC_no -> nr1g_no
+    "zE0000R1" -> "EventUser_001" -> "first_name" : eu.first_name
 
-    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> QA
+    # Takes 508 seconds
+    "Event" 
+    -> e.event_serial 
+    -> "EventUser" 
+    -> eu.eu_num x102
+    -> "Round" 
+    -> (1,2,3) x3
+    -> "SAC" 
+    -> ("yes", "maybe-yes", "maybe-no", "no") x4
+    -> "count": (eu.nr1g_yes, eu.nr1g_my, ..., eu.nr3g_no)
 
-    # for realtime on-screen counts (for event users, to gauge how many of each they're giving)
-    zE0000 -> R1 -> EventUser -> eu_num -> SAC_yes : nr1g_yes
-    OR
+    -- Realtime on-screen SAC-so-far counts that people see during ix's.
+    -- iPads upload to this during events; data is transported into Parse later.
+
+    "zE0000R1" -> "EventUser_001" -> "SAC_yes" : nr1g_yes
     "zE0000R1_EventUser_001" -> "SAC_yes" : nr1g_yes
-
-
-
-   
-
-
     OR:
     zE0000 -> r1sac -> eu_num_001 -> nr1g_yes
-    zE0000 -> r1sac -> eu_num_001 -> nr1g_my
-    zE0000 -> r1sac -> eu_num_001 -> nr1g_mn
-    zE0000 -> r1sac -> eu_num_001 -> nr1g_no
-    zE0000 -> r1sac -> eu_num_001 -> nr1_yes
+
 
     """
-
-    ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
-    # ref_event = ref_root.child(e.event_serial)
-    # ref_R1 = ref_event.child('R1')
-    # ref_R2 = ref_event.child('R2')
-    # ref_R3 = ref_event.child('R3')
-
-    # # Too slow -- would take about an hour or more
-    # # 3 * 102 * 102 * 4 = 120,000 (way too many)
-    # for index, ref_R in enumerate([ref_R1, ref_R2, ref_R3]): # for each round
-    #     ref_IPad = ref_R.child("IPad")
-    #     for ipnum in range(1, e.num_ipads+1): # for each ipad
-    #         #str_child_name = "ip_num_"+("0"*(3-len(ipnum)))+str(ipnum)
-    #         ref_ip_num = ref_IPad.child("ip_num_{}{}".format("0"*(3-len(str(ipnum))), str(ipnum))) # make the ipad reference
-    #         for eunum in range(1, e.num_all_eu+1): # for each event user
-    #             ref_EU = ref_ip_num.child("eu_num_{}{}".format("0"*(3-len(str(eunum))), str(eunum)))
-    #             ref_EU.put({
-    #                 "SAC_yes": 0,
-    #                 "SAC_my": 0,
-    #                 "SAC_mn": 0,
-    #                 "SAC_no": 0
-    #                 })
+    root_check = 0
 
     start_time = time.time()
 
-    for rd_num in [1,2,3]: # for each round
-        for eunum in range(1, e.num_all_eu+1): # for each event user
-            ref_EU = ref_root.child("zE{}R{}_EventUser_{}{}".format(
-                e.event_serial,
 
-                str(rd_num),
-                "0"*(3-len(str(eunum))), 
-                str(eunum))
-            )
-            ref_EU.put({
-                "SAC_yes": 0,
-                "SAC_my": 0,
-                "SAC_mn": 0,
-                "SAC_no": 0
-                })
+    ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
+
+    ref_event = ref_root.child("Event")
+
+    hasData = ref_event.child("hasData").get()
+
+    if hasData == True:
+        print ("Firebase structure already exists")
+        return
+    elif hasData == False:
+        print ("Starting from an empty Firebase")
+
+    start_time = time.time()
+
+    # # Takes 508 seconds -- way too effing long
+    # for eunum in range(1, e.num_all_eu+1): # for each event user (even ghosts)
+    #     ref_eunum = ref_eventuser.child(str(eunum)) # x 102
+    #     for r in [1,2,3]: # for each round
+    #         ref_round = ref_eunum.child("Round") # x 3
+    #         ref_r = ref_round.child(str(r))        
+    #         ref_sac = ref_r.child("SAC")
+    #         for sac_name in ["yes", "maybe_yes", "maybe_no", "no"]:
+    #             ref_sac_name = ref_sac.child(sac_name)
+    #             ref_sac_name.put({
+    #                 "count": 0
+    #                 })
 
     try_1_stop_time = time.time()
     print("Try 1:", (try_1_stop_time - start_time))
     try_2_start_time = time.time()
 
-    for rd_num in [1,2,3]: # for each round
+    # 3 x 102 x 4 = 1,224 records, takes about 100-120 seconds
+    for rd_num in [1,2,3]: # for each round (x3)
         ref_rd = ref_root.child("zE{}R{}".format(e.event_serial, str(rd_num)))
-        for eunum in range(1, e.num_all_eu+1): # for each event user
+        for eunum in range(1, e.num_all_eu+1): # for each event user (x102)
             ref_EU = ref_rd.child("EventUser_{}{}".format(
                 "0"*(3-len(str(eunum))), 
                 str(eunum))
             )
-            ref_EU.put({
+            ref_EU.put({ # (x4)
                 "SAC_yes": 0,
                 "SAC_my": 0,
                 "SAC_mn": 0,
                 "SAC_no": 0
                 })
+            #ref_EU.post({ # equivalent to "push()" in Firebase; creates unique id's for each node
+
 
     try_2_stop_time = time.time()
     print("Try 2:", (try_2_stop_time - try_2_start_time))

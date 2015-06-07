@@ -190,6 +190,11 @@ def filter_by_value(sequence, value):
                 yield element
 
 
+def xfrange(first, last, step):
+    while first <= last:
+        yield first
+        first += step
+
 
 def mk_serial(eNum):
     return "{}{}".format("0"*(4 - len(str(eNum))), eNum)
