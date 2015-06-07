@@ -71,7 +71,6 @@ figure that out by scaling down how I want a 50m/50w event to be structured.
         (20, 45, )
 
 
-
 sec_per_ix: 
     - (Should Round_1 be a constant number of minutes, so that interactions
         are longer when there are fewer people? Or should the sec_per_ix
@@ -90,7 +89,7 @@ import itertools
 from itertools import chain
 import logging
 import math
-import numpy # used for matrices for placing R2 and R3 ix's
+import numpy # used for matrices for placing R2 and R3 ix's, and arange or linspace
 import os
 import random
 import sys
@@ -216,11 +215,6 @@ class _Event(object):
         self.li_f_ipad_nums = range(self.num_stations+1, 2*self.num_stations+1)
         self.li_q_nums = range(1, self.num_stations + 1)
 
-        # Create a skeleton DB in Firebase.
-        self.create_QA_and_SAC_databases_in_Firebase()
-        pass
-
-    def create_QA_and_SAC_databases_in_Firebase(self):
         pass
 
     def __repr__(self):
@@ -278,29 +272,7 @@ class _Round(object):
 
         pass
 
-
-
-    # def prepare(self, li_all_eu):
-    #     """
-    #     Take a list of the previous round's interactions (unless R1).
-    #     Assign this round's pairings by calculating an ix's power
-    #     and returning a list of eu tuples (eum,euf) in descending order of power.
-    #     Create the interaction objects representing their 
-    #     eu-num pairings, with station, ipad, and question nums (no simulation),
-    #     and return a list of them.
-    #     """
-
-
-    #     pass
-
-    # def simulate(self, li_ix_to_sim):
-    #     """
-    #     Take a list of interaction objects.
-    #     Simulate the results of the interactions,
-    #     and return the same (now updated) list.
-    #     """
-
-    #     return li_ix_to_sim
+    pass
 
 ###############################################################################
 """                               Round 0                                   """
@@ -448,19 +420,19 @@ class Round_1(_Round):
             eu.nr1g_total = li_gave[0] + 2*li_gave[1] + 3*li_gave[2] + 4*li_gave[3] # should = sel
             eu.nr1r_total = li_rcvd[0] + 2*li_rcvd[1] + 3*li_rcvd[2] + 4*li_rcvd[3] # should = des
 
-        # go back into ix's and put in m_r1_des, m_r1_sel, etc., and selectivity
+        # go back into ix's and put in r1_m_des, r1_m_sel, r1_f_des, r1_f_sel, r1_likeness
         # (tiebreaker for determining energy)
         for ix in li_r1_ix_analyzed:
             for eu in leu:
                 if eu.eu_num == ix.m_eu_num:
-                    ix.m_r1_des = eu.r1_des
-                    ix.m_r1_sel = eu.r1_sel
+                    ix.r1_m_des = eu.r1_des
+                    ix.r1_m_sel = eu.r1_sel
                 elif eu.eu_num == ix.f_eu_num:
-                    ix.f_r1_des = eu.r1_des
-                    ix.f_r1_sel = eu.r1_sel
+                    ix.r1_f_des = eu.r1_des
+                    ix.r1_f_sel = eu.r1_sel
             ix.r1_likeness = ( # closer to 0 is better
-                abs((ix.m_r1_des+ix.m_hotness) - (ix.f_r1_des+ix.f_hotness)) 
-              + abs((ix.m_r1_sel+ix.m_nixness) - (ix.f_r1_sel+ix.f_nixness))
+                abs((ix.r1_m_des+ix.m_hotness) - (ix.r1_f_des+ix.f_hotness)) 
+              + abs((ix.r1_m_sel+ix.m_nixness) - (ix.r1_f_sel+ix.f_nixness))
                  ) * (-1)
 
         # Sort list according to energy descending.
@@ -475,9 +447,9 @@ class Round_1(_Round):
                  i.r1_likeness, # most similar in desirability and selectivity
                                 # (have lowest differences in them)
 
-                 i.m_r1_sel + i.f_r1_sel, # most selective pair of round
+                 i.r1_m_sel + i.r1_f_sel, # most selective pair of round
                  i.m_nixness + i.f_nixness, # most selective pregame pair
-                 i.m_r1_des + i.f_r1_des, # most desirable pair of round
+                 i.r1_m_des + i.r1_f_des, # most desirable pair of round
                  i.m_hotness + i.f_hotness # most desirable pregame pair
 
             ],
@@ -525,6 +497,7 @@ class Round_2(_Round):
         """
 
         li = copy.deepcopy(lix) # make a copy so as not to change li_r1_ix_by_energy
+        #li = lix
         li_all_but_no = [ix for ix in li if ix.m_sac == 0 or ix.f_sac == 0]
         li_33 = [ix for ix in li if ix.sac_total == 6]
         li_32 = [ix for ix in li if ix.sac_total == 5]
@@ -628,16 +601,15 @@ class Round_2(_Round):
                                 newix.f_personality = feu.personality
                                 newix.r1_likeness = ix.r1_likeness
                                 newix.r1_rank = ix.r1_rank
-                                newix.m_r1_sel = ix.m_r1_sel # or, meu.r1_sel
-                                newix.f_r1_sel = ix.f_r1_sel
-                                newix.m_r1_des = ix.m_r1_des
-                                newix.f_r1_des = ix.f_r1_des
-                                newix.m_r1_sac = ix.m_sac
-                                newix.f_r1_sac = ix.f_sac   
-                                newix.sac_total_r1 = ix.sac_total        
+                                newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
+                                newix.r1_f_sel = ix.r1_f_sel
+                                newix.r1_m_des = ix.r1_m_des
+                                newix.r1_f_des = ix.r1_f_des
+                                newix.r1msac = ix.m_sac
+                                newix.r1fsac = ix.f_sac   
+                                newix.r1_sac_tot = ix.sac_total        
                                 li_r2_ix_planned.append(newix)
-                else:
-                    ix.will_sa = 0
+
             #li_num_placed.append(num_placed)
             li_num_placed[try_num] = num_placed
 
@@ -656,7 +628,141 @@ class Round_2(_Round):
                 print ("Success! EventUser {} has {} Round-2 interactions.".format(index+1, n))
 
         print ("Number of missing interactions:", num_missing_ix)
-        return li_r2_ix_planned
+        return li_r2_ix_planned, num_missing_ix
+    
+    def plan_B(self, leu, lix):
+        """
+        Reached when plan_A fails (num_missing_ix > 0).
+        """
+        pass
+
+    def plan_C(self, leu, lix):
+        """
+        Reached when plan_B fails (num_missing_ix > 0).
+        """
+        pass
+
+
+
+    def simulate(self, lix):
+        """
+        Pretty much copied from Round_1.simulate -- can I somehow combine them?
+
+        Also, I'm confused about whether lists that get passed as arguments are
+        updated, or whether I need to create copies, or whether I need to create
+        copy.deepcopies, or whether I should keep a copy of each kind of ix list
+        ...but I can figure that stuff out later. As long as what I have works.
+        """
+        #self.lix = lix
+
+        li_r2_ix_simulated = lix # though it's not simulated yet
+
+        for ix in li_r2_ix_simulated:
+
+            ix.m_sac = random.randint(0,3)
+            ix.f_sac = random.randint(0,3)
+            ix.m_qa = random.choice(['A','B','C','D'])
+            ix.f_qa = random.choice(['A','B','C','D'])
+
+            ix.sac_total = ix.m_sac + ix.f_sac
+            ix.sac_same = 1 if ix.m_sac == ix.f_sac else 0
+            ix.qa_same = 1 if ix.m_qa == ix.f_qa else 0
+
+        return li_r2_ix_simulated # necessary?   
+
+
+
+    def analyze(self, leu, lix):
+
+        li_r2_ix_analyzed = lix # DON'T modify li_r2_ix_simulated
+
+        m_sel = 0
+        f_sel = 0
+        m_des = 0
+        f_des = 0
+
+        for eu in leu: # 51x
+            sel = 0
+            des = 0
+            li_rcvd = [0,0,0,0] # no, mn, my, yes
+            li_gave = [0,0,0,0] # yes, my, mn, no
+            # for ix in li_r2_ix_analyzed: # 2601x
+            for ix in [ixobj for ixobj in li_r2_ix_analyzed
+                if eu.eu_num in [ixobj.m_eu_num, ixobj.f_eu_num]
+                ]: # 2601x
+                if eu.eu_num == ix.m_eu_num: # male or male ghost
+                    sel += ix.m_sac
+                    des += ix.f_sac
+                    li_gave[ix.m_sac] += 1
+                    li_rcvd[ix.f_sac] += 1
+                    
+                else: # female or female ghost
+                    sel += ix.f_sac
+                    des += ix.m_sac
+                    li_gave[ix.f_sac] += 1
+                    li_rcvd[ix.m_sac] += 1
+                    
+
+            eu.r2_sel = sel
+            eu.r2_des = des
+
+            eu.nr2g_no = li_gave[3]
+            eu.nr2g_mn = li_gave[2]
+            eu.nr2g_my = li_gave[1]
+            eu.nr2g_yes = li_gave[0]
+
+            eu.nr2r_no = li_rcvd[0]
+            eu.nr2r_mn = li_rcvd[1]
+            eu.nr2r_my = li_rcvd[2]
+            eu.nr2r_yes = li_rcvd[3]
+
+            eu.nr2g_total = li_gave[0] + 2*li_gave[1] + 3*li_gave[2] + 4*li_gave[3] # should = sel
+            eu.nr2r_total = li_rcvd[0] + 2*li_rcvd[1] + 3*li_rcvd[2] + 4*li_rcvd[3] # should = des
+
+        # go back into ix's and put in r2_m_des, r2_m_sel, r2_f_des, r2_f_sel, r2_likeness
+        # (tiebreaker for determining energy)
+        for ix in li_r2_ix_analyzed:
+            for eu in leu:
+                if eu.eu_num == ix.m_eu_num:
+                    ix.r2_m_des = eu.r2_des
+                    ix.r2_m_sel = eu.r2_sel
+                elif eu.eu_num == ix.f_eu_num:
+                    ix.r2_f_des = eu.r2_des
+                    ix.r2_f_sel = eu.r2_sel
+            ix.r2_likeness = ( # closer to 0 is better
+                abs((ix.r2_m_des+ix.m_hotness) - (ix.r2_f_des+ix.f_hotness)) 
+              + abs((ix.r2_m_sel+ix.m_nixness) - (ix.r2_f_sel+ix.f_nixness))
+                 ) * (-1)
+
+        # Sort list according to energy descending.
+        # Energy is a loose term for how much the ix deserves to happen again.
+        li_r2_ix_analyzed = sorted(
+            [ix for ix in li_r2_ix_analyzed if (
+                ix.meu.sex != 'MG' and ix.feu.sex != "FG")], key = lambda i: [
+                 # (3,3)>(3,2)>(2,2)>(3,1)>(2,1)>(1,1)>(3,0)>(2,0)>(1,0)>(0,0)
+
+                     i.sac_total - abs(i.m_sac - i.f_sac), # (6)>(4)>(4)>(3)>(2)>(2)>(0)>(0)>(0)>(0)
+                     i.sac_total, # makes (3,2)>(2,2); makes (2,1)>(1,1); makes (3,0)>(2,0)>(1,0)>(0,0)
+
+                     i.r2_likeness, # most similar in desirability and selectivity
+                                    # (have lowest differences in them)
+
+                     i.r2_m_sel + i.r2_f_sel, # most selective pair of round
+                     i.m_nixness + i.f_nixness, # most selective pregame pair
+                     i.r2_m_des + i.r2_f_des, # most desirable pair of round
+                     i.m_hotness + i.f_hotness # most desirable pregame pair
+
+            ],
+            reverse = True)     
+
+        # add r2_rank to all ix's
+        for index, ix in enumerate(li_r2_ix_analyzed):
+            ix.r2_rank = index + 1
+
+
+        return li_r2_ix_analyzed      
+
+
     pass
 
 ###############################################################################
@@ -669,6 +775,18 @@ class Round_3(_Round):
         _Round.__init__(self, e)
         self.round_num = 3
         pass
+
+    def plan_A(self, leu, lix):
+        li_r3_ix_planned = lix
+        num_missing_ix = 0
+        return li_r3_ix_planned, num_missing_ix
+
+    def simulate(self, lix):
+        return lix
+
+    def analyze(self, leu, lix):
+        return lix
+
     pass
 
 ###############################################################################
@@ -710,8 +828,7 @@ class _Interaction(object):
         self.m_eu_num = self.meu.eu_num
         self.f_eu_num = self.feu.eu_num
 
-        self.will_sa = -1
-        #self.simuate()
+        self.will_sa = 0
 
     # def simulate(self):
     #     self.m_see_f = random.randint(0, 3)
@@ -855,12 +972,14 @@ def li_ordered_attr_names(obj):
                 "u_num", "eu_num", # for Users and EventUsers
                 
                 "m_sac", "f_sac", "sac_total", "sac_same", # for Interactions
-                "m_r1_sac", "f_r1_sac", 
-                "m_r2_sac", "f_r2_sac",
-                "m_r3_sac", "f_r3_sac",
+                "r1msac", "r1fsac", 
+                "r2msac", "r2fsac",
+                "r3msac", "r3fsac",
+
+
                 "m_qa", "f_qa", "qa_same", "q_num", # for Interactions
 
-                "sac_total_r1", "sac_total_r2", "sac_total_r3", # for Ix in R2 and R3
+                "r1_sac_tot", "r2_sac_tot", "r3_sac_tot", # for Ix in R2 and R3
                                 
                 "hotness", "nixness", "personality", # for all classes
                 "sex", "age", "height", "eyes", "experience", # for all classes
@@ -874,21 +993,21 @@ def li_ordered_attr_names(obj):
                 "r1_sel", "r2_sel", "r3_sel", # for EventUsers
                 "r1_des", "r2_des", "r3_des", # for EventUsers
 
-                "m_r1_sel", "m_r2_sel", "m_r3_sel", # for Interactions
-                "m_r1_des", "m_r2_des", "m_r3_des", # for Interactions
-                "f_r1_sel", "f_r2_sel", "f_r3_sel", # for Interactions
-                "f_r1_des", "f_r2_des", "f_r3_des", # for Interactions
+                "r1_m_sel", "r2_m_sel", "r3_m_sel", # for Interactions
+                "r1_m_des", "r2_m_des", "r3_m_des", # for Interactions
+                "r1_f_sel", "r2_f_sel", "r3_f_sel", # for Interactions
+                "r1_f_des", "r2_f_des", "r3_f_des", # for Interactions
 
                 "nr1r_yes", "nr1r_my", "nr1r_mn", "nr1r_no", # for EventUsers
                 "nr1g_yes", "nr1g_my", "nr1g_mn", "nr1g_no", # for EventUsers
                 "nr2r_yes", "nr2r_my", "nr2r_mn", "nr2r_no", # for EventUsers
-                "num_r2_gave_yes", "num_r2_gave_my", "num_r2_gave_mn", "num_r2_gave_no", # for EventUsers
+                "nr2g_yes", "nr2g_my", "nr2g_mn", "nr2g_no", # for EventUsers
                 "nr3r_yes", "nr3r_my", "nr3r_mn", "nr3r_no", # for EventUsers
-                "num_r3_gave_yes", "num_r3_gave_my", "num_r3_gave_mn", "num_r3_gave_no", # for EventUsers
+                "nr3g_yes", "nr3g_my", "nr3g_mn", "nr3g_no", # for EventUsers
 
                 "r1_likeness", "r2_likeness", "r3_likeness", # for Interactions
                 "r1_rank", "r2_rank", "r3_rank", # for Interactions
-                "will_sa" # for Interactions
+                "will_sa", # for Interactions
 
                 "m_ipad_num", "f_ipad_num", # for Interactions
                 "m_next_ix_ipad_num", "f_next_ix_ipad_num" # for Interactions
@@ -899,6 +1018,120 @@ def li_ordered_attr_names(obj):
     #print("Sorted:", li_names)
 
     return li_names
+
+
+
+
+
+
+def create_QA_and_SAC_databases_in_Firebase(e):
+    """
+    Setups up an empty database in Firebase with 3 main nodes: IX, SAC and QA.
+    It's structured like this:
+
+    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> IX, SAC, QA
+
+    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> IX -> (ix_num =) ix0001 -> _Interaction(meu, feu, q_num, etc.)
+
+    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> SAC_yes -> nr1g_yes
+    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> (eu_num =) 001 -> SAC_my -> nr1g_my
+    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> SAC_mn -> nr1g_mn
+    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> SAC_no -> nr1g_no
+
+    zE0000 -> R1 -> IPad -> (ip_num =) 001 -> QA
+
+    # for realtime on-screen counts (for event users, to gauge how many of each they're giving)
+    zE0000 -> R1 -> EventUser -> eu_num -> SAC_yes : nr1g_yes
+    OR
+    "zE0000R1_EventUser_001" -> "SAC_yes" : nr1g_yes
+
+
+
+   
+
+
+    OR:
+    zE0000 -> r1sac -> eu_num_001 -> nr1g_yes
+    zE0000 -> r1sac -> eu_num_001 -> nr1g_my
+    zE0000 -> r1sac -> eu_num_001 -> nr1g_mn
+    zE0000 -> r1sac -> eu_num_001 -> nr1g_no
+    zE0000 -> r1sac -> eu_num_001 -> nr1_yes
+
+    """
+
+    ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
+    # ref_event = ref_root.child(e.event_serial)
+    # ref_R1 = ref_event.child('R1')
+    # ref_R2 = ref_event.child('R2')
+    # ref_R3 = ref_event.child('R3')
+
+    # # Too slow -- would take about an hour or more
+    # # 3 * 102 * 102 * 4 = 120,000 (way too many)
+    # for index, ref_R in enumerate([ref_R1, ref_R2, ref_R3]): # for each round
+    #     ref_IPad = ref_R.child("IPad")
+    #     for ipnum in range(1, e.num_ipads+1): # for each ipad
+    #         #str_child_name = "ip_num_"+("0"*(3-len(ipnum)))+str(ipnum)
+    #         ref_ip_num = ref_IPad.child("ip_num_{}{}".format("0"*(3-len(str(ipnum))), str(ipnum))) # make the ipad reference
+    #         for eunum in range(1, e.num_all_eu+1): # for each event user
+    #             ref_EU = ref_ip_num.child("eu_num_{}{}".format("0"*(3-len(str(eunum))), str(eunum)))
+    #             ref_EU.put({
+    #                 "SAC_yes": 0,
+    #                 "SAC_my": 0,
+    #                 "SAC_mn": 0,
+    #                 "SAC_no": 0
+    #                 })
+
+    start_time = time.time()
+
+    for rd_num in [1,2,3]: # for each round
+        for eunum in range(1, e.num_all_eu+1): # for each event user
+            ref_EU = ref_root.child("zE{}R{}_EventUser_{}{}".format(
+                e.event_serial,
+
+                str(rd_num),
+                "0"*(3-len(str(eunum))), 
+                str(eunum))
+            )
+            ref_EU.put({
+                "SAC_yes": 0,
+                "SAC_my": 0,
+                "SAC_mn": 0,
+                "SAC_no": 0
+                })
+
+    try_1_stop_time = time.time()
+    print("Try 1:", (try_1_stop_time - start_time))
+    try_2_start_time = time.time()
+
+    for rd_num in [1,2,3]: # for each round
+        ref_rd = ref_root.child("zE{}R{}".format(e.event_serial, str(rd_num)))
+        for eunum in range(1, e.num_all_eu+1): # for each event user
+            ref_EU = ref_rd.child("EventUser_{}{}".format(
+                "0"*(3-len(str(eunum))), 
+                str(eunum))
+            )
+            ref_EU.put({
+                "SAC_yes": 0,
+                "SAC_my": 0,
+                "SAC_mn": 0,
+                "SAC_no": 0
+                })
+
+    try_2_stop_time = time.time()
+    print("Try 2:", (try_2_stop_time - try_2_start_time))
+
+
+
+
+            # ref_ix = ref_ip_num.child("IX")
+            # ref_sac_yes = ref_ip_num.child("ix{}{}".format("0"*(4-len())))
+
+
+
+
+
+    pass
+
 
 ################################################################################
 ################################################################################
@@ -919,7 +1152,8 @@ def main():
 
     start = time.time()
 
-    """  Create 1 _Event object.  """
+    """  Create 1 _Event object.
+    """
     e = _Event(
         EVENT_NUMBER = 0,
         MEN = 50,
@@ -933,13 +1167,21 @@ def main():
 
     """  Optimize event timing.  
     """
-    sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix = optimize_event_timing(
-        m = e.num_m_eu_p, 
-        w = e.num_f_eu_p,
-        sec_per_r1_ix = 20,
-        multiplier = 2.0,
-        minutes_in_entire_event = 60
-        )
+
+    # lili_good = []
+    # lili_perfect = []
+
+    # lili_good, lili_perfect = optimize_event_timing(
+    #     m = e.num_m_eu_p,
+    #     w = e.num_f_eu_p
+    #     )
+
+
+    """ Create a skeleton DB in Firebase for the simulated event.
+    """
+    create_QA_and_SAC_databases_in_Firebase(e)
+
+
 
 
     """  Create Users: 1,000 men, 1,000 women, 100 male ghosts, 100 female ghosts.  
@@ -972,6 +1214,9 @@ def main():
 
     """  Plan, simulate, and analyze the rounds.  
     """
+
+
+    """  ROUND 1  """
     li_r1_ix_planned = r1.plan(leu = li_all_eu)
     li_r1_ix_simulated = r1.simulate(lix = li_r1_ix_planned)
     li_r1_ix_analyzed = r1.analyze(leu = li_all_eu, lix = li_r1_ix_simulated)
@@ -979,32 +1224,43 @@ def main():
     # reset _Interaction.CURR_IX_NUM
     _Interaction.CURR_IX_NUM = 0
 
-    li_r2_ix_planned = r2.plan_A(leu = li_all_eu, lix = li_r1_ix_analyzed)
+
+    """  ROUND 2  """
+    li_r2_ix_planned, num_missing_ix = r2.plan_A( # do plan A
+            leu = li_all_eu, lix = li_r1_ix_analyzed)
+    if num_missing_ix > 0: # if plan A fails, do plan B
+        li_r2_ix_planned, num_missing_ix = r2.plan_B(
+            leu = li_all_eu, lix = li_r1_ix_analyzed)
+        if num_missing_ix > 0: # if plan B fails, do plan C
+            li_r2_ix_planned, num_missing_ix = r2.plan_C(
+                leu = li_all_eu, lix = li_r1_ix_analyzed)
+            if num_missing_ix > 0: # if plan C fails, quit the fucking program! It's the apocalypse!
+                raise ValueError("Plans A, B, and C all failed!")
+
+    li_r2_ix_simulated = r2.simulate(li_r2_ix_planned)
+    li_r2_ix_analyzed = r2.analyze(leu = li_all_eu, lix = li_r2_ix_simulated)
+
+    # reset _Interaction.CURR_IX_NUM
+    _Interaction.CURR_IX_NUM = 0
 
 
+    """  ROUND 3  """
+    li_r3_ix_planned, num_missing_ix = r3.plan_A( # do plan A
+            leu = li_all_eu, lix = li_r2_ix_analyzed)
+
+    li_r3_ix_simulated = r3.simulate(li_r3_ix_planned)
+    li_r3_ix_analyzed = r3.analyze(leu = li_all_eu, lix = li_r3_ix_simulated)
 
 
-    # most "full" / up-to-date round interaction lists
+    """  Set most "full" / up-to-date round interaction lists
+    """
     li_r1_ix = li_r1_ix_analyzed
-    li_r2_ix = li_r2_ix_planned
-    li_r3_ix = []
-
-    # # li_r1_ix = r1.simulate(li_all_eu)
-    # li_r = [r0, r1, r2, r3, r4]
-
-    # li_li_ix_by_r = [0, li_r1_ix, li_r2_ix, li_r3_ix, 0]
+    li_r2_ix = li_r2_ix_analyzed
+    li_r3_ix = li_r3_ix_planned
 
 
-
-
-
-
-
-
-
-
-    """  Create all sheets in Excel. """
-
+    """  Create all sheets in Excel.
+    """
     global WB
     WB = xlwt.Workbook()
     ws_User = WB.add_sheet('Users', cell_overwrite_ok = True)
@@ -1013,21 +1269,21 @@ def main():
     ws_r2_ix = WB.add_sheet('R2 Ix', cell_overwrite_ok = True)
     ws_r3_ix = WB.add_sheet('R3 Ix', cell_overwrite_ok = True)
 
-    #  Users
-    """  Write the rows of Users in Excel (too early?)  """
+        #  Users
+    """  Write the rows of Users in Excel  """
     for c, label in enumerate(li_ordered_attr_names(li_all_u[0])):
         ws_User.write(0, c, label)
         for r, user in enumerate(li_all_u):
             ws_User.write(r+1, c, getattr(user, label))   
 
-    #  Event Users
-    """  Write the rows of EventUsers in Excel (too early?)  """ # _EventUser
+        #  Event Users
+    """  Write the rows of EventUsers in Excel  """
     for c, label in enumerate(li_ordered_attr_names(li_all_eu[0])): # for each attribute
         ws_EventUser.write(0, c, label) # make the column label in the first row
         for r, event_user in enumerate(li_all_eu): # for each EventUser
             ws_EventUser.write(r+1, c, getattr(event_user, label))
 
-    #  Interactions
+        #  Interactions
     """  Write the rows of Interactions in Excel  """
     for sheet, li in zip([ws_r1_ix, ws_r2_ix, ws_r3_ix], [li_r1_ix, li_r2_ix, li_r3_ix]): # for each round
         if li:

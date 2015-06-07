@@ -12,6 +12,7 @@ This program contains several helpful little functions.
 from pprint import pprint
 import itertools
 import math
+import numpy # for arange or linspace
 import os
 import random
 import sys
@@ -35,14 +36,20 @@ import requests
 ###############################################################################
 
 def optimize_event_timing(
-                        m = 50, 
-                        w = 50, 
-                        sec_per_r1_ix = 15, 
-                        multiplier = 2,
-                        minutes_in_entire_event = 60):
+                        m = 40, 
+                        w = 40, 
+                        min_playing = 30,
+                        deviation = 0.5,
+                        r1r2_ix_pp_divisor = 4,
+                        r2r3_ix_pp_divisor = 10,
+                        r1r2_time_multiplier_min = 2,
+                        r1r2_time_multiplier_max = 3,
+                        r2r3_time_multiplier_min = 2,
+                        r2r3_time_multiplier_max = 3
+                        ):
     """
     Should each round be the same length of time?
-    Should each event?
+    Should each event? (Yes -- 1 hour)
     Should break times depend on how many people are at the event?
     """
 
@@ -52,32 +59,97 @@ def optimize_event_timing(
     sec_postgame = 60 * 5 # 300 = 5 minutes
 
     sec_not_playing = sec_pregame + sec_break_1 + sec_break_2 + sec_postgame
-    sec_playing = (minutes_in_entire_event * 60) - sec_not_playing
+    sec_playing = 60*min_playing
 
     stations = max(m,w) if max(m,w) % 2 == 1 else max(m,w) + 1
     mg = stations - m
     fg = stations - w
 
     num_r1_ix_pp = int(round(stations/1.0, 0))
-    num_r2_ix_pp = int(round(stations/4.0, 0))
-    num_r3_ix_pp = int(round(stations/12.0, 0))
+    num_r2_ix_pp = int(round(stations/r1r2_ix_pp_divisor, 0)) + 1
+    num_r3_ix_pp = int(round(stations/r2r3_ix_pp_divisor, 0)) + 1
 
-    # make all rounds be the same length, and set sec_per_r1_ix, etc accordingly
-    sec_per_round = sec_playing / 3
-    sec_per_r1_ix = int(sec_per_round / float(num_r1_ix_pp))
-    sec_per_r2_ix = int(sec_per_round / float(num_r2_ix_pp))
-    sec_per_r3_ix = int(sec_per_round / float(num_r3_ix_pp))
+    # # make all rounds be the same length, and set sec_per_r1_ix, etc accordingly
+    # sec_per_round = sec_playing / 3
+    # sec_per_r1_ix = int(sec_per_round / float(num_r1_ix_pp))
+    # sec_per_r2_ix = int(sec_per_round / float(num_r2_ix_pp))
+    # sec_per_r3_ix = int(sec_per_round / float(num_r3_ix_pp))
 
-    print ([sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix])
-
-    # make rounds be specific lengths according to multipliers
-
-    #
+    # print ([sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix])
 
 
 
-    return sec_per_r1_ix, sec_per_r2_ix, sec_per_r3_ix
 
+    # or, make rounds be specific lengths according to multipliers
+
+    # Make lists of possible per-ix times for each round.
+    li_r1_possible_sec_per_ix = numpy.arange(15, 30+1, 0.5)
+    li_r2_possible_sec_per_ix = range(30, 120+1, 0.5)
+    li_r3_possible_sec_per_ix = range(60, 300+1, 0.5)
+
+    # Iterate through these lists, adding the good combos to a list to return.
+    # "good" means within the deviation
+    # "perfect" means exactly equal to playing_time parameter
+    lili_good_sec_per_ix_tuples = []
+    lili_perfect_sec_per_ix_tuples = []
+
+    for i in li_r1_possible_sec_per_ix:
+
+        r1_sec = i * num_r1_ix_pp
+
+        for j in li_r2_possible_sec_per_ix:
+            if (
+            float(j)/i >= r1r2_time_multiplier_min
+            and
+            float(j)/i <= r1r2_time_multiplier_max
+            ):
+
+                r2_sec = j * num_r2_ix_pp
+
+                for k in li_r3_possible_sec_per_ix:
+                    if (
+                    float(k)/j >= r2r3_time_multiplier_min
+                    and
+                    float(k)/j <= r2r3_time_multiplier_max
+                    ):
+
+                        r3_sec = k * num_r3_ix_pp
+
+                        r1r2r3_sec_total = r1_sec + r2_sec + r3_sec
+
+                        if sec_playing - deviation*60 <= r1r2r3_sec_total <= sec_playing + deviation*60:
+
+                            lili_good_sec_per_ix_tuples.append(
+                                [
+                                (i, j, k), 
+                                (r1_sec, r2_sec, r3_sec, r1r2r3_sec_total),
+                                (round(float(j)/i, 2), round(float(k)/j, 2))
+                                ])
+
+                        if r1r2r3_sec_total == sec_playing:
+
+                            lili_perfect_sec_per_ix_tuples.append(
+                                [
+                                (i, j, k), 
+                                (r1_sec, r2_sec, r3_sec, r1r2r3_sec_total),
+                                (round(float(j)/i, 2), round(float(k)/j, 2))
+                                ])
+
+
+    print("Ix per person per round: {}".format((num_r1_ix_pp, num_r2_ix_pp, num_r3_ix_pp)))
+    print("Combinations tried: {}".format(
+        len(li_r1_possible_sec_per_ix),
+        len(li_r2_possible_sec_per_ix),
+        len(li_r3_possible_sec_per_ix)))
+    print("\nGood combinations: {}".format(len(lili_good_sec_per_ix_tuples)))
+    for li_tup in lili_good_sec_per_ix_tuples:
+        print(li_tup)
+    print("\nPerfect combinations: {}".format(len(lili_perfect_sec_per_ix_tuples)))
+    for li_tup in lili_perfect_sec_per_ix_tuples:
+        print(li_tup)
+    # pprint(lili_perfect_sec_per_ix_tuples)
+
+    return lili_good_sec_per_ix_tuples, lili_perfect_sec_per_ix_tuples
 
 
 def filter_by_value(sequence, value):
@@ -177,6 +249,8 @@ def create_SAC_database_in_Firebase(create_SAC):
 
 
 def main():
+    optimize_event_timing()
+
     pass
 
 

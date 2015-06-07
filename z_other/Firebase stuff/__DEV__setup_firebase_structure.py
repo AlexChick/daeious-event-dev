@@ -31,12 +31,6 @@ Looks like this:
 }
 """
 
-"""
-
-
-
-"""
-
 # Import Python stuff
 from __future__ import print_function
 from pprint import pprint

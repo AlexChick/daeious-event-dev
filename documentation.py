@@ -187,7 +187,7 @@ li_r2_ix_simulated = r2.simulate(li_r2_ix_planned)
 
 """  R2.analyze  """
 
-Same analysis as in R1.analyze.
+For now, same analysis as in R1.analyze. Might incorporate r1_sac_total, and/or some other things.
 
 The code in main is:  
 --------------------------------------------------
