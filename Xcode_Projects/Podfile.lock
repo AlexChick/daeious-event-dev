@@ -1,0 +1,120 @@
+PODS:
+  - AFNetworking (2.5.4):
+    - AFNetworking/NSURLConnection (= 2.5.4)
+    - AFNetworking/NSURLSession (= 2.5.4)
+    - AFNetworking/Reachability (= 2.5.4)
+    - AFNetworking/Security (= 2.5.4)
+    - AFNetworking/Serialization (= 2.5.4)
+    - AFNetworking/UIKit (= 2.5.4)
+  - AFNetworking/NSURLConnection (2.5.4):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/NSURLSession (2.5.4):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (2.5.4)
+  - AFNetworking/Security (2.5.4)
+  - AFNetworking/Serialization (2.5.4)
+  - AFNetworking/UIKit (2.5.4):
+    - AFNetworking/NSURLConnection
+    - AFNetworking/NSURLSession
+  - AIFlatSwitch (0.0.2)
+  - Alamofire (1.2.2)
+  - BubbleTransition (0.2)
+  - Cent (3.0.1):
+    - Dollar (~> 3.0.1)
+  - Charts (2.1.0)
+  - Dollar (3.0.2)
+  - Firebase (2.3.1)
+  - FLKAutoLayout (0.2.1)
+  - FontAwesome.swift (0.3.0)
+  - HanekeSwift (0.9.1)
+  - KYCircularProgress (0.1.1)
+  - LTMorphingLabel (0.0.7)
+  - MaterialKit (0.3.5)
+  - Nimble (1.0.0-rc.1)
+  - ORStackView (2.0.0):
+    - FLKAutoLayout (~> 0.1)
+  - PageMenu (1.2.7)
+  - Player (0.0.5)
+  - PrintlnMagic (1.2.1)
+  - Quick (0.3.1)
+  - RandomColorSwift (0.0.1)
+  - Realm (0.93.1):
+    - Realm/Headers (= 0.93.1)
+  - Realm/Headers (0.93.1)
+  - RealmSwift (0.93.1):
+    - Realm (= 0.93.1)
+  - SCLAlertView (0.3.1)
+  - Spring (1.0.3)
+  - SwiftyJSON (2.2.0)
+  - SwiftyTimer (1.1.0)
+  - Swiftz (0.2.4)
+  - Toucan (0.2.0)
+  - ZFRippleButton (0.2)
+
+DEPENDENCIES:
+  - AFNetworking (~> 2.5)
+  - AIFlatSwitch (~> 0.0.1)
+  - Alamofire (~> 1.2)
+  - BubbleTransition (~> 0.1)
+  - Cent (~> 3.0)
+  - Charts (~> 2.1)
+  - Dollar (~> 3.0)
+  - Firebase (~> 2.3.1)
+  - FontAwesome.swift (~> 0.3.0)
+  - HanekeSwift (~> 0.9.1)
+  - KYCircularProgress
+  - LTMorphingLabel (~> 0.0)
+  - MaterialKit (~> 0.3)
+  - Nimble (= 1.0.0-rc.1)
+  - ORStackView (~> 2.0)
+  - PageMenu
+  - Player
+  - PrintlnMagic
+  - Quick (~> 0.3)
+  - RandomColorSwift
+  - RealmSwift (~> 0.93)
+  - SCLAlertView (>= 0.3)
+  - Spring (~> 1.0)
+  - SwiftyJSON (~> 2.1)
+  - SwiftyTimer (~> 1.1.0)
+  - Swiftz (~> 0.2)
+  - Toucan
+  - ZFRippleButton
+
+SPEC CHECKSUMS:
+  AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
+  AIFlatSwitch: 0a4fcc19d46bcc510c9da23ab46e4636442290ce
+  Alamofire: 11a6022f5089887d92ffb5a3014c97a0a915ab98
+  BubbleTransition: 6ee83cedb8b9eb2a9489e11b0e0c666f3916bb2c
+  Cent: eb8da65c1b35207038f982cce20d2a18aa46527c
+  Charts: 8b677edafaad44c439d67cee0b8eaf7a76f9b4df
+  Dollar: fa1c277042a5e8208f2276abba056f27a812fcfe
+  Firebase: 462795adf92029ddb97777660627f5dd4fd59876
+  FLKAutoLayout: 9db6b30c2008d230da608e62c607b11c23b942e6
+  FontAwesome.swift: 443ce3d73c4f0c3b756a019c8bb46cad4f30fc0f
+  HanekeSwift: 50d37bfbc4432edc649167e538c259feccb4a2bb
+  KYCircularProgress: 9ed89ab9c404ba98f77625d6266f15e0a55e05e4
+  LTMorphingLabel: aef64d2adb1c659869a8fe22cf2dc7bbad2e28e5
+  MaterialKit: 6f1e9382f89593df768bc0c31ded9952a6d8ad46
+  Nimble: 23f1dbddf1706172c7d740430858e5dfa93d997a
+  ORStackView: 5df6b1b990b0648d8ef6f69f89361ea8648e8f64
+  PageMenu: 290f46c000d4bbb301a48cdb541f32e23b66a503
+  Player: b5611abde6be7b3eeeaf57537b3979cd7531daad
+  PrintlnMagic: c0a6bcf79a35d215b8abea62facad33836bbaeb2
+  Quick: 824572d3d198d51e52cf4aa722cebf7e59952a35
+  RandomColorSwift: 74d96bb51127af7ca36c51648a0e7c12c474809f
+  Realm: 694b93846a0772c904f9e0cc3559d1bc856d931e
+  RealmSwift: feeac2930716d9a04ba45637add4abe994fa05fd
+  SCLAlertView: 3fa76c45826177a02e272c29a9e992585faa189a
+  Spring: 3f02b5dc3308572ef177b3cad0fa7bbc4b0706f7
+  SwiftyJSON: 0b3e6c07af17ff745e77e8e9984097b55c956e5c
+  SwiftyTimer: 3b1bf42c8b1bb09dff7107b12d3b73cbf700bbce
+  Swiftz: b0b3e9778ae9a6b081ddd0f2c1eb700478aefd76
+  Toucan: 61d31928e7d75c401e1d51cd2b13d8275a7a579c
+  ZFRippleButton: 22118e02b6dd0cbe1dc85aa666579c30fc817021
+
+COCOAPODS: 0.37.2

@@ -1,0 +1,184 @@
+platform :ios, '8.0'
+use_frameworks!
+
+xcodeproj 'DaeiousEventDEV02/DaeiousEventDEV02'
+
+link_with 'DaeiousEventDEV02'
+
+
+# USE:
+#
+#	MaterialKit
+#	Nimble
+#	PrintlnMagic
+#	RandomColorSwift
+#	SwiftyTimer
+#
+
+# COOL:
+#
+#	LTMorphingLabel
+#	RealmSwift
+#
+#
+#
+
+target 'DaeiousEventDEV02' do
+
+
+
+	pod 'AFNetworking', '~> 2.5'
+	pod 'ORStackView', '~> 2.0'
+
+
+
+
+	pod 'Firebase', '~> 2.3.1'
+
+
+	pod 'AIFlatSwitch', '~> 0.0.1'
+				# A smooth, nice looking and IBDesignable animated flat switch component for iOS
+				# This is really impressive-looking. Gotta use it.
+
+	pod 'Alamofire', '~> 1.2'
+				# Elegant HTTP Networking in Swift
+
+	pod 'BubbleTransition', '~> 0.1'
+				# A custom modal transition that presents and dismiss a controller inside an expanding and shrinking bubble.
+				#
+				# This is really freaking cool. Maybe I can have this be how people make their see-again choice at the end of an ix? Or maybe I can use this instead of a say-hello-to alert/modal?
+
+	pod 'Cent', '~> 3.0'
+				# Extension for common object types for Swift Language
+
+	pod 'Charts', '~> 2.1'
+				# ios-charts is a powerful & easy to use chart library for iOS
+
+	pod 'Dollar', '~> 3.0'
+				# A functional tool-belt for Swift Language
+
+	#pod 'ExSwift', '~> 0.1.9'
+				# A set of Swift extensions for standard types and classes.
+				# 
+				# WARNING: must add to project folder, not pods.
+
+	pod 'FlatUIColors', '~> 0.2.0'
+				# Flat UI color palette as NS/UIColor objects (in Swift).
+				#
+				# A simple (but good-looking) way to keep colors consistent in the event app.
+
+	pod 'FontAwesome.swift', '~> 0.3.0'
+				# Use Font Awesome in your Swift Projects
+				#
+				# THE way any icons in swift. (I'll definitely be using Font Awesome on the website, too.)
+
+	pod 'HanekeSwift', '~> 0.9.1'
+				# A lightweight generic cache for iOS with extra love for images.
+
+	pod 'KYCircularProgress'
+	# USE		# A flexible progress bar written in Swift.
+				#
+				# I could use this to give the eventuser a sense of the time remaining in the ix without showing the number of seconds left, if I want to do things that way. Might be better not to show numbers, as they might be too distracting. And you can see this out of the corner of your eye without having to look right at it.
+
+	pod 'LTMorphingLabel', '~> 0.0'
+				# Graceful morphing effects for UILabel written in Swift.
+	# COOL
+				# Can I find a way to use this? It's really visually impressive.
+				# Maybe for a unique question type where you have to read really fast? Or it's some kind of puzzle / game where you have to figure something out based on multiple text labels in multiple locations on the screen?
+
+	#pod 'MaterialCardView', '~> 0.0.2'
+	# COOL		# Create material design cards quick and easy
+				#
+				# Maybe I can use this for Questions? (Is it included in 'MaterialKit'?)
+
+
+	pod 'MaterialKit', '~> 0.3'
+				# Material design components for iOS written in Swift
+				# (((((USE)))))
+				# Awesome for showing "ripple" effect from clicks. I should use this as much as possible, because I don't want to make sounds when people click, but when you're standing and you tap on an iPad, you want a little something extra that confirms what you just clicked, especially if you're making just 2-3 clicks, and especially if the accuracy of those clicks is important. It will also make sense to use different click effects for different types of questions, and also for the see-again choice.
+
+	pod 'Nimble', '1.0.0-rc.1'
+				# A Matcher Framework for Swift and Objective-C
+				# (((((USE)))))
+				# Uses "expect" in the same way that Python uses "assert".
+	
+	pod 'Quick', '~> 0.3'
+				# The Swift (and Objective-C) testing framework.
+
+	pod 'PageMenu'
+				# Paging through view controllers made easy
+				#
+				# I should totally use this for my public Daeious app.
+
+	pod 'Player'
+	# USE		# Player is a simple iOS video player library written in Swift.
+				#
+				# I can use this for questions that have associated video. I can either store the super-short videos on the iPad (in the app), or I can stream remote media, although keeping things local seems to make more sense.
+
+	pod 'PrintlnMagic'
+	# USE 		# An alternative for Swift’s println()
+				#
+				# Replaces println() with magic(), which gives the function and line number of the stuff you're printing. Useful. 
+
+	pod 'RandomColorSwift'
+	# USE 		# Generate attractive random colors on iOS.
+
+	pod 'RealmSwift', '~> 0.93'
+				# Realm is a modern data framework & database for iOS & OS X.
+				# ((COOL))
+				# Could I / Should I use this for local storage instead of CoreData? It seems like it'd be easier than CoreData, and it'd cut down on how much data I'd have to store in places like Firebase during an event.
+
+	pod 'SCLAlertView', '>= 0.3'
+	# USE		# Beautiful Alert View. Written in Swift
+				# (((((USE)))))
+				# Here's my solution to showing the eventuser his/her next station at the end of ix's! I can make a custom Alert view (which looks beautiful) automatically disappear after any number of seconds. So I can do something like: in the first 3 seconds of an ix, show the say-hello-to alert, and in the last 3 seconds of an ix, show the next-round-is alert, which automatically switches to the new say-hello-to alert for its 3 seconds, and so on.
+
+	pod 'Spring', '~> 1.0' 
+				# A library to simplify iOS animations in Swift.
+
+	pod 'SwiftyJSON', '~> 2.1'
+				# SwiftyJSON makes it easy to deal with JSON data in Swift
+
+	pod 'SwiftyTimer', '~> 1.1.0'
+	#USE		
+				# SwiftyTimer is a set of extensions to make the NSTimer API cleaner, nicer to use, and at home with Swift’s syntax.
+				#
+				# Will definitely use -- easier timers = awesomeness!
+
+	pod 'Swiftz', '~> 0.2' 
+				# A Swift library for functional programming.
+
+	pod 'Toucan'
+				# a Swift library that provides a clean, quick API for processing images.
+				#
+				# Cool -- can make photos into circles for profile picture display, if I want to do that.
+
+	pod 'ZFRippleButton'
+				# iOS Custom UIButton effect inspired by Google Material Design written in Swift
+				# 
+				# Is this simpler than using 'MaterialKit'? ZF looks similar, but simpler...maybe too simple. 
+
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

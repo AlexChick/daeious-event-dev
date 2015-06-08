@@ -92,6 +92,7 @@ import math
 import numpy # used for matrices for placing R2 and R3 ix's, and arange or linspace
 import os
 import random
+import requests # required for firebase module
 import sys
 import time
 
@@ -104,13 +105,14 @@ from parse_rest.datatypes import ACL, Function, Object
 from parse_rest.role import Role
 from parse_rest.user import User
 
-# Import Firebase stuff (https://github.com/mikexstudios/python-firebase)
-from firebase import Firebase
+# Import Firebase stuff 
 import requests
 
 # Import custom modules, mostly from GitHub
+from firebase import Firebase # https://github.com/mikexstudios/python-firebase
+import names # https://github.com/treyhunner/names
 import backoff
-import xlwt
+import xlwt as excel
 
 # Import custom functions and classes I've written specifically for Daeious.
 #from helpers import batch_delete_from_Parse_all_objects_of_class
@@ -272,6 +274,9 @@ class _Round(object):
         self.sec_in_round = self.num_ix_in_round * self.sec_per_ix
 
         pass
+
+    def plan_A(self, leu, lix):
+        
 
     pass
 
@@ -503,25 +508,23 @@ class Round_2(_Round):
         li_33 = [ix for ix in li if ix.sac_total == 6]
         li_32 = [ix for ix in li if ix.sac_total == 5]
         li_22 = [ix for ix in li if ix.m_sac == 2 and ix.f_sac == 2]
-        li_31 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 1) or (ix.m_sac == 1 and ix.f_sac == 3)]
-        li_21 = [ix for ix in li if (ix.m_sac == 2 and ix.f_sac == 1) or (ix.m_sac == 1 and ix.f_sac == 2)]
+        li_31 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 1) or (
+                                     ix.m_sac == 1 and ix.f_sac == 3)]
+        li_21 = [ix for ix in li if (ix.m_sac == 2 and ix.f_sac == 1) or (
+                                     ix.m_sac == 1 and ix.f_sac == 2)]
         li_11 = [ix for ix in li if ix.m_sac == 1 and ix.f_sac == 1]
-
-        li_663 = copy.deepcopy(li[:663]) # make the shorter list of 663 highest-ranked ix's
-
-        num_tries = 1 # try the auto-placement algorithm 10 times
 
         li_num_placed = [None] * 10
 
         li_r2_ix_planned = []
 
-
         # make list of slots representing ix's.
         li_m_slots = numpy.zeros((13, 51), dtype = int)
         li_f_slots = numpy.zeros((13, 51), dtype = int)
-        # array([[ 0,  0,  0,  0,  0],
-               # [ 0,  0,  0,  0,  0],
-               # [ 0,  0,  0,  0,  0]])
+        # array([[ 0,  0,  0,  ...,  0],
+               # [ 0,  0,  0,  ...,  0],
+               # ...                   ,
+               # [ 0,  0,  0,  ...,  0]])
 
         # put the women in their stations for all subrounds; 
         # they start at a station 51 less than their eu num
@@ -569,7 +572,7 @@ class Round_2(_Round):
                     ):
                     li_random_sub = random.sample(range(13), 13)
                     for sub in li_random_sub: # for each subround, randomly ordered:
-                        if ix.will_sa < 1: # if they didn't already set up a next-round ix:
+                        if ix.will_sa != 1: # if they didn't already set up a next-round ix:
                             search_indices = numpy.where(li_f_slots[sub] == f)
                             sta = search_indices[0][0]
                             # print (search_indices, sta)
@@ -850,21 +853,26 @@ class _Interaction(object):
 
 class _User(object):
 
-    CURR_USER_NUM = 0
+    #CURR_USER_NUM = 0
 
-    def __init__(self):
+    def __init__(self, gender):
 
         _User.CURR_USER_NUM += 1
         self.u_num = _User.CURR_USER_NUM
 
-        if self.u_num <= 1000:
-            self.sex = 'M'
-        elif self.u_num <= 2000:
-            self.sex = 'F'
-        elif self.u_num <= 2100:
-            self.sex = 'MG'
-        elif self.u_num <= 2200:
-            self.sex = 'FG'
+        self.sex = gender
+
+        self.full_name = self.make_name()
+       
+
+        # self.full_name = names.get_full_name(gender = "male") \
+        #             if self.sex in ['M','MG'] \
+        #             else names.get_full_name(gender = "female")
+        # print(self.u_num, self.full_name)
+        # self.first_name = self.full_name.split(" ")[0]
+        # self.last_name = self.full_name.split(" ")[-1]
+
+
 
         self.hotness = random.randint(5, 95)
         self.nixness = random.randint(max(self.hotness-30, 5), 
@@ -875,11 +883,21 @@ class _User(object):
 
         pass
 
+    def make_name(self):
+        if self.sex in ['M','MG']:
+            full_name = names.get_full_name(gender = "male")
+        else:
+            full_name = names.get_full_name(gender = "female")
+
+        print(self.u_num, full_name)        
+        return full_name
+
     def __iter__(self):
         # first start by grabbing the Class items
         iters = dict((x,y) for x,y in _User.__dict__.items() 
             if x[:2] != '__' 
                 and x != "simulate"
+                and x != "make_name"
                 and x != "CURR_USER_NUM"
             )
         # then update the class items with the instance items
@@ -902,22 +920,19 @@ class _EventUser(_User):
 
     CURR_EVENTUSER_NUM = 0
 
-    def __init__(self, e):
-        _User.__init__(self)
-        self.u_num -= 2200 # (because I added 2200 users)
+    def __init__(self, e, u):
         _EventUser.CURR_EVENTUSER_NUM += 1
         self.eu_num = _EventUser.CURR_EVENTUSER_NUM
-
-        self.e = e
-
-        if self.eu_num <= self.e.num_all_eu_p:
-            self.sex = 'M' if self.eu_num <= self.e.num_m_eu_p else 'F'
-        else:
-            if self.eu_num <= self.e.num_all_eu_p + self.e.num_m_eu_g:
-                self.sex = 'MG'
-            else:
-                self.sex = 'FG'
-
+        self.u_num = u.u_num
+        self.sex = u.sex
+        self.full_name = u.full_name
+        self.first_name = self.full_name.split(" ")[0]
+        self.last_name = self.full_name.split(" ")[-1]
+        self.hotness = u.hotness
+        self.nixness = u.nixness
+        self.personality = u.personality
+        self.age = u.age
+        self.eyes = u.eyes
         pass
 
     def __iter__(self):
@@ -962,6 +977,8 @@ def li_ordered_attr_names(obj):
 
                 "m_eu_num", "f_eu_num", # for Interactions
                 "u_num", "eu_num", # for Users and EventUsers
+
+                "first_name", "last_name", "full_name" # for Users and Event Users
                 
                 "m_sac", "f_sac", "sac_total", "sac_same", # for Interactions
                 "r1msac", "r1fsac", 
@@ -1016,7 +1033,7 @@ def li_ordered_attr_names(obj):
 
 
 
-def create_QA_and_SAC_databases_in_Firebase(e):
+def create_QA_and_SAC_databases_in_Firebase(e, lieu):
     """
     Sets up an empty database in Firebase with 3 main nodes: IX, SAC and QA.
 
@@ -1029,31 +1046,14 @@ def create_QA_and_SAC_databases_in_Firebase(e):
 
     "zE0000R1" -> "EventUser_001" -> "first_name" : eu.first_name
 
-    # Takes 508 seconds
-    "Event" 
-    -> e.event_serial 
-    -> "EventUser" 
-    -> eu.eu_num x102
-    -> "Round" 
-    -> (1,2,3) x3
-    -> "SAC" 
-    -> ("yes", "maybe-yes", "maybe-no", "no") x4
-    -> "count": (eu.nr1g_yes, eu.nr1g_my, ..., eu.nr3g_no)
-
+    "zE0000R1" -> "EventUser_001" -> "SAC_yes" : nr1g_yes
+    "zE0000R1_EventUser_001" -> "SAC_yes" : nr1g_yes
+    zE0000 -> r1sac -> eu_num_001 -> nr1g_yes
     -- Realtime on-screen SAC-so-far counts that people see during ix's.
     -- iPads upload to this during events; data is transported into Parse later.
 
-    "zE0000R1" -> "EventUser_001" -> "SAC_yes" : nr1g_yes
-    "zE0000R1_EventUser_001" -> "SAC_yes" : nr1g_yes
-    OR:
-    zE0000 -> r1sac -> eu_num_001 -> nr1g_yes
-
 
     """
-    root_check = 0
-
-    start_time = time.time()
-
 
     ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
 
@@ -1061,40 +1061,24 @@ def create_QA_and_SAC_databases_in_Firebase(e):
 
     hasData = ref_event.child("hasData").get()
 
-    if hasData == True:
+    if hasData in [True, "True", "true"]:
         print ("Firebase structure already exists")
         return
-    elif hasData == False:
+    elif hasData in [False, "False", "false"]:
         print ("Starting from an empty Firebase")
 
-    start_time = time.time()
+    db1_start_time = time.time()
 
-    # # Takes 508 seconds -- way too effing long
-    # for eunum in range(1, e.num_all_eu+1): # for each event user (even ghosts)
-    #     ref_eunum = ref_eventuser.child(str(eunum)) # x 102
-    #     for r in [1,2,3]: # for each round
-    #         ref_round = ref_eunum.child("Round") # x 3
-    #         ref_r = ref_round.child(str(r))        
-    #         ref_sac = ref_r.child("SAC")
-    #         for sac_name in ["yes", "maybe_yes", "maybe_no", "no"]:
-    #             ref_sac_name = ref_sac.child(sac_name)
-    #             ref_sac_name.put({
-    #                 "count": 0
-    #                 })
-
-    try_1_stop_time = time.time()
-    print("Try 1:", (try_1_stop_time - start_time))
-    try_2_start_time = time.time()
-
-    # 3 x 102 x 4 = 1,224 records, takes about 100-120 seconds
+    # 3 x 102 x 5 = 1,530 records, takes about 110 seconds
     for rd_num in [1,2,3]: # for each round (x3)
         ref_rd = ref_root.child("zE{}R{}".format(e.event_serial, str(rd_num)))
-        for eunum in range(1, e.num_all_eu+1): # for each event user (x102)
+        for index, eu in enumerate(lieu): # for each event user (x102)
             ref_EU = ref_rd.child("EventUser_{}{}".format(
-                "0"*(3-len(str(eunum))), 
-                str(eunum))
+                "0"*(3-len(str(eu.eu_num))), 
+                str(eu.eu_num))
             )
-            ref_EU.put({ # (x4)
+            ref_EU.put({ # (x5)
+                "first_name": eu.first_name,
                 "SAC_yes": 0,
                 "SAC_my": 0,
                 "SAC_mn": 0,
@@ -1102,9 +1086,19 @@ def create_QA_and_SAC_databases_in_Firebase(e):
                 })
             #ref_EU.post({ # equivalent to "push()" in Firebase; creates unique id's for each node
 
+    db1_stop_time = time.time()
+    print("DB 1 took {} seconds to create.".format(
+        round(db1_stop_time - db1_start_time, 2)))
+    db2_start_time = time.time()
 
-    try_2_stop_time = time.time()
-    print("Try 2:", (try_2_stop_time - try_2_start_time))
+
+    # 1 x 102 = 102 records, takes about ________ seconds
+
+
+
+    db2_stop_time = time.time()
+    print("DB 2 took {} seconds to create.".format(
+        round(db2_stop_time - db2_start_time, 2)))
 
 
 
@@ -1163,29 +1157,27 @@ def main():
     #     )
 
 
-    """ Create a skeleton DB in Firebase for the simulated event.
-    """
-    create_QA_and_SAC_databases_in_Firebase(e)
-
-
 
 
     """  Create Users: 1,000 men, 1,000 women, 100 male ghosts, 100 female ghosts.  
     """
     _User.CURR_USER_NUM = 0
-    li_mpu = list((_User() for i in range(1000)))
-    li_fpu = list((_User() for i in range(1000)))
-    li_mgu = list((_User() for i in range(100)))
-    li_fgu = list((_User() for i in range(100)))
+    li_mpu = list((_User('M') for i in range(4*e.num_m_eu_p)))
+    li_fpu = list((_User('F') for i in range(4*e.num_f_eu_p)))
+    li_mgu = list((_User('MG') for i in range(4*e.num_m_eu_g)))
+    li_fgu = list((_User('FG') for i in range(4*e.num_f_eu_g)))
     li_all_u = li_mpu + li_fpu + li_mgu + li_fgu
+
+    # reset CURR_USER_NUM
+    _User.CURR_USER_NUM = 0
 
 
     """  Create correct number and type of EventUsers.  
     """
-    li_mpeu = list((_EventUser(e) for i in range(e.num_m_eu_p)))
-    li_fpeu = list((_EventUser(e) for i in range(e.num_f_eu_p)))
-    li_mgeu = list((_EventUser(e) for i in range(e.num_m_eu_g)))
-    li_fgeu = list((_EventUser(e) for i in range(e.num_f_eu_g)))
+    li_mpeu = list((_EventUser(e, u) for u in li_mpu[:e.num_m_eu_p]))
+    li_fpeu = list((_EventUser(e, u) for u in li_fpu[:e.num_f_eu_p]))
+    li_mgeu = list((_EventUser(e, u) for u in li_mgu[:e.num_m_eu_g]))
+    li_fgeu = list((_EventUser(e, u) for u in li_fgu[:e.num_f_eu_g]))
     li_all_eu = li_mpeu + li_fpeu + li_mgeu + li_fgeu
 
 
@@ -1196,6 +1188,11 @@ def main():
     r2 = Round_2(e) if e.start_at_round <= 2 else 0
     r3 = Round_3(e) if e.start_at_round <= 3 else 0
     r4 = Round_4(e) if e.start_at_round <= 4 else 0
+
+
+    """ Create a skeleton DB in Firebase for the simulated event.
+    """
+    create_QA_and_SAC_databases_in_Firebase(e, li_all_eu)
 
 
     """  Plan, simulate, and analyze the rounds.  
@@ -1247,8 +1244,8 @@ def main():
 
     """  Create all sheets in Excel.
     """
-    global WB
-    WB = xlwt.Workbook()
+    WB = excel.Workbook()
+
     ws_User = WB.add_sheet('Users', cell_overwrite_ok = True)
     ws_EventUser = WB.add_sheet('Event Users', cell_overwrite_ok = True)
     ws_r1_ix = WB.add_sheet('R1 Ix', cell_overwrite_ok = True)
