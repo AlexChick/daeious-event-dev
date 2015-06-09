@@ -348,7 +348,6 @@ class _Round(object):
         li_m_slots = numpy.zeros((ixpp+1, self.e.num_stations), dtype = int)
         li_f_slots = numpy.zeros((ixpp+1, self.e.num_stations), dtype = int)
 
-
         # Put the women in their stations for all subrounds.
         # They start at a station 51 less than their eu num, and they move 
         # right (counter-clockwise) by 1 from outer circle (-1) after each ix
@@ -362,9 +361,14 @@ class _Round(object):
         # This is used to make sure we're not giving too many too soon.
         li_ix_count_by_eu = [0] * self.e.num_all_eu
 
+        # Make a list of lists of the number of ghosts needed per subround
+        lili_num_g_per_subround = [[0, 0]] * (ixpp+1)
+
         # Initialize num_placed, the number of ix's successfully placed by a 
-        # given iteration of the algorithm.
-        num_placed = 0
+        # given sub-iteration of the algorithm.
+        li_num_placed_from_li_XX = [None] * 6
+        num_placed_from_li_XX = 0
+
 
         # Initilize the list of planned/scheduled ix's we're gonna return.
         li_r2_ix_planned = []
@@ -378,7 +382,6 @@ class _Round(object):
             chain(li_33, li_32, li_22, li_31, li_21),
             chain(li_33, li_32, li_22, li_31, li_21, li_11)
             ]):
-            print(try_num)
             for index, ix in enumerate(li_of_iteration):
                 m = ix.m_eu_num
                 f = ix.f_eu_num
@@ -386,19 +389,17 @@ class _Round(object):
                 feu = ix.feu
                 m_count = li_ix_count_by_eu[m-1]
                 f_count = li_ix_count_by_eu[f-1]
-
                 if (
-                    (try_num < 2 and m_count < ixpp and f_count < ixpp) # if they're both not "full"
-                    or
-                    (try_num == 2 and ((m_count < ixpp-2 and f_count < ixpp-1) or (m_count < ixpp-1 and f_count < ixpp-2)))
-                    or
-                    (try_num == 3 and ((m_count < ixpp-1 and f_count < ixpp) or (m_count < ixpp and f_count < ixpp-1)))
-                    or
-                    (try_num > 3 and ((m_count < ixpp and f_count < ixpp+1) or (m_count < ixpp+1 and f_count < ixpp)))
-                    ):
+                (try_num < 2 and m_count < ixpp and f_count < ixpp) # if they're both not "full"
+                or
+                (try_num == 2 and ((m_count < ixpp-2 and f_count < ixpp-1) or (m_count < ixpp-1 and f_count < ixpp-2)))
+                or
+                (try_num == 3 and ((m_count < ixpp-1 and f_count < ixpp) or (m_count < ixpp and f_count < ixpp-1)))
+                or
+                (try_num > 3 and ((m_count < ixpp and f_count < ixpp+1) or (m_count < ixpp+1 and f_count < ixpp)))
+                ):
 
                     li_random_sub = random.sample(range(ixpp+1), ixpp+1)
-
                     for sub in li_random_sub: # for each subround, randomly ordered:
                         if ix.will_sa != 1: # if they didn't already set up a next-round ix:
                             search_indices = numpy.where(li_f_slots[sub] == f) # get the girl's station num for this subround (predetermined)
@@ -408,7 +409,7 @@ class _Round(object):
                                 li_ix_count_by_eu[m-1] += 1
                                 li_ix_count_by_eu[f-1] += 1
                                 ix.will_sa = 1
-                                num_placed += 1
+                                num_placed_from_li_XX += 1
                                 newix = _Interaction(self.e, self, meu, feu)
                                 newix.sub_num = sub + 1
                                 newix.sta_num = sta + 1
@@ -431,32 +432,49 @@ class _Round(object):
                                 newix.r1_sac_tot = ix.sac_total        
                                 li_r2_ix_planned.append(newix)
 
-            li_num_placed[try_num] = num_placed
+            li_num_placed_from_li_XX[try_num] = num_placed_from_li_XX
 
-            num_placed = 0
+            num_placed_from_li_XX = 0
 
-        # END ALGORITHM
+        # END ASSIGNMENT
 
-        print ("\nWomen:")
-        pprint(li_f_slots)
-        print ("\nMen:")
-        pprint(li_m_slots)
+        # Figure out the most ghosts needed in a subround.
+        most_g_in_a_subround = 0
+        for arr_subround in li_m_slots:
+            li_subround = list(arr_subround)
+            num_g = li_subround.count(0) * 2 # count number of zeroes
+            if num_g > most_g_in_a_subround:
+                most_g_in_a_subround = num_g * 2
 
-        print("num_placed:", li_num_placed)
+
+
+
+
+        # print ("\nWomen:")
+        # pprint(li_f_slots)
+        # print ("\nMen:")
+        # pprint(li_m_slots)
+
+        #print("num_placed_from_li_XX:", li_num_placed_from_li_XX)
 
         num_missing_ix = 0
 
-        for index, n in enumerate(li_ix_count_by_eu):
-            if n < ixpp:
-                num_missing_ix += ixpp - n if index+1 <= 100 else 0
-                print ("Uh-Oh. EventUser {0} has only {1} Round-{2} interactions. {3}"
-                    .format(index+1, n, self.round_num, num_missing_ix))
-            else:
-                print ("Success! EventUser {0} has {1} Round-{2} interactions."\
-                    .format(index+1, n, self.round_num))
+        # for index, n in enumerate(li_ix_count_by_eu):
+        #     if n < ixpp:
+        #         num_missing_ix += ixpp - n if index+1 <= 100 else 0
+        #         print ("Uh-Oh. EventUser {0} has only {1} Round-{2} interactions. {3}"
+        #             .format(index+1, n, self.round_num, num_missing_ix))
+        #     else:
+        #         pass
+        #         #print ("Success! EventUser {0} has {1} Round-{2} interactions."\
+        #         #    .format(index+1, n, self.round_num))
 
-        print ("Number of missing interactions:", num_missing_ix)
-        return li_r2_ix_planned, num_missing_ix
+        # print ("Number of missing interactions:", num_missing_ix)
+        return [
+                li_r2_ix_planned, 
+                most_g_in_a_subround,
+                num_missing_ix
+               ]
     
 
         
@@ -1349,8 +1367,8 @@ def main():
     """  Create a bunch of Users.
     """
     _User.CURR_USER_NUM = 0
-    li_mpu = list((_User('M') for i in range(int(1.5*e.num_m_eu_p))))
-    li_fpu = list((_User('F') for i in range(int(1.5*e.num_f_eu_p))))
+    li_mpu = list((_User('M') for i in range(int(1.0*e.num_m_eu_p))))
+    li_fpu = list((_User('F') for i in range(int(1.0*e.num_f_eu_p))))
     li_mgu = list((_User('MG') for i in range(5*e.num_m_eu_g)))
     li_fgu = list((_User('FG') for i in range(5*e.num_f_eu_g)))
     li_all_u = li_mpu + li_fpu + li_mgu + li_fgu
@@ -1397,8 +1415,46 @@ def main():
 
     """  ROUND 2  """
     num_missing_ix = 0
-    li_r2_ix_planned, num_missing_ix = r2.plan_A( # do plan A
-            leu = li_all_eu, lix = li_r1_ix_analyzed[:])
+    best_total_rank = 0
+    li_r2_ix_planned = [None]
+    min_g_needed = 100
+
+    for assignment in range(50):
+        start_time = time.time()
+        print("\nAssignment #{}".format(assignment+1))
+        li_ret = r2.plan_A(leu=li_all_eu,lix=copy.deepcopy(li_r1_ix_analyzed))
+        temp_li_r2_ix_planned = li_ret[0]
+        g_needed = li_ret[1]
+        num_missing_ix = li_ret[2]
+        total_rank = sum([ix.r1_rank for ix in temp_li_r2_ix_planned])
+
+        if num_missing_ix == 0:
+            if g_needed <= 2:
+                if total_rank > best_total_rank:
+                    li_r2_ix_planned = li_ret[0]
+                    print("Successful Assignment!")
+                else:
+                    print("total_rank:", total_rank)
+                    print("best_total_rank:", best_total_rank)
+            else:
+                print("g_needed:", g_needed)
+                if g_needed < min_g_needed:
+                    min_g_needed = g_needed
+        else:
+            print("num_missing_ix:", num_missing_ix)
+
+
+
+        print("Time taken: {} seconds".format(round(time.time() - start_time, 2)))
+
+    if li_r2_ix_planned == [None]:
+        print("\nRound 2 Assignment algorithm failed.")
+        print("Minimum ghosts needed: {}".format(min_g_needed))
+        return
+
+
+
+
     # if num_missing_ix > 0: 
     #     li_r2_ix_planned, num_missing_ix = r2.plan_B(leu = li_all_eu, lix = li_r1_ix_analyzed)
     #     if num_missing_ix > 0: # if plan B fails, do plan C
