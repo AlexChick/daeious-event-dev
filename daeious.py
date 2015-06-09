@@ -189,8 +189,8 @@ class _Event(object):
         self.num_all_eu = self.num_all_eu_p + self.num_all_eu_g
 
         self.num_r1_ix_pp = self.num_stations
-        self.num_r2_ix_pp = self.num_stations/4
-        self.num_r3_ix_pp = int(round(self.num_stations/12.0, 0))
+        self.num_r2_ix_pp = self.num_stations/3
+        self.num_r3_ix_pp = int(round(self.num_stations/12.0+1, 0))
         self.num_event_ix_pp = sum(
             [self.num_r1_ix_pp, self.num_r2_ix_pp, self.num_r3_ix_pp]
             )
@@ -567,15 +567,32 @@ class Round_1(_Round):
 
         li_r1_ix_planned = lix
 
+        li_no_count_by_eu = [0] * (self.e.num_all_eu+1)
+        li_mn_count_by_eu = [0] * (self.e.num_all_eu+1)
+        li_my_count_by_eu = [0] * (self.e.num_all_eu+1)
+        li_yes_count_by_eu = [0] * (self.e.num_all_eu+1)
+        lili_counts = [li_no_count_by_eu, li_mn_count_by_eu, li_my_count_by_eu, li_yes_count_by_eu]
+
         for ix in li_r1_ix_planned:
 
             ix.m_sac = random.randint(0,3)
             ix.f_sac = random.randint(0,3)
-            ix.m_qa = random.choice(['A','B','C','D'])
-            ix.f_qa = random.choice(['A','B','C','D'])
+            
+            # if (
+            #     (lili_counts[0][ix.m_eu_num] >= 10 and ix.m_sac == 0) or
+            #     (lili_counts[0][ix.f_eu_num] >= 10 and ix.f_sac == 0)):
+
+            #     ix.m_sac = random.randint(1,3)
+            #     ix.f_sac = random.randint(1,3)
+
+            lili_counts[ix.m_sac][ix.m_eu_num] += 1
+            lili_counts[ix.f_sac][ix.f_eu_num] += 1
 
             ix.sac_total = ix.m_sac + ix.f_sac
             ix.sac_same = 1 if ix.m_sac == ix.f_sac else 0
+
+            ix.m_qa = random.choice(['A','B','C','D'])
+            ix.f_qa = random.choice(['A','B','C','D'])
             ix.qa_same = 1 if ix.m_qa == ix.f_qa else 0
 
         return li_r1_ix_planned # necessary?
@@ -591,7 +608,7 @@ class Round_1(_Round):
         m_des = 0
         f_des = 0
 
-        for eu in leu: # 51x
+        for eu in leu:
             sel = 0
             des = 0
             li_rcvd = [0,0,0,0] # no, mn, my, yes
@@ -1450,7 +1467,7 @@ def main():
     if li_r2_ix_planned == [None]:
         print("\nRound 2 Assignment algorithm failed.")
         print("Minimum ghosts needed: {}".format(min_g_needed))
-        return
+        li_r2_ix_planned = li_ret[0]
 
 
 
@@ -1471,8 +1488,8 @@ def main():
 
 
     """  ROUND 3  """
-    li_r3_ix_planned, num_missing_ix = r3.plan_A( # do plan A
-            leu = li_all_eu, lix = li_r2_ix_analyzed)
+    li_r3_ix_planned = r3.plan_A( # do plan A
+            leu = li_all_eu, lix = li_r2_ix_analyzed)[0]
 
     li_r3_ix_simulated = r3.simulate(li_r3_ix_planned)
     li_r3_ix_analyzed = r3.analyze(leu = li_all_eu, lix = li_r3_ix_simulated)
