@@ -188,8 +188,8 @@ class _Event(object):
 
         self.num_all_eu = self.num_all_eu_p + self.num_all_eu_g
 
-        self.num_r1_ix_pp = int(round(self.num_stations/1.0, 0))
-        self.num_r2_ix_pp = int(round(self.num_stations/4.0, 0))
+        self.num_r1_ix_pp = self.num_stations
+        self.num_r2_ix_pp = self.num_stations/4
         self.num_r3_ix_pp = int(round(self.num_stations/12.0, 0))
         self.num_event_ix_pp = sum(
             [self.num_r1_ix_pp, self.num_r2_ix_pp, self.num_r3_ix_pp]
@@ -276,7 +276,192 @@ class _Round(object):
         pass
 
     def plan_A(self, leu, lix):
+        """
+        In this example, assume a 51m/51w event. Takes the highest-ranked ix's
+        in lix from the previous round and places them into 51 * (12+1) = 
+        663 slots.
+
+        Returns a list of planned ix's, which is just an updated copy of lix.
+
+        --  Should I try to place as many as possible (use fewer ghosts)?
+            Should I try to use the highest-ranked ix's?
+
+            I still don't completely have this figured out. I'm a bit confused
+            about whether subround order matters -- i.e., should the algorithm
+            just start filling up people's subround 1, then go on to subround 2?
+            Or, given multiple available subrounds, should it choose randomly?
+
+            Try to give everyone 10 ix's to start. Then add an 11th. Then add
+            a 12th. Then add a 13th. For those that don't get a 13th, create
+            an ix for them with a ghost.
+
+            It looks like, since the womens' stations are essentially fixed 
+            (b/c they can only move one station to the right), there's only one 
+            unique outcome achieved by iterating through the list of the 
+            highest-ranked interactions, no matter where the women start. Which 
+            makes sense.
+
+            Have something that makes sure the guy is moving as least a few
+            stations away between ix's. The girl he just saw doesn't necessarily
+            want to see him with another person -- though this may be ok. The
+            idea is that the guy should be a decent distance away from his next
+            ix so that he'll have to walk, he'll have to travel, creating that
+            guy-approaches-girl dynamic, and making sure the girl gets to the
+            station before the guy. If not, it'd be inconsistent with most of
+            their other ix's.
+        """
+
+        # Rename self.num_ix_pp to ixpp; it's used many times in the algorithm.
+        # It's the minimum number of real-person ix's for the round.
+        # Some eu's will get an additional ix with a real person, if possible;
+        # else, they'll get one with an eu ghost.
+        ixpp = self.num_ix_pp
+
+        # Split the list of eu's by gender
+        # Are these new lists, or do they still update e.li_all_eu?
+        li_all_meu = [eu for eu in leu if eu.sex in ['M', 'MG']]
+        li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
+
+        # Make a deepcopy of lix so as not to change the passed-in list.
+        li = copy.deepcopy(lix)
         
+        # Create lists of ix's by SAC pair (excluding the ix's with any 0).
+        li_33 = [ix for ix in li if ix.sac_total == 6]
+        li_32 = [ix for ix in li if ix.sac_total == 5]
+        li_22 = [ix for ix in li if ix.m_sac == 2 and ix.f_sac == 2]
+        li_31 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 1) or (
+                                     ix.m_sac == 1 and ix.f_sac == 3)]
+        li_21 = [ix for ix in li if (ix.m_sac == 2 and ix.f_sac == 1) or (
+                                     ix.m_sac == 1 and ix.f_sac == 2)]
+        li_11 = [ix for ix in li if ix.m_sac == 1 and ix.f_sac == 1]
+
+        # Make a list to show how many ix's were placed during each iteration.
+        # There are currently 6 iterations.
+        li_num_placed = [None] * 6
+
+        # Make matrices of slots representing ix 'appointments'.
+        # Row is subround; Column is station; value is eu_num.
+        # array([[ 0,  0,  0,  ...,  0],
+               # [ 0,  0,  0,  ...,  0],
+               # ...                   ,
+               # [ 0,  0,  0,  ...,  0]])
+        li_m_slots = numpy.zeros((ixpp+1, self.e.num_stations), dtype = int)
+        li_f_slots = numpy.zeros((ixpp+1, self.e.num_stations), dtype = int)
+
+
+        # Put the women in their stations for all subrounds.
+        # They start at a station 51 less than their eu num, and they move 
+        # right (counter-clockwise) by 1 from outer circle (-1) after each ix
+        for subround in range(ixpp+1):
+            for index, feu in enumerate(li_all_feu):
+                li_f_slots[subround][index] = feu.eu_num
+            # rotate list -- first feu moved to back of list
+            li_all_feu = li_all_feu[1:] + [li_all_feu[0]]
+
+        # Make a list representing how many ix's each eu has so far.
+        # This is used to make sure we're not giving too many too soon.
+        li_ix_count_by_eu = [0] * self.e.num_all_eu
+
+        # Initialize num_placed, the number of ix's successfully placed by a 
+        # given iteration of the algorithm.
+        num_placed = 0
+
+        # Initilize the list of planned/scheduled ix's we're gonna return.
+        li_r2_ix_planned = []
+
+        # START ALGORITHM
+        for try_num, li_of_iteration in enumerate([
+            chain(li_33),
+            chain(li_33, li_32),
+            chain(li_33, li_32, li_22),
+            chain(li_33, li_32, li_22, li_31),
+            chain(li_33, li_32, li_22, li_31, li_21),
+            chain(li_33, li_32, li_22, li_31, li_21, li_11)
+            ]):
+            print(try_num)
+            for index, ix in enumerate(li_of_iteration):
+                m = ix.m_eu_num
+                f = ix.f_eu_num
+                meu = ix.meu
+                feu = ix.feu
+                m_count = li_ix_count_by_eu[m-1]
+                f_count = li_ix_count_by_eu[f-1]
+
+                if (
+                    (try_num < 2 and m_count < ixpp and f_count < ixpp) # if they're both not "full"
+                    or
+                    (try_num == 2 and ((m_count < ixpp-2 and f_count < ixpp-1) or (m_count < ixpp-1 and f_count < ixpp-2)))
+                    or
+                    (try_num == 3 and ((m_count < ixpp-1 and f_count < ixpp) or (m_count < ixpp and f_count < ixpp-1)))
+                    or
+                    (try_num > 3 and ((m_count < ixpp and f_count < ixpp+1) or (m_count < ixpp+1 and f_count < ixpp)))
+                    ):
+
+                    li_random_sub = random.sample(range(ixpp+1), ixpp+1)
+
+                    for sub in li_random_sub: # for each subround, randomly ordered:
+                        if ix.will_sa != 1: # if they didn't already set up a next-round ix:
+                            search_indices = numpy.where(li_f_slots[sub] == f) # get the girl's station num for this subround (predetermined)
+                            sta = search_indices[0][0] # unpack the station num (it's in a matrix)
+                            if li_m_slots[sub][sta] == 0: # if there isn't already an ix for that sub, sta:
+                                li_m_slots[sub][sta] = m  # WE'RE GOOD! put the guy's eu_num in the slot
+                                li_ix_count_by_eu[m-1] += 1
+                                li_ix_count_by_eu[f-1] += 1
+                                ix.will_sa = 1
+                                num_placed += 1
+                                newix = _Interaction(self.e, self, meu, feu)
+                                newix.sub_num = sub + 1
+                                newix.sta_num = sta + 1
+                                newix.m_ipad_num = self.e.li_m_ipad_nums[sta]
+                                newix.f_ipad_num = self.e.li_f_ipad_nums[sta]
+                                newix.m_hotness = meu.hotness
+                                newix.f_hotness = feu.hotness
+                                newix.m_nixness = meu.nixness
+                                newix.f_nixness = feu.nixness
+                                newix.m_personality = meu.personality
+                                newix.f_personality = feu.personality
+                                newix.r1_likeness = ix.r1_likeness
+                                newix.r1_rank = ix.r1_rank
+                                newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
+                                newix.r1_f_sel = ix.r1_f_sel
+                                newix.r1_m_des = ix.r1_m_des
+                                newix.r1_f_des = ix.r1_f_des
+                                newix.r1msac = ix.m_sac
+                                newix.r1fsac = ix.f_sac   
+                                newix.r1_sac_tot = ix.sac_total        
+                                li_r2_ix_planned.append(newix)
+
+            li_num_placed[try_num] = num_placed
+
+            num_placed = 0
+
+        # END ALGORITHM
+
+        print ("\nWomen:")
+        pprint(li_f_slots)
+        print ("\nMen:")
+        pprint(li_m_slots)
+
+        print("num_placed:", li_num_placed)
+
+        num_missing_ix = 0
+
+        for index, n in enumerate(li_ix_count_by_eu):
+            if n < ixpp:
+                num_missing_ix += ixpp - n if index+1 <= 100 else 0
+                print ("Uh-Oh. EventUser {0} has only {1} Round-{2} interactions. {3}"
+                    .format(index+1, n, self.round_num, num_missing_ix))
+            else:
+                print ("Success! EventUser {0} has {1} Round-{2} interactions."\
+                    .format(index+1, n, self.round_num))
+
+        print ("Number of missing interactions:", num_missing_ix)
+        return li_r2_ix_planned, num_missing_ix
+    
+
+        
+
+
 
     pass
 
@@ -479,151 +664,163 @@ class Round_2(_Round):
 
     def __init__(self, e):
         _Round.__init__(self, e)
+        self.e = e
         self.round_num = 2
+        self.num_ix_pp = self.e.num_r2_ix_pp
         pass
 
-    def plan_A(self, leu, lix):
-        """
-        Takes the highest-ranked inx in li_r1_ix_by_energy 
-        and does several random auto-placements into 51 * (12+1) = 663 slots, 
-        keeping the best (placing the most, or the most of the highest-ranked 
-        ix's) after each new try. Try for as many times as is practical.
+# def plan_A(self, leu, lix):
+    #     """
+    #     Takes the highest-ranked inx in li_r1_ix_by_energy 
+    #     and does several random auto-placements into 51 * (12+1) = 663 slots, 
+    #     keeping the best (placing the most, or the most of the highest-ranked 
+    #     ix's) after each new try. Try for as many times as is practical.
 
-        --  Try to give everyone 12 r2ix's (51 * 12 = 612), then add a 13th if 
-            necessary for people already with 12 to get everyone under 12 up to 
-            12.
+    #     --  Try to give everyone 12 r2ix's (51 * 12 = 612), then add a 13th if 
+    #         necessary for people already with 12 to get everyone under 12 up to 
+    #         12.
 
-        --  
+    #     --  
 
-        --  It looks like, since the womens' stations are essentially fixed 
-            (b/c they can only move one station to the right), there's only one 
-            unique outcome achieved by iterating through the list of the 
-            highest-ranked interactions, no matter where the women start. Which 
-            makes sense.
-        """
+    #     --  It looks like, since the womens' stations are essentially fixed 
+    #         (b/c they can only move one station to the right), there's only one 
+    #         unique outcome achieved by iterating through the list of the 
+    #         highest-ranked interactions, no matter where the women start. Which 
+    #         makes sense.
+    #     """
 
-        li = copy.deepcopy(lix) # make a copy so as not to change li_r1_ix_by_energy
-        #li = lix
-        li_all_but_no = [ix for ix in li if ix.m_sac == 0 or ix.f_sac == 0]
-        li_33 = [ix for ix in li if ix.sac_total == 6]
-        li_32 = [ix for ix in li if ix.sac_total == 5]
-        li_22 = [ix for ix in li if ix.m_sac == 2 and ix.f_sac == 2]
-        li_31 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 1) or (
-                                     ix.m_sac == 1 and ix.f_sac == 3)]
-        li_21 = [ix for ix in li if (ix.m_sac == 2 and ix.f_sac == 1) or (
-                                     ix.m_sac == 1 and ix.f_sac == 2)]
-        li_11 = [ix for ix in li if ix.m_sac == 1 and ix.f_sac == 1]
+    #     # Split the list of eu's by gender
+    #     # Are these new lists, or do they still update e.li_all_eu?
+    #     li_all_meu = [eu for eu in leu if eu.sex in ['M', 'MG']]
+    #     li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
 
-        li_num_placed = [None] * 10
+    #     # Make a deepcopy of lix so as not to change the passed-in list.
+    #     li = copy.deepcopy(lix)
+        
+    #     # Create lists of ix's by SAC pair (excluding the ix's with any 0).
+    #     li_33 = [ix for ix in li if ix.sac_total == 6]
+    #     li_32 = [ix for ix in li if ix.sac_total == 5]
+    #     li_22 = [ix for ix in li if ix.m_sac == 2 and ix.f_sac == 2]
+    #     li_31 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 1) or (
+    #                                  ix.m_sac == 1 and ix.f_sac == 3)]
+    #     li_21 = [ix for ix in li if (ix.m_sac == 2 and ix.f_sac == 1) or (
+    #                                  ix.m_sac == 1 and ix.f_sac == 2)]
+    #     li_11 = [ix for ix in li if ix.m_sac == 1 and ix.f_sac == 1]
 
-        li_r2_ix_planned = []
+    #     # Make a list to show how many ix's were placed during each iteration.
+    #     li_num_placed = [None] * 10
 
-        # make list of slots representing ix's.
-        li_m_slots = numpy.zeros((13, 51), dtype = int)
-        li_f_slots = numpy.zeros((13, 51), dtype = int)
-        # array([[ 0,  0,  0,  ...,  0],
-               # [ 0,  0,  0,  ...,  0],
-               # ...                   ,
-               # [ 0,  0,  0,  ...,  0]])
+    #     # Make matrices of slots representing ix 'appointments'.
+    #     # Row is subround; Column is station; value is eu_num.
+    #     # array([[ 0,  0,  0,  ...,  0],
+    #            # [ 0,  0,  0,  ...,  0],
+    #            # ...                   ,
+    #            # [ 0,  0,  0,  ...,  0]])
+    #     li_m_slots = numpy.zeros((self.num_ix_pp, self.e.num_stations), dtype = int)
+    #     li_f_slots = numpy.zeros((self.num_ix_pp, self.e.num_stations), dtype = int)
 
-        # put the women in their stations for all subrounds; 
-        # they start at a station 51 less than their eu num
-        # and they move CC right 1 from outer circle (decrease 1) after each ix
-        li_all_meu = [eu for eu in leu if eu.sex in ['M', 'MG']]
-        li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
-        li_all_feu = random.sample(li_all_feu, len(li_all_feu)) # doesn't seem to make a difference
-        for sub in range(13):
-            for index, feu in enumerate(li_all_feu):
-                li_f_slots[sub][index] = feu.eu_num
-            # rotate list -- first feu moved to back of list
-            li_all_feu = li_all_feu[1:] + [li_all_feu[0]]
 
-        li_ix_count_by_eu = [0] * 102
+    #     # Put the women in their stations for all subrounds.
+    #     # They start at a station 51 less than their eu num, and they move 
+    #     # right (counter-clockwise) by 1 from outer circle (-1) after each ix
+    #     for sub in range(13):
+    #         for index, feu in enumerate(li_all_feu):
+    #             li_f_slots[sub][index] = feu.eu_num
+    #         # rotate list -- first feu moved to back of list
+    #         li_all_feu = li_all_feu[1:] + [li_all_feu[0]]
 
-        num_placed = 0
+    #     # Make a list representing how many ix's each eu has so far.
+    #     # This is used to make sure we're not giving too many too soon.
+    #     li_ix_count_by_eu = [0] * (self.e.num_all_eu)
 
-        li_sac_pairs = [li_33, li_32, li_22, li_31, li_21, li_11]
+    #     # Initiate num_placed, the number of ix's successfully placed by a given
+    #     # iteration of the algorithm
+    #     num_placed = 0
 
-        for try_num, li_of_iteration in enumerate([
-                chain(li_33),
-                chain(li_33, li_32),
-                chain(li_33, li_32, li_22),
-                chain(li_33, li_32, li_22, li_31),
-                chain(li_33, li_32, li_22, li_31, li_21),
-                chain(li_33, li_32, li_22, li_31, li_21, li_11)
-                ]):
-            print(try_num)
-            for index, ix in enumerate(li_of_iteration):
-                m = ix.m_eu_num
-                f = ix.f_eu_num
-                meu = ix.meu
-                feu = ix.feu
-                m_count = li_ix_count_by_eu[m-1]
-                f_count = li_ix_count_by_eu[f-1]
+    #     # Initilize the list of planned/scheduled ix's we're gonna return.
+    #     li_r2_ix_planned = []
 
-                if (
-                    (try_num < 2 and m_count < 12 and f_count < 12) # if they're both not "full"
-                    or
-                    (try_num == 2 and ((m_count < 10 and f_count < 11) or (m_count < 11 and f_count < 10)))
-                    or
-                    (try_num == 3 and ((m_count < 11 and f_count < 12) or (m_count < 12 and f_count < 11)))
-                    or
-                    (try_num > 3 and ((m_count < 12 and f_count < 13) or (m_count < 13 and f_count < 12)))
-                    ):
-                    li_random_sub = random.sample(range(13), 13)
-                    for sub in li_random_sub: # for each subround, randomly ordered:
-                        if ix.will_sa != 1: # if they didn't already set up a next-round ix:
-                            search_indices = numpy.where(li_f_slots[sub] == f)
-                            sta = search_indices[0][0]
-                            # print (search_indices, sta)
-                            if li_m_slots[sub][sta] == 0: # if there isn't already an ix for that sub, sta
-                                li_m_slots[sub][sta] = m
-                                li_ix_count_by_eu[m-1] += 1
-                                li_ix_count_by_eu[f-1] += 1
-                                ix.will_sa = 1
-                                num_placed += 1
-                                #print (ix.r1_rank, m, f, sub, sta)
-                                newix = _Interaction(self.e, self, meu, feu)
-                                newix.sub_num = sub + 1
-                                newix.sta_num = sta + 1
-                                newix.m_ipad_num = self.e.li_m_ipad_nums[sta]
-                                newix.f_ipad_num = self.e.li_f_ipad_nums[sta]
-                                newix.m_hotness = meu.hotness
-                                newix.f_hotness = feu.hotness
-                                newix.m_nixness = meu.nixness
-                                newix.f_nixness = feu.nixness
-                                newix.m_personality = meu.personality
-                                newix.f_personality = feu.personality
-                                newix.r1_likeness = ix.r1_likeness
-                                newix.r1_rank = ix.r1_rank
-                                newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
-                                newix.r1_f_sel = ix.r1_f_sel
-                                newix.r1_m_des = ix.r1_m_des
-                                newix.r1_f_des = ix.r1_f_des
-                                newix.r1msac = ix.m_sac
-                                newix.r1fsac = ix.f_sac   
-                                newix.r1_sac_tot = ix.sac_total        
-                                li_r2_ix_planned.append(newix)
+    #     # START ALGORITHM
+    #     for try_num, li_of_iteration in enumerate([
+    #         chain(li_33),
+    #         chain(li_33, li_32),
+    #         chain(li_33, li_32, li_22),
+    #         chain(li_33, li_32, li_22, li_31),
+    #         chain(li_33, li_32, li_22, li_31, li_21),
+    #         chain(li_33, li_32, li_22, li_31, li_21, li_11)
+    #         ]):
+    #         print(try_num)
+    #         for index, ix in enumerate(li_of_iteration):
+    #             m = ix.m_eu_num
+    #             f = ix.f_eu_num
+    #             meu = ix.meu
+    #             feu = ix.feu
+    #             m_count = li_ix_count_by_eu[m-1]
+    #             f_count = li_ix_count_by_eu[f-1]
 
-            #li_num_placed.append(num_placed)
-            li_num_placed[try_num] = num_placed
+    #             if ( # if the have less than the appropriate number of ix's for the current try
+    #                 #(try_num < 2 and m_count < 12 and f_count < 12) # if they're both not "full"
+    #                 #or
+    #                 (try_num <= 2 and ((m_count < 10 and f_count < 11) or (m_count < 11 and f_count < 10)))
+    #                 or
+    #                 (try_num == 3 and ((m_count < 11 and f_count < 12) or (m_count < 12 and f_count < 11)))
+    #                 or
+    #                 (try_num > 3 and ((m_count < 12 and f_count < 13) or (m_count < 13 and f_count < 12)))
+    #                 ):
 
-            num_placed = 0
-            #print(num_placed)
-            #print(li_ix_count_by_eu)
-        print("num_placed:", li_num_placed)
+    #                 li_random_sub = random.sample(range(13), 13)
 
-        num_missing_ix = 0
+    #                 for sub in li_random_sub: # for each subround, randomly ordered:
+    #                     if ix.will_sa != 1: # if they didn't already set up a next-round ix:
+    #                         search_indices = numpy.where(li_f_slots[sub] == f)
+    #                         sta = search_indices[0][0]
+    #                         if li_m_slots[sub][sta] == 0: # if there isn't already an ix for that sub, sta
+    #                             li_m_slots[sub][sta] = m
+    #                             li_ix_count_by_eu[m-1] += 1
+    #                             li_ix_count_by_eu[f-1] += 1
+    #                             ix.will_sa = 1
+    #                             num_placed += 1
+    #                             newix = _Interaction(self.e, self, meu, feu)
+    #                             newix.sub_num = sub + 1
+    #                             newix.sta_num = sta + 1
+    #                             newix.m_ipad_num = self.e.li_m_ipad_nums[sta]
+    #                             newix.f_ipad_num = self.e.li_f_ipad_nums[sta]
+    #                             newix.m_hotness = meu.hotness
+    #                             newix.f_hotness = feu.hotness
+    #                             newix.m_nixness = meu.nixness
+    #                             newix.f_nixness = feu.nixness
+    #                             newix.m_personality = meu.personality
+    #                             newix.f_personality = feu.personality
+    #                             newix.r1_likeness = ix.r1_likeness
+    #                             newix.r1_rank = ix.r1_rank
+    #                             newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
+    #                             newix.r1_f_sel = ix.r1_f_sel
+    #                             newix.r1_m_des = ix.r1_m_des
+    #                             newix.r1_f_des = ix.r1_f_des
+    #                             newix.r1msac = ix.m_sac
+    #                             newix.r1fsac = ix.f_sac   
+    #                             newix.r1_sac_tot = ix.sac_total        
+    #                             li_r2_ix_planned.append(newix)
 
-        for index, n in enumerate(li_ix_count_by_eu):
-            if n < 12:
-                num_missing_ix += 12 - n if index+1 <= 100 else 0
-                print ("Uh-Oh. EventUser {} has only {} Round-2 interactions. {}".format(index+1, n, num_missing_ix))
-            else:
-                print ("Success! EventUser {} has {} Round-2 interactions.".format(index+1, n))
+    #         li_num_placed[try_num] = num_placed
 
-        print ("Number of missing interactions:", num_missing_ix)
-        return li_r2_ix_planned, num_missing_ix
+    #         num_placed = 0
+
+    #     # END ALGORITHM
+
+    #     print("num_placed:", li_num_placed)
+
+    #     num_missing_ix = 0
+
+    #     for index, n in enumerate(li_ix_count_by_eu):
+    #         if n < 12:
+    #             num_missing_ix += 12 - n if index+1 <= 100 else 0
+    #             print ("Uh-Oh. EventUser {} has only {} Round-2 interactions. {}".format(index+1, n, num_missing_ix))
+    #         else:
+    #             print ("Success! EventUser {} has {} Round-2 interactions.".format(index+1, n))
+
+    #     print ("Number of missing interactions:", num_missing_ix)
+    #     return li_r2_ix_planned, num_missing_ix
     
     def plan_B(self, leu, lix):
         """
@@ -771,10 +968,10 @@ class Round_3(_Round):
         self.round_num = 3
         pass
 
-    def plan_A(self, leu, lix):
-        li_r3_ix_planned = lix
-        num_missing_ix = 0
-        return li_r3_ix_planned, num_missing_ix
+    # def plan_A(self, leu, lix):
+    #     li_r3_ix_planned = lix
+    #     num_missing_ix = 0
+    #     return li_r3_ix_planned, num_missing_ix
 
     def simulate(self, lix):
         return lix
@@ -863,16 +1060,6 @@ class _User(object):
         self.sex = gender
 
         self.full_name = self.make_name()
-       
-
-        # self.full_name = names.get_full_name(gender = "male") \
-        #             if self.sex in ['M','MG'] \
-        #             else names.get_full_name(gender = "female")
-        # print(self.u_num, self.full_name)
-        # self.first_name = self.full_name.split(" ")[0]
-        # self.last_name = self.full_name.split(" ")[-1]
-
-
 
         self.hotness = random.randint(5, 95)
         self.nixness = random.randint(max(self.hotness-30, 5), 
@@ -889,7 +1076,7 @@ class _User(object):
         else:
             full_name = names.get_full_name(gender = "female")
 
-        print(self.u_num, full_name)        
+        print(self.u_num, full_name, self.sex)        
         return full_name
 
     def __iter__(self):
@@ -978,7 +1165,7 @@ def li_ordered_attr_names(obj):
                 "m_eu_num", "f_eu_num", # for Interactions
                 "u_num", "eu_num", # for Users and EventUsers
 
-                "first_name", "last_name", "full_name" # for Users and Event Users
+                "first_name", "last_name", "full_name", # for Users and Event Users
                 
                 "m_sac", "f_sac", "sac_total", "sac_same", # for Interactions
                 "r1msac", "r1fsac", 
@@ -1159,13 +1346,13 @@ def main():
 
 
 
-    """  Create Users: 1,000 men, 1,000 women, 100 male ghosts, 100 female ghosts.  
+    """  Create a bunch of Users.
     """
     _User.CURR_USER_NUM = 0
-    li_mpu = list((_User('M') for i in range(4*e.num_m_eu_p)))
-    li_fpu = list((_User('F') for i in range(4*e.num_f_eu_p)))
-    li_mgu = list((_User('MG') for i in range(4*e.num_m_eu_g)))
-    li_fgu = list((_User('FG') for i in range(4*e.num_f_eu_g)))
+    li_mpu = list((_User('M') for i in range(int(1.5*e.num_m_eu_p))))
+    li_fpu = list((_User('F') for i in range(int(1.5*e.num_f_eu_p))))
+    li_mgu = list((_User('MG') for i in range(5*e.num_m_eu_g)))
+    li_fgu = list((_User('FG') for i in range(5*e.num_f_eu_g)))
     li_all_u = li_mpu + li_fpu + li_mgu + li_fgu
 
     # reset CURR_USER_NUM
@@ -1209,16 +1396,16 @@ def main():
 
 
     """  ROUND 2  """
+    num_missing_ix = 0
     li_r2_ix_planned, num_missing_ix = r2.plan_A( # do plan A
-            leu = li_all_eu, lix = li_r1_ix_analyzed)
-    if num_missing_ix > 0: # if plan A fails, do plan B
-        li_r2_ix_planned, num_missing_ix = r2.plan_B(
-            leu = li_all_eu, lix = li_r1_ix_analyzed)
-        if num_missing_ix > 0: # if plan B fails, do plan C
-            li_r2_ix_planned, num_missing_ix = r2.plan_C(
-                leu = li_all_eu, lix = li_r1_ix_analyzed)
-            if num_missing_ix > 0: # if plan C fails, quit the fucking program! It's the apocalypse!
-                raise ValueError("Plans A, B, and C all failed!")
+            leu = li_all_eu, lix = li_r1_ix_analyzed[:])
+    # if num_missing_ix > 0: 
+    #     li_r2_ix_planned, num_missing_ix = r2.plan_B(leu = li_all_eu, lix = li_r1_ix_analyzed)
+    #     if num_missing_ix > 0: # if plan B fails, do plan C
+    #         li_r2_ix_planned, num_missing_ix = r2.plan_C(
+    #             leu = li_all_eu, lix = li_r1_ix_analyzed)
+    #         if num_missing_ix > 0: # if plan C fails, quit the fucking program! It's the apocalypse!
+    #             raise ValueError("Plans A, B, and C all failed!")
 
     li_r2_ix_simulated = r2.simulate(li_r2_ix_planned)
     li_r2_ix_analyzed = r2.analyze(leu = li_all_eu, lix = li_r2_ix_simulated)
@@ -1235,7 +1422,7 @@ def main():
     li_r3_ix_analyzed = r3.analyze(leu = li_all_eu, lix = li_r3_ix_simulated)
 
 
-    """  Set most "full" / up-to-date round interaction lists
+    """  Set most "full" / up-to-date round interaction lists for Excel writing
     """
     li_r1_ix = li_r1_ix_analyzed
     li_r2_ix = li_r2_ix_analyzed
@@ -1254,6 +1441,7 @@ def main():
 
         #  Users
     """  Write the rows of Users in Excel  """
+    print("Writing Users to Excel")
     for c, label in enumerate(li_ordered_attr_names(li_all_u[0])):
         ws_User.write(0, c, label)
         for r, user in enumerate(li_all_u):
@@ -1261,6 +1449,7 @@ def main():
 
         #  Event Users
     """  Write the rows of EventUsers in Excel  """
+    print("Writing EventUsers to Excel")
     for c, label in enumerate(li_ordered_attr_names(li_all_eu[0])): # for each attribute
         ws_EventUser.write(0, c, label) # make the column label in the first row
         for r, event_user in enumerate(li_all_eu): # for each EventUser
@@ -1268,12 +1457,13 @@ def main():
 
         #  Interactions
     """  Write the rows of Interactions in Excel  """
+    print("Writing Interactions to Excel")
     for sheet, li in zip([ws_r1_ix, ws_r2_ix, ws_r3_ix], [li_r1_ix, li_r2_ix, li_r3_ix]): # for each round
-        if li:
-            for c, label in enumerate(li_ordered_attr_names(li[0])): # for each column / attribute of an interaction
-                sheet.write(0, c, label) # make the column label in the first row
-                for r, ix in enumerate(li):
-                    sheet.write(r+1, c, getattr(ix, label))
+        print("Writing Round")
+        for c, label in enumerate(li_ordered_attr_names(li[0])): # for each column / attribute of an interaction
+            sheet.write(0, c, label) # make the column label in the first row
+            for r, ix in enumerate(li):
+                sheet.write(r+1, c, getattr(ix, label))
 
     WB.save('example.xls')    
 

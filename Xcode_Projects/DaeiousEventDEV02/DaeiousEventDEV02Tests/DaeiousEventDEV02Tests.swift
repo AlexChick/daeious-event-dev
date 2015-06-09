@@ -1,15 +1,15 @@
 //
-//  DaeiousEventAppDEV01Tests.swift
-//  DaeiousEventAppDEV01Tests
+//  DaeiousEventDEV02Tests.swift
+//  DaeiousEventDEV02Tests
 //
-//  Created by Alexander Warren Chick on 5/10/15.
-//  Copyright (c) 2015 Daeious.com. All rights reserved.
+//  Created by Alexander Warren Chick on 6/7/15.
+//  Copyright (c) 2015 Daeious. All rights reserved.
 //
 
 import UIKit
 import XCTest
 
-class DaeiousEventAppDEV01Tests: XCTestCase {
+class DaeiousEventDEV02Tests: XCTestCase {
     
     override func setUp() {
         super.setUp()
