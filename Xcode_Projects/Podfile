@@ -97,6 +97,9 @@ target 'DaeiousEventDEV02' do
 				# (((((USE)))))
 				# Awesome for showing "ripple" effect from clicks. I should use this as much as possible, because I don't want to make sounds when people click, but when you're standing and you tap on an iPad, you want a little something extra that confirms what you just clicked, especially if you're making just 2-3 clicks, and especially if the accuracy of those clicks is important. It will also make sense to use different click effects for different types of questions, and also for the see-again choice.
 
+	pod 'NilColorKit'
+				# NilColorKit predefines Google Material colors and FlatUI colors as a Swift extension to UIColor.
+
 	pod 'Nimble', '1.0.0-rc.1'
 				# A Matcher Framework for Swift and Objective-C
 				# (((((USE)))))
@@ -132,6 +135,9 @@ target 'DaeiousEventDEV02' do
 	# USE		# Beautiful Alert View. Written in Swift
 				# (((((USE)))))
 				# Here's my solution to showing the eventuser his/her next station at the end of ix's! I can make a custom Alert view (which looks beautiful) automatically disappear after any number of seconds. So I can do something like: in the first 3 seconds of an ix, show the say-hello-to alert, and in the last 3 seconds of an ix, show the next-round-is alert, which automatically switches to the new say-hello-to alert for its 3 seconds, and so on.
+
+	pod 'SimpleAlert'
+				# It is simple and easily customizable alert.
 
 	pod 'Spring', '~> 1.0' 
 				# A library to simplify iOS animations in Swift.

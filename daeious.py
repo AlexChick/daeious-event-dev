@@ -110,6 +110,7 @@ import requests
 
 # Import custom modules, mostly from GitHub
 from firebase import Firebase # https://github.com/mikexstudios/python-firebase
+from mwmatching import maxWeightMatching # http://jorisvr.nl/maximummatching.html
 import names # https://github.com/treyhunner/names
 import backoff
 import xlwt as excel
@@ -286,15 +287,6 @@ class _Round(object):
         --  Should I try to place as many as possible (use fewer ghosts)?
             Should I try to use the highest-ranked ix's?
 
-            I still don't completely have this figured out. I'm a bit confused
-            about whether subround order matters -- i.e., should the algorithm
-            just start filling up people's subround 1, then go on to subround 2?
-            Or, given multiple available subrounds, should it choose randomly?
-
-            Try to give everyone 10 ix's to start. Then add an 11th. Then add
-            a 12th. Then add a 13th. For those that don't get a 13th, create
-            an ix for them with a ghost.
-
             It looks like, since the womens' stations are essentially fixed 
             (b/c they can only move one station to the right), there's only one 
             unique outcome achieved by iterating through the list of the 
@@ -317,7 +309,7 @@ class _Round(object):
         # else, they'll get one with an eu ghost.
         ixpp = self.num_ix_pp
 
-        # Split the list of eu's by gender
+        # Split the list of eu's by gender.
         # Are these new lists, or do they still update e.li_all_eu?
         li_all_meu = [eu for eu in leu if eu.sex in ['M', 'MG']]
         li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
@@ -378,6 +370,53 @@ class _Round(object):
 
         li_num_ix_per_subround = []
 
+
+
+        # START "MAXIMUM BIPARTITE MATCHING" ALGORITHM
+
+        # make the inital graph
+        litu_graph = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_no_0))
+        #pprint(litu_graph)
+
+        # for each subround
+        for subround in range(ixpp):
+            print("litu_graph length:\n{}\n".format(len(litu_graph)))
+            # find a maximum weighted matching representing the subround's ix assignments
+            mwm = maxWeightMatching(litu_graph, maxcardinality = True)
+            print("\n\n\n")
+            print("SUBROUND {}\n".format(subround+1))
+            print("Empty Slots: {}\n".format(mwm.count(-1) - 1))
+            print("Minimum Weighted Matching:\n{}\n".format(mwm))
+            # Make a list of 2-tuples: (m_eu_num, f_eu_num)
+            # Just going through half of list is enough
+            litu_subround = list((index, n) for index, n in enumerate(mwm[:self.e.num_m_eu_p+1]))
+            print("litu_subround:\n{}\n".format(litu_subround))
+            li_ranks = []
+            for tu in litu_subround: # ()
+                for tu_edge in litu_graph: # (meunum, feunum, -1 * rank)
+                    if tu_edge[0] == tu[0] and tu_edge[1] == tu[1]:
+                        li_ranks.append((-1)*tu_edge[2])
+            li_ranks.sort()
+            print("li_ranks:\n{}\n".format(li_ranks))
+            print("Sum of ranks: {}\n".format(sum(li_ranks)))
+
+            # remove those edges from the graph
+            litu_graph_copy = copy.deepcopy(litu_graph)
+            for index, tu_edge in enumerate(litu_graph_copy):
+                m_eu_num = tu_edge[0]
+                f_eu_num = tu_edge[1]
+                rank = tu_edge[2]
+                if (m_eu_num, f_eu_num) in litu_subround:
+                    #print("Removing ({},{}) from graph".format(m_eu_num, f_eu_num))
+                    litu_graph.remove(tu_edge)
+
+            # litu_graph = [
+            #     (ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) 
+            #     for index, ix in enumerate(li_no_0) 
+            #     if litu_graph[ix.m_eu_num] != ix.f_eu_num]
+
+                
+
         # START "SUBROUND-BY-SUBROUND ALGORITHM"
 
         li_random_sub = random.sample(range(1,ixpp+1+1), ixpp+1)
@@ -433,71 +472,6 @@ class _Round(object):
             print("Number of ix's in subround: {}".format(len(liset_eunum_with_ix_by_subround[subround-1])))
             li_num_ix_per_subround.append(len(liset_eunum_with_ix_by_subround[subround-1]))
         print("\n\n\n\n\n\n{}\n\n\n\n\n\n".format(li_num_ix_per_subround))
-
-        # # START "COMPLETE RANDOMNESS" ALGORITHM
-        # for try_num, li_of_iteration in enumerate([ # for each iteration of SAC pairs
-        #     chain(li_33),
-        #     chain(li_33, li_32),
-        #     chain(li_33, li_32, li_22),
-        #     chain(li_33, li_32, li_22, li_31),
-        #     chain(li_33, li_32, li_22, li_31, li_21),
-        #     chain(li_33, li_32, li_22, li_31, li_21, li_11)
-        #     ]):
-        #     for index, ix in enumerate(li_of_iteration): # for each ix subset in the iteration list
-        #         m = ix.m_eu_num
-        #         f = ix.f_eu_num
-        #         meu = ix.meu
-        #         feu = ix.feu
-        #         m_count = li_ix_count_by_eu[m-1]
-        #         f_count = li_ix_count_by_eu[f-1]
-        #         if (
-        #         (try_num < 2 and m_count < ixpp and f_count < ixpp) # if they're both not "full"
-        #         or
-        #         (try_num == 2 and ((m_count < ixpp-2 and f_count < ixpp-1) or (m_count < ixpp-1 and f_count < ixpp-2)))
-        #         or
-        #         (try_num == 3 and ((m_count < ixpp-1 and f_count < ixpp) or (m_count < ixpp and f_count < ixpp-1)))
-        #         or
-        #         (try_num > 3 and ((m_count < ixpp and f_count < ixpp+1) or (m_count < ixpp+1 and f_count < ixpp)))
-        #         ):
-
-        #             li_random_sub = random.sample(range(ixpp+1), ixpp+1)
-        #             for sub in li_random_sub: # for each subround, randomly ordered:
-        #                 if ix.will_sa != 1: # if they didn't already set up a next-round ix:
-        #                     search_indices = numpy.where(li_f_slots[sub] == f) # get the girl's station num for this subround (predetermined)
-        #                     sta = search_indices[0][0] # unpack the station num (it's in a matrix)
-        #                     if li_m_slots[sub][sta] == 0: # if there isn't already an ix for that sub, sta:
-        #                         li_m_slots[sub][sta] = m  # WE'RE GOOD! put the guy's eu_num in the slot
-        #                         li_ix_count_by_eu[m-1] += 1
-        #                         li_ix_count_by_eu[f-1] += 1
-        #                         ix.will_sa = 1
-        #                         num_placed_from_li_XX += 1
-        #                         newix = _Interaction(self.e, self, meu, feu)
-        #                         newix.sub_num = sub + 1
-        #                         newix.sta_num = sta + 1
-        #                         newix.m_ipad_num = self.e.li_m_ipad_nums[sta]
-        #                         newix.f_ipad_num = self.e.li_f_ipad_nums[sta]
-        #                         newix.m_hotness = meu.hotness
-        #                         newix.f_hotness = feu.hotness
-        #                         newix.m_nixness = meu.nixness
-        #                         newix.f_nixness = feu.nixness
-        #                         newix.m_personality = meu.personality
-        #                         newix.f_personality = feu.personality
-        #                         newix.r1_likeness = ix.r1_likeness
-        #                         newix.r1_rank = ix.r1_rank
-        #                         newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
-        #                         newix.r1_f_sel = ix.r1_f_sel
-        #                         newix.r1_m_des = ix.r1_m_des
-        #                         newix.r1_f_des = ix.r1_f_des
-        #                         newix.r1msac = ix.m_sac
-        #                         newix.r1fsac = ix.f_sac   
-        #                         newix.r1_sac_tot = ix.sac_total        
-        #                         li_r2_ix_planned.append(newix)
-
-        #     li_num_placed_from_li_XX[try_num] = num_placed_from_li_XX
-
-        #     num_placed_from_li_XX = 0
-
-        # # END "COMPLETE RANDOMNESS" ALGORITHM
 
         # Figure out the most ghosts needed in a subround.
         most_g_in_a_subround = 0
@@ -725,19 +699,20 @@ class Round_1(_Round):
         # Sort list according to energy descending.
         # Energy is a loose term for how much the ix deserves to happen again.
         li_r1_ix_analyzed = sorted(
-            [ix for ix in li_r1_ix_analyzed if (ix.meu.sex != 'MG' and ix.feu.sex != "FG")], key = lambda i: [
+            [ix for ix in li_r1_ix_analyzed if (
+                ix.meu.sex != 'MG' and ix.feu.sex != "FG")], key = lambda i: [
                  # (3,3)>(3,2)>(2,2)>(3,1)>(2,1)>(1,1)>(3,0)>(2,0)>(1,0)>(0,0)
 
-                 i.sac_total - abs(i.m_sac - i.f_sac), # (6)>(4)>(4)>(3)>(2)>(2)>(0)>(0)>(0)>(0)
-                 i.sac_total, # makes (3,2)>(2,2); makes (2,1)>(1,1); makes (3,0)>(2,0)>(1,0)>(0,0)
+                i.sac_total - abs(i.m_sac - i.f_sac), # (6)>(4)>(4)>(3)>(2)>(2)>(0)>(0)>(0)>(0)
+                i.sac_total, # makes (3,2)>(2,2); makes (2,1)>(1,1); makes (3,0)>(2,0)>(1,0)>(0,0)
 
-                 i.r1_likeness, # most similar in desirability and selectivity
-                                # (have lowest differences in them)
+                i.r1_likeness, # most similar in desirability and selectivity
+                            # (have lowest differences in them)
 
-                 i.r1_m_sel + i.r1_f_sel, # most selective pair of round
-                 i.m_nixness + i.f_nixness, # most selective pregame pair
-                 i.r1_m_des + i.r1_f_des, # most desirable pair of round
-                 i.m_hotness + i.f_hotness # most desirable pregame pair
+                i.r1_m_sel + i.r1_f_sel, # most selective pair of round
+                i.m_nixness + i.f_nixness, # most selective pregame pair
+                i.r1_m_des + i.r1_f_des, # most desirable pair of round
+                i.m_hotness + i.f_hotness # most desirable pregame pair
 
             ],
             reverse = True)     
