@@ -190,8 +190,8 @@ class _Event(object):
         self.num_all_eu = self.num_all_eu_p + self.num_all_eu_g
 
         self.num_r1_ix_pp = self.num_stations
-        self.num_r2_ix_pp = self.num_stations/3
-        self.num_r3_ix_pp = int(round(self.num_stations/12.0, 0))
+        self.num_r2_ix_pp = (self.num_stations--6)/3
+        self.num_r3_ix_pp = self.num_stations/12 + 1
         self.num_event_ix_pp = sum(
             [self.num_r1_ix_pp, self.num_r2_ix_pp, self.num_r3_ix_pp]
             )
@@ -355,7 +355,7 @@ class _Round(object):
 
         # Make a list representing how many ix's each eu has so far.
         # This is used to make sure we're not giving too many too soon.
-        li_ix_count_by_eu = [0] * self.e.num_all_eu
+        li_ix_count_by_eu = [0] * self.e.num_all_eu_p
 
         # Make a list of lists of the number of ghosts needed per subround
         lili_num_g_per_subround = [[0, 0]] * (ixpp+1)
@@ -383,19 +383,22 @@ class _Round(object):
         # make list of subround sums of ranks
         li_sums_ranks = []
 
-        # for each subround
-        for subround in range(ixpp):
-            print("litu_graph length:\n{}\n".format(len(litu_graph)))
+        # make a list of lists of tuples we get from mwm
+        lilitu_repr_an_ix = [list([]) for x in range(ixpp)]
+
+        # for each subround, make a mwm, and remove it from the graph
+        for subround in range(self.num_ix_pp):
+            print("litu_graph length: {}\n".format(len(litu_graph)))
             # find a maximum weighted matching representing the subround's ix assignments
             mwm = maxWeightMatching(litu_graph, maxcardinality = True)
-            print("\n\n\n")
+            print("\n")
             print("SUBROUND {}\n".format(subround+1))
-            print("Empty Slots: {}\n".format(mwm.count(-1) - 1))
-            print("Minimum Weighted Matching:\n{}\n".format(mwm))
+            ###print("Empty Slots: {}\n".format(mwm.count(-1) - 1))
+            ###print("Minimum Weighted Matching:\n{}\n".format(mwm))
             # Make a list of 2-tuples: (m_eu_num, f_eu_num)
             # Just going through half of list is enough
             litu_subround = list((index, n) for index, n in enumerate(mwm[:self.e.num_m_eu_p+1]))
-            print("litu_subround:\n{}\n".format(litu_subround))
+            ###print("litu_subround:\n{}\n".format(litu_subround))
             li_ranks = []
             for tu in litu_subround: # ()
                 for tu_edge in litu_graph: # (meunum, feunum, -1 * rank)
@@ -403,7 +406,7 @@ class _Round(object):
                         li_ranks.append((-1)*tu_edge[2])
             li_ranks.sort()
             li_sums_ranks.append(sum(li_ranks))
-            print("li_ranks:\n{}\n".format(li_ranks))
+            ###print("li_ranks:\n{}\n".format(li_ranks))
             print("Sum of ranks: {}\n".format(sum(li_ranks)))
 
             # remove those edges from the graph
@@ -413,111 +416,69 @@ class _Round(object):
                 f_eu_num = tu_edge[1]
                 rank = tu_edge[2]
                 if (m_eu_num, f_eu_num) in litu_subround:
+                    lilitu_repr_an_ix[subround].append(tu_edge)
                     #print("Removing ({},{}) from graph".format(m_eu_num, f_eu_num))
                     litu_graph.remove(tu_edge)
 
-        # Now that we're done, print a list of the ranks that didn't happen again
+
+        # Now that we're done, print a list of the ranks that didn't happen again.
         li_ranks_didnt_happen = sorted([(-1) * tu_edge[2] for tu_edge in litu_graph])
         print("li_ranks_didnt_happen:\n{}\n".format(li_ranks_didnt_happen))
         print("li_sums_ranks:\n{}\n".format(li_sums_ranks))
         print("Total sum of ranks:\n{}\n".format(sum(li_sums_ranks)))
-
-            # litu_graph = [
-            #     (ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) 
-            #     for index, ix in enumerate(li_no_0) 
-            #     if litu_graph[ix.m_eu_num] != ix.f_eu_num]
-
-                
-
-        # START "SUBROUND-BY-SUBROUND ALGORITHM"
-
-        li_random_sub = random.sample(range(1,ixpp+1+1), ixpp+1)
-        print(li_random_sub)
-
-        for subround in li_random_sub: # for each (random) subround
-            print("\n\n\nSubround {}\n\n\n".format(subround))
-            for index, ix in enumerate(li_no_0): # for each Round-1 interaction where neither person said "no"
-                if ix.m_sex == 'M' and ix.f_sex == 'F': # if neither is a ghost
-                    m = ix.m_eu_num
-                    f = ix.f_eu_num
-                    if m not in liset_eunum_with_ix_by_subround[subround-1] and f not in liset_eunum_with_ix_by_subround[subround-1]: # if they don't already have an ix for this subround
-                        # Make an interaction!
-                        li_ix_count_by_eu[m-1] += 1
-                        li_ix_count_by_eu[f-1] += 1
-                        meu = ix.meu
-                        feu = ix.feu
-                        ix.will_sa = 1
-                        newix = _Interaction(self.e, self, meu, feu)
-                        newix.sub_num = subround
-
-                        search_indices = numpy.where(li_f_slots[subround-1] == f) # get the girl's station num for this subround (predetermined)
-                        station = search_indices[0][0] # unpack the station num (it's in a matrix)
-                        print(subround, station+1, m, f, ix.r1_rank)
-                        #print(liset_eunum_with_ix_by_subround)
-
-                        li_m_slots[subround-1][station] = m  # put the guy's eu_num in the right slot
-                        newix.sta_num = station+1
-                        newix.m_ipad_num = self.e.li_m_ipad_nums[station]
-                        newix.f_ipad_num = self.e.li_f_ipad_nums[station]
-                        newix.m_hotness = meu.hotness
-                        newix.f_hotness = feu.hotness
-                        newix.m_nixness = meu.nixness
-                        newix.f_nixness = feu.nixness
-                        newix.m_personality = meu.personality
-                        newix.f_personality = feu.personality
-                        newix.r1_likeness = ix.r1_likeness
-                        newix.r1_rank = ix.r1_rank
-                        newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
-                        newix.r1_f_sel = ix.r1_f_sel
-                        newix.r1_m_des = ix.r1_m_des
-                        newix.r1_f_des = ix.r1_f_des
-                        newix.r1msac = ix.m_sac
-                        newix.r1fsac = ix.f_sac   
-                        newix.r1_sac_tot = ix.sac_total        
-                        li_ix_planned.append(newix)
-                        # remove the old ix from the list so we don't try to make it happen twice
-                        del li_no_0[index]
-                        liset_eunum_with_ix_by_subround[subround-1].add(m)
-                        liset_eunum_with_ix_by_subround[subround-1].add(f)
-                        li_ix_count_by_eu[m-1] += 1
-                        li_ix_count_by_eu[f-1] += 1
-            print("Number of ix's in subround: {}".format(len(liset_eunum_with_ix_by_subround[subround-1])))
-            li_num_ix_per_subround.append(len(liset_eunum_with_ix_by_subround[subround-1]))
-        print("\n\n\n\n\n\n{}\n\n\n\n\n\n".format(li_num_ix_per_subround))
-
-        # Figure out the most ghosts needed in a subround.
-        most_g_in_a_subround = 0
-        for arr_subround in li_m_slots:
-            li_subround = list(arr_subround)
-            num_g = li_subround.count(0) * 2 # count number of zeroes
-            if num_g > most_g_in_a_subround:
-                most_g_in_a_subround = num_g * 2
-
-        num_missing_ix = 0
-
-        for index, n in enumerate(li_ix_count_by_eu):
-            if n < ixpp:
-                num_missing_ix += ixpp - n if index+1 <= 100 else 0
-                #print ("Uh-Oh. EventUser {0} has only {1} Round-{2} interactions. {3}"
-                #    .format(index+1, n, self.round_num, num_missing_ix))
-            else:
-                pass
-                #print ("Success! EventUser {0} has {1} Round-{2} interactions."\
-                #    .format(index+1, n, self.round_num))
-
-        # print ("Number of missing interactions:", num_missing_ix)
-        return [
-                li_ix_planned, 
-                most_g_in_a_subround,
-                num_missing_ix
-               ]
-    
-
-        
+        print("Average rank:\n{}\n".format(round(sum(li_sums_ranks)/(self.e.num_m_eu_p*self.num_ix_pp), 2)))
 
 
+        # Finally, make the new ix's and put them in a list to return.
+        for s_index, subround_li in enumerate(lilitu_repr_an_ix):
+            for t_index, tu in enumerate(subround_li):
 
-    pass
+                # Make an interaction from the tuple.
+                m = tu[0] # m_eu_num
+                f = tu[1] # f_eu_num
+                rank = (-1)*tu[2] # rank
+                meu = leu[m-1]
+                feu = leu[f-1]
+                li_ix_count_by_eu[m-1] += 1 # leave for now
+                li_ix_count_by_eu[f-1] += 1
+
+                newix = _Interaction(self.e, self, meu, feu)
+                newix.sub_num = s_index + 1
+                newix.sta_num = t_index + 1
+                newix.m_ipad_num = self.e.li_m_ipad_nums[newix.sta_num]
+                newix.f_ipad_num = self.e.li_f_ipad_nums[newix.sta_num]
+                newix.m_hotness = meu.hotness
+                newix.f_hotness = feu.hotness
+                newix.m_nixness = meu.nixness
+                newix.f_nixness = feu.nixness
+                newix.m_personality = meu.personality
+                newix.f_personality = feu.personality
+                newix.r1_likeness = ix.r1_likeness
+                newix.r1_rank = ix.r1_rank
+                newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
+                newix.r1_f_sel = ix.r1_f_sel
+                newix.r1_m_des = ix.r1_m_des
+                newix.r1_f_des = ix.r1_f_des
+                newix.r1msac = ix.m_sac
+                newix.r1fsac = ix.f_sac   
+                newix.r1_sac_tot = ix.sac_total        
+                li_ix_planned.append(newix)
+
+        # Make sure everyone has a full round.
+            # If they don't, we either have to change the ranks (by squaring them)
+            # and running the algorithm again,
+            # or check to see if they were just too picky in the previous round and
+            # said "no" to too many people (or if too many people said "no" to them)
+            # -- in which case, we'll have to give them an ix in which they said 
+            # "no" and the other person said "yes", or "my", or "mn".
+            # The goal is to have *0* Ghosts in the final two rounds.
+            # This is always possible, because (3,0) ix's can be done again.
+        for index, count in enumerate(li_ix_count_by_eu):
+            if count < self.num_ix_pp:
+                print("Uh-Oh! User {} has only {} ix's in Round {}".format(
+                    index + 1, count, self.round_num) )
+
+        return li_ix_planned
 
 ###############################################################################
 """                               Round 0                                   """
@@ -775,7 +736,7 @@ class Round_2(_Round):
 
     def analyze(self, leu, lix):
 
-        li_r2_ix_analyzed = lix # DON'T modify li_r2_ix_simulated
+        li_r2_ix_analyzed = lix
 
         m_sel = 0
         f_sel = 0
@@ -1304,70 +1265,15 @@ def main():
 
 
     """  ROUND 2  """
-    num_missing_ix = 0
-    best_total_rank = 0
-    li_r2_ix_planned = [None]
-    min_g_needed = 100
 
-    for assignment in range(1):
-        start_time = time.time()
-        print("\nAssignment #{}".format(assignment+1))
-        li_ret = r2.plan_A(leu=li_all_eu,lix=copy.deepcopy(li_r1_ix_analyzed))
-        temp_li_r2_ix_planned = li_ret[0]
-        g_needed = li_ret[1]
-        num_missing_ix = li_ret[2]
-        total_rank = sum([ix.r1_rank for ix in temp_li_r2_ix_planned])
-
-        if num_missing_ix == 0:
-            if g_needed <= 2:
-                if total_rank > best_total_rank:
-                    li_r2_ix_planned = li_ret[0]
-                    print("Successful Assignment!")
-                else:
-                    print("total_rank:", total_rank)
-                    print("best_total_rank:", best_total_rank)
-            else:
-                print("g_needed:", g_needed)
-                if g_needed < min_g_needed:
-                    min_g_needed = g_needed
-        else:
-            print("num_missing_ix:", num_missing_ix)
-
-
-
-        print("Time taken: {} seconds".format(round(time.time() - start_time, 2)))
-
-    if li_r2_ix_planned == [None]:
-        print("\nRound 2 Assignment algorithm failed.")
-        print("Minimum ghosts needed: {}".format(min_g_needed))
-        li_r2_ix_planned = li_ret[0]
-
-    print(len(li_r2_ix_planned))
-
-
-    # if num_missing_ix > 0: 
-    #     li_r2_ix_planned, num_missing_ix = r2.plan_B(leu = li_all_eu, lix = li_r1_ix_analyzed)
-    #     if num_missing_ix > 0: # if plan B fails, do plan C
-    #         li_r2_ix_planned, num_missing_ix = r2.plan_C(
-    #             leu = li_all_eu, lix = li_r1_ix_analyzed)
-    #         if num_missing_ix > 0: # if plan C fails, quit the fucking program! It's the apocalypse!
-    #             raise ValueError("Plans A, B, and C all failed!")
-
+    li_r2_ix_planned = r2.plan_A(leu=li_all_eu,lix=li_r1_ix_analyzed)
     li_r2_ix_simulated = r2.simulate(li_r2_ix_planned)
     li_r2_ix_analyzed = r2.analyze(leu = li_all_eu, lix = li_r2_ix_simulated)
-
     # reset _Interaction.CURR_IX_NUM
     _Interaction.CURR_IX_NUM = 0
 
-    print("pass 1")
-
-
     """  ROUND 3  """
-    li_r3_ix_planned, g_needed, num_missing_ix = r3.plan_A( # do plan A
-            leu = li_all_eu, lix = li_r2_ix_analyzed)
-
-    print ("pass 2")
-
+    li_r3_ix_planned = r3.plan_A(leu = li_all_eu, lix = li_r2_ix_analyzed)
     li_r3_ix_simulated = r3.simulate(li_r3_ix_planned)
     li_r3_ix_analyzed = r3.analyze(leu = li_all_eu, lix = li_r3_ix_simulated)
 
