@@ -122,6 +122,7 @@ import xlwt as excel
 from helpers import create_QA_database_in_Firebase
 from helpers import create_SAC_database_in_Firebase
 from helpers import filter_by_value
+from helpers import guys_are_walking
 from helpers import mk_serial
 from helpers import optimize_event_timing
 from helpers import xfrange
@@ -159,6 +160,8 @@ class _Event(object):
                        START_AT_ROUND = 0,
                        MEN = 50,
                        WOMEN = 50,
+                       R2_IX_PP = 12,
+                       R3_IX_PP = 4,
                        SEC_PER_R1_IX = 20,
                        SEC_PER_R2_IX = 40,
                        SEC_PER_R3_IX = 60
@@ -190,8 +193,8 @@ class _Event(object):
         self.num_all_eu = self.num_all_eu_p + self.num_all_eu_g
 
         self.num_r1_ix_pp = self.num_stations
-        self.num_r2_ix_pp = (self.num_stations-6)/3
-        self.num_r3_ix_pp = self.num_stations/12 + 1
+        self.num_r2_ix_pp = R2_IX_PP
+        self.num_r3_ix_pp = R3_IX_PP
         self.num_event_ix_pp = sum(
             [self.num_r1_ix_pp, self.num_r2_ix_pp, self.num_r3_ix_pp]
             )
@@ -280,240 +283,11 @@ class _Round(object):
 
     def plan_A(self, leu, lix):
         """
-        In this example, assume a 51m/51w event. Takes the highest-ranked ix's
-        in lix from the previous round and places them into 50(+1?) * 12 = 
-        600 or 50(+1?) * 5 = 250 slots.
-
-        Returns a list of planned ix's, which is just an updated copy of lix.
-
-        --  Should I try to place as many as possible (use fewer ghosts)?
-            Should I try to use the highest-ranked ix's?
-
-            It looks like, since the womens' stations are essentially fixed 
-            (b/c they can only move one station to the right), there's only one 
-            unique outcome achieved by iterating through the list of the 
-            highest-ranked interactions, no matter where the women start. Which 
-            makes sense.
-
-            Have something that makes sure the guy is moving as least a few
-            stations away between ix's. The girl he just saw doesn't necessarily
-            want to see him with another person -- though this may be ok. The
-            idea is that the guy should be a decent distance away from his next
-            ix so that he'll have to walk, he'll have to travel, creating that
-            guy-approaches-girl dynamic, and making sure the girl gets to the
-            station before the guy. If not, it'd be inconsistent with most of
-            their other ix's.
+        Take the highest-ranked ix's in lix from the previous round, 
+        place them into e.num_r?_ix slots,
+        and return a list of planned ix's, which is just an updated copy of lix.
         """
-
-        # Rename self.num_ix_pp to ixpp; it's used many times in the algorithm.
-        # It's the minimum number of real-person ix's for the round.
-        ixpp = self.num_ix_pp
-
-        # Split the list of eu's by gender.
-        # Are these new lists, or do they still update e.li_all_eu?
-        li_all_meu = [eu for eu in leu if eu.sex in ['M', 'MG']]
-        li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
-
-        # Make a deepcopy of lix so as not to change the passed-in list.
-        li = copy.deepcopy(lix)
-        
-        # Create lists of ix's by SAC pair (excluding the ix's with any 0).
-        li_33 = [ix for ix in li if ix.sac_total == 6]
-        li_32 = [ix for ix in li if ix.sac_total == 5]
-        li_22 = [ix for ix in li if ix.m_sac == 2 and ix.f_sac == 2]
-        li_31 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 1) or (
-                                     ix.m_sac == 1 and ix.f_sac == 3)]
-        li_21 = [ix for ix in li if (ix.m_sac == 2 and ix.f_sac == 1) or (
-                                     ix.m_sac == 1 and ix.f_sac == 2)]
-        li_11 = [ix for ix in li if ix.m_sac == 1 and ix.f_sac == 1]
-        li_30 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 0) or
-                                    (ix.m_sac == 0 and ix.f_sac == 3)]
-
-
-        li_no_0 = [ix for ix in li if ix.m_sac != 0 and ix.f_sac != 0]
-
-        # Make a list to show how many ix's were placed during each iteration.
-        # There are currently 6 iterations.
-        li_num_placed = [None] * 6
-
-        # Make matrices of slots representing ix 'appointments'.
-        # Row is subround; Column is station; value is eu_num.
-        # array([[ 0,  0,  0,  ...,  0],
-               # [ 0,  0,  0,  ...,  0],
-               # ...                   ,
-               # [ 0,  0,  0,  ...,  0]])
-        li_m_slots = numpy.zeros((ixpp+1, self.e.num_stations), dtype = int)
-        li_f_slots = numpy.zeros((ixpp+1, self.e.num_stations), dtype = int)
-
-        # Put the women in their stations for all subrounds.
-        # They start at a station 51 less than their eu num, and they move 
-        # right (counter-clockwise) by 1 from outer circle (-1) after each ix
-        for subround in range(ixpp+1):
-            for index, feu in enumerate(li_all_feu):
-                li_f_slots[subround][index] = feu.eu_num
-            # rotate list -- first feu moved to back of list
-            li_all_feu = li_all_feu[1:] + [li_all_feu[0]]
-
-        # Make a list representing how many ix's each eu has so far.
-        # This is used to make sure we're not giving too many too soon.
-        li_ix_count_by_eu = [0] * self.e.num_all_eu_p
-
-        # Make a list of lists of the number of ghosts needed per subround
-        lili_num_g_per_subround = [[0, 0]] * (ixpp+1)
-
-        # Make a list of sets of eu_num's who have an ix in a subround (index of list).
-        liset_eunum_with_ix_by_subround = [set([]) for x in range(ixpp+1)]
-
-        # Initilize the list of planned/scheduled ix's we're gonna return.
-        li_ix_planned = []
-
-
-        # START "MAXIMUM BIPARTITE MATCHING" ALGORITHM
-
-        # make the inital graphs
-        litu_graph = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_no_0))
-        graph_33 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_33))
-        graph_32 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_32))
-        graph_22 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_22))
-        graph_31 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_31))
-        graph_21 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_21))
-        graph_11 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_11))
-        graph_30 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_30))
-
-        # Get the nums of ix's with at least li_XX sac's
-        n33 = len(li_33)
-        nal33 = n33
-        n32 = len(li_32)
-        nal32 = n33 + n32
-        n22 = len(li_22)
-        nal22 = nal32 + n22
-        n31 = len(li_31)
-        nal31 = nal22 + n31
-        n21 = len(li_21)
-        nal21 = nal31 + n21
-        n11 = len(li_11)
-        nal11 = nal21 + n11
-        n30 = len(li_30)
-        nal30 = nal11 + n30
-
-        # make list of subround sums of ranks
-        li_sums_ranks = []
-
-        # make a list of lists of tuples we get from mwm
-        lilitu_repr_an_ix = [list([]) for x in range(ixpp)]
-
-        # For each subround, make a mwm (making sure it's perfect), add it to 
-        # the lilitu_repr_an_ix, and remove it from the graph.
-        for subround in range(self.num_ix_pp):
-            # Find a maximum weighted matching representing the subround's ix
-            # assignments.
-
-            for index, i in enumerate([nal33,nal32,nal22,nal31,nal21,nal11,nal30]):
-
-                litu_subround = 0
-
-                mwm = maxWeightMatching(litu_graph[:i], maxcardinality = True)
-            
-                if mwm.count(-1) == 1:
-            
-                    print("(Perfect matching for subround {}!)".format(subround+1))
-
-                    # Make a list of 2-tuples: (m_eu_num, f_eu_num)
-                    # Just going through half of the list is enough.
-                    litu_subround = list((index, n) for index, n in enumerate(mwm[:self.e.num_m_eu_p+1]))
-                                        ###print("litu_subround:\n{}\n".format(litu_subround))
-
-                    # Make a list of ranks for the subround, and add its sum to a list
-                    # of sums by subround
-                    li_ranks = []
-                    for tu in litu_subround: # ()
-                        for tu_edge in litu_graph: # (meunum, feunum, -1 * rank)
-                            if tu_edge[0] == tu[0] and tu_edge[1] == tu[1]:
-                                li_ranks.append((-1)*tu_edge[2])
-                    li_ranks.sort()
-                    li_sums_ranks.append(sum(li_ranks))
-                                        ###print("li_ranks:\n{}\n".format(li_ranks))
-                                        ###print("Sum of ranks: {}\n".format(sum(li_ranks)))
-
-                    # remove the edges of the mwm from the graph
-                    litu_graph_copy = copy.deepcopy(litu_graph)
-                    for index, tu_edge in enumerate(litu_graph_copy):
-                        m_eu_num = tu_edge[0]
-                        f_eu_num = tu_edge[1]
-                        rank = tu_edge[2]
-                        if (m_eu_num, f_eu_num) in litu_subround:
-                            lilitu_repr_an_ix[subround].append(tu_edge)
-                            litu_graph.remove(tu_edge)
-
-                    break
-                else:
-                    print("{} eu's weren't matched for index = {}. Retrying...".format(mwm.count(-1)-1, index))
-
-            # # If we can't find a perfect mwm for a subround, allow 
-            # if litu_subround == 0:
-
-
-        # Now that we're done, print a list of the ranks that didn't happen 
-        # again, plus some other info about the round.
-        li_ranks_dn_happen = sorted([(-1) * tu_edge[2] for tu_edge in litu_graph])
-        print("\n\nli_ranks_didnt_happen:\n{}\n".format(li_ranks_dn_happen))
-        print("li_sums_ranks:\n{}\n".format(li_sums_ranks))
-        print("Total sum of ranks: {}\n".format(sum(li_sums_ranks)))
-        print("Average rank: {}\n".format(round(sum(li_sums_ranks)/(self.e.num_m_eu_p*self.num_ix_pp), 2)))
-
-
-        # Make the new ix's and put them in a list to return.
-        for s_index, subround_li in enumerate(lilitu_repr_an_ix):
-            for t_index, tu in enumerate(subround_li):
-
-                # Make an interaction from the tuple.
-                m = tu[0] # m_eu_num
-                f = tu[1] # f_eu_num
-                rank = (-1)*tu[2] # rank
-                meu = leu[m-1]
-                feu = leu[f-1]
-                li_ix_count_by_eu[m-1] += 1 # leave for now
-                li_ix_count_by_eu[f-1] += 1
-
-                newix = _Interaction(self.e, self, meu, feu)
-                newix.sub_num = s_index + 1
-                newix.sta_num = t_index + 1
-                newix.m_ipad_num = self.e.li_m_ipad_nums[newix.sta_num-1]
-                newix.f_ipad_num = self.e.li_f_ipad_nums[newix.sta_num-1]
-                newix.m_hotness = meu.hotness
-                newix.f_hotness = feu.hotness
-                newix.m_nixness = meu.nixness
-                newix.f_nixness = feu.nixness
-                newix.m_personality = meu.personality
-                newix.f_personality = feu.personality
-                newix.r1_likeness = ix.r1_likeness
-                newix.r1_rank = ix.r1_rank
-                newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
-                newix.r1_f_sel = ix.r1_f_sel
-                newix.r1_m_des = ix.r1_m_des
-                newix.r1_f_des = ix.r1_f_des
-                newix.r1msac = ix.m_sac
-                newix.r1fsac = ix.f_sac   
-                newix.r1_sac_tot = ix.sac_total        
-                li_ix_planned.append(newix)
-
-        # Make sure everyone has a full round.
-            # If they don't, we either have to change the ranks (by squaring them)
-            # and running the algorithm again,
-            # or check to see if they were just too picky in the previous round and
-            # said "no" to too many people (or if too many people said "no" to them)
-            # -- in which case, we'll have to give them an ix in which they said 
-            # "no" and the other person said "yes", or "my", or "mn".
-            # The goal is to have *0* Ghosts in the final two rounds.
-            # This is always possible, because (3,0) ix's can be done again.
-        print("\n\n")
-        for index, count in enumerate(li_ix_count_by_eu):
-            if count < self.num_ix_pp:
-                print("Uh-Oh!   User {} has only {} ix's in Round {}\n".format(
-                    index + 1, count, self.round_num) )
-        print("\n\n")
-
-        return li_ix_planned
+        return get_perfect_maximum_matchings(self.e, self, leu, lix)
 
 ###############################################################################
 """                               Round 0                                   """
@@ -647,11 +421,9 @@ class Round_1(_Round):
             sel = 0
             des = 0
             li_rcvd = [0,0,0,0] # no, mn, my, yes
-            li_gave = [0,0,0,0] # yes, my, mn, no
-            # for ix in li_r1_ix_analyzed: # 2601x
-            for ix in [ixobj for ixobj in li_r1_ix_analyzed
-                if eu.eu_num in [ixobj.m_eu_num, ixobj.f_eu_num]
-                ]: # 2601x
+            li_gave = [0,0,0,0] # no, mn, my, yes
+            for ix in [ixobj for ixobj in li_r1_ix_analyzed if eu.eu_num in 
+            [ixobj.m_eu_num, ixobj.f_eu_num]]:
                 if eu.eu_num == ix.m_eu_num: # male or male ghost
                     sel += ix.m_sac
                     des += ix.f_sac
@@ -668,10 +440,10 @@ class Round_1(_Round):
             eu.r1_sel = sel
             eu.r1_des = des
 
-            eu.nr1g_no = li_gave[3]
-            eu.nr1g_mn = li_gave[2]
-            eu.nr1g_my = li_gave[1]
-            eu.nr1g_yes = li_gave[0]
+            eu.nr1g_no = li_gave[0]
+            eu.nr1g_mn = li_gave[1]
+            eu.nr1g_my = li_gave[2]
+            eu.nr1g_yes = li_gave[3]
 
             eu.nr1r_no = li_rcvd[0]
             eu.nr1r_mn = li_rcvd[1]
@@ -863,7 +635,6 @@ class Round_2(_Round):
         # add r2_rank to all ix's
         for index, ix in enumerate(li_r2_ix_analyzed):
             ix.r2_rank = index + 1
-
 
         return li_r2_ix_analyzed      
 
@@ -1128,11 +899,11 @@ def li_ordered_attr_names(obj):
     return li_names
 
 
+################################################################################
+"""                 CREATE_QA_AND_SAC_DATABASES_IN_FIREBASE                  """
+################################################################################
 
-
-
-
-def create_QA_and_SAC_databases_in_Firebase(e, lieu):
+def create_QA_and_SAC_databases_in_Firebase(e, leu):
     """
     Sets up an empty database in Firebase with 3 main nodes: IX, SAC and QA.
 
@@ -1143,8 +914,11 @@ def create_QA_and_SAC_databases_in_Firebase(e, lieu):
 
     These DB nodes have different functions:
 
-    "zE0000R1" -> "EventUser_001" -> "first_name" : eu.first_name
+    "Event" -> "0000" -> "Round" -> "1" -> "EventUser" -> "001" -> "first_name" : eu.first_name
+    "Event" -> "0000" -> "Round" -> "1" -> "EventUser" -> "001" -> "SAC" -> "no" : 0
+    "Event" -> "0000" -> "Round" -> "1" -> "EventUser" -> "001" -> "SAC" -> "yes": 0
 
+    "zE0000R1" -> "EventUser_001" -> "first_name" : eu.first_name
     "zE0000R1" -> "EventUser_001" -> "SAC_yes" : nr1g_yes
     "zE0000R1_EventUser_001" -> "SAC_yes" : nr1g_yes
     zE0000 -> r1sac -> eu_num_001 -> nr1g_yes
@@ -1156,9 +930,9 @@ def create_QA_and_SAC_databases_in_Firebase(e, lieu):
 
     ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
 
-    ref_event = ref_root.child("Event")
+    ref_Event = ref_root.child("Event")
 
-    hasData = ref_event.child("hasData").get()
+    hasData = ref_Event.child("hasData").get()
 
     if hasData in [True, "True", "true"]:
         print ("Firebase structure already exists")
@@ -1168,22 +942,41 @@ def create_QA_and_SAC_databases_in_Firebase(e, lieu):
 
     db1_start_time = time.time()
 
-    # 3 x 102 x 5 = 1,530 records, takes about 110 seconds
-    for rd_num in [1,2,3]: # for each round (x3)
-        ref_rd = ref_root.child("zE{}R{}".format(e.event_serial, str(rd_num)))
-        for index, eu in enumerate(lieu): # for each event user (x102)
-            ref_EU = ref_rd.child("EventUser_{}{}".format(
-                "0"*(3-len(str(eu.eu_num))), 
-                str(eu.eu_num))
-            )
-            ref_EU.put({ # (x5)
-                "first_name": eu.first_name,
-                "SAC_yes": 0,
-                "SAC_my": 0,
-                "SAC_mn": 0,
-                "SAC_no": 0
+    for rd_num in [1]:
+        ref_e = ref_Event.child(e.event_serial)
+        ref_Round = ref_e.child("Round")
+        ref_r = ref_Round.child(str(rd_num))
+        ref_EventUser = ref_r.child("EventUser")
+        for eu in leu[:10]:
+            ref_eu = ref_EventUser.child("{}{}".format("0"*(3-len(str(eu.eu_num))), str(eu.eu_num)))
+            ref_eu.put(
+                {
+                    "first_name": eu.first_name,
+                    "SAC": {
+                            "yes": 0,
+                            "my": 0,
+                            "mn": 0,
+                            "no": 0
+                            }    
                 })
-            #ref_EU.post({ # equivalent to "push()" in Firebase; creates unique id's for each node
+
+
+    # # 3 x 102 x 5 = 1,530 records, takes about 110 seconds
+    # for rd_num in [1,2,3]: # for each round (x3)
+    #     ref_rd = ref_root.child("zE{}R{}".format(e.event_serial, str(rd_num)))
+    #     for index, eu in enumerate(leu): # for each event user (x102)
+    #         ref_EU = ref_rd.child("EventUser_{}{}".format(
+    #             "0"*(3-len(str(eu.eu_num))), 
+    #             str(eu.eu_num))
+    #         )
+    #         ref_EU.put({ # (x5)
+    #             "first_name": eu.first_name,
+    #             "SAC_yes": 0,
+    #             "SAC_my": 0,
+    #             "SAC_mn": 0,
+    #             "SAC_no": 0
+    #             })
+    #         #ref_EU.post({ # equivalent to "push()" in Firebase; creates unique id's for each node
 
     db1_stop_time = time.time()
     print("DB 1 took {} seconds to create.".format(
@@ -1199,23 +992,199 @@ def create_QA_and_SAC_databases_in_Firebase(e, lieu):
     print("DB 2 took {} seconds to create.".format(
         round(db2_stop_time - db2_start_time, 2)))
 
-
-
-
             # ref_ix = ref_ip_num.child("IX")
             # ref_sac_yes = ref_ip_num.child("ix{}{}".format("0"*(4-len())))
-
-
-
-
-
     pass
 
 
+################################################################################
+"""                     GET_PERFECT_MAXIMUM_MATCHINGS                        """
+################################################################################
+
+def get_perfect_maximum_matchings(e, r, leu, lix):
+
+    # Split the list of eu's by gender.
+    # Are these new lists, or do they still update e.li_all_eu?
+    li_all_meu = [eu for eu in leu if eu.sex in ['M', 'MG']]
+    li_all_feu = [eu for eu in leu if eu.sex in ['F', 'FG']]
+
+    # # Make a deepcopy of lix so as not to change the passed-in list.
+    # li = copy.deepcopy(lix)
+    
+    # # Create lists of ix's by SAC pair (excluding the ix's with any 0).
+    # li_33 = [ix for ix in li if ix.sac_total == 6]
+    # li_32 = [ix for ix in li if ix.sac_total == 5]
+    # li_22 = [ix for ix in li if ix.m_sac == 2 and ix.f_sac == 2]
+    # li_31 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 1) or (
+    #                              ix.m_sac == 1 and ix.f_sac == 3)]
+    # li_21 = [ix for ix in li if (ix.m_sac == 2 and ix.f_sac == 1) or (
+    #                              ix.m_sac == 1 and ix.f_sac == 2)]
+    # li_11 = [ix for ix in li if ix.m_sac == 1 and ix.f_sac == 1]
+    # li_30 = [ix for ix in li if (ix.m_sac == 3 and ix.f_sac == 0) or
+    #                             (ix.m_sac == 0 and ix.f_sac == 3)]
+
+    li_no_0 = [ix for ix in lix if ix.m_sac != 0 and ix.f_sac != 0]
+    li_no_00 = [ix for ix in lix if not (ix.m_sac == 0 and ix.f_sac == 0)]
+
+    # Make matrices of slots representing ix 'appointments'.
+    # Row is subround-1; Column is eu_num-1; value is sta_num.
+    # array([[ 0,  0,  0,  ...,  0],
+           # [ 0,  0,  0,  ...,  0],
+           # ...                   ,
+           # [ 0,  0,  0,  ...,  0]])
+    li_m_slots = numpy.zeros((r.num_ix_pp, len(li_all_meu)), dtype = int)
+    li_f_slots = numpy.zeros((r.num_ix_pp, len(li_all_feu)), dtype = int)
+
+    ld_m_sta_num_by_sub = [{} for i in range(r.num_ix_pp)]
+    ld_f_sta_num_by_sub = [{} for i in range(r.num_ix_pp)]
+
+    for subround in range(r.num_ix_pp):
+        for index, feu in enumerate(li_all_feu):
+            ld_f_sta_num_by_sub[subround][str(feu.eu_num)] = index + 1
+        # rotate list -- first feu moved to back of list
+        li_all_feu = li_all_feu[1:] + [li_all_feu[0]]        
+
+    # # Put the women in their stations for all subrounds.
+    # # They start at a station 51 less than their eu num, and they move 
+    # # right (counter-clockwise) by 1 from outer circle (-1) after each ix
+    # for subround in range(r.num_ix_pp):
+    #     for index, feu in enumerate(li_all_feu):
+    #         #li_f_slots[subround][index] = feu.eu_num
+    #         li_f_slots[subround][feu.eu_num-1] = index + 1
+    #     # rotate list -- first feu moved to back of list
+    #     li_all_feu = li_all_feu[1:] + [li_all_feu[0]]
+
+    # Make a list of sets of eu_num's who have an ix in a subround (index of list).
+    liset_eunum_with_ix_by_subround = [set([]) for x in range(r.num_ix_pp+1)]
+
+    # Initilize the list of planned/scheduled ix's we're gonna return.
+    li_ix_planned = []
 
 
-def get_perfect_maximum_matchings(round_num, leu, lix):
-    pass
+    # START "MAXIMUM BIPARTITE MATCHING" ALGORITHM
+
+    # make the inital graphs
+    graph_no_0 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_no_0))
+    graph_no_00 = list((ix.m_eu_num, ix.f_eu_num, (-1)*(index+1)) for index, ix in enumerate(li_no_00))
+    graph_copy = copy.deepcopy(graph_no_00) # This is so we don't lose the original ranks of the ix's.
+
+
+    # # make list of subround sums of ranks
+    # li_sums_ranks = []
+
+    # make a list of lists of tuples we get from mwm. Each list is a subround.
+    lilitu_repr_an_ix = [list([]) for x in range(r.num_ix_pp)]
+
+    # For each subround, make a perfect mwm, add it to 
+    # the lilitu_repr_an_ix, and remove it from the graph.
+    for subround in range(r.num_ix_pp):
+
+        # Make a list to hold the mwm's tuples for this subround.
+        litu_subround = []
+
+        # Find a maximum weighted matching representing the subround's ix
+        # assignments.
+        mwm = maxWeightMatching(graph_no_00, maxcardinality = True)[1:]
+        
+        if mwm.count(-1) == 0:
+            print("(Perfect matching for Round {}, subround {}!)".format(r.round_num, subround+1))
+        else:
+            print("{} eu's weren't matched for subround {}.".format(mwm.count(-1), subround+1))
+            return
+
+        # Make a list of 3-tuples representing the mwm: (m_eu_num, f_eu_num, station).
+        # Just going through half of the list is enough.
+        litu_subround = list((index+1, n) for index, n in enumerate(mwm[:e.num_m_eu_p]))
+
+        # Add the guy's eunum to the male ld of station numbers.
+        for (guy_eunum, girl_eunum) in litu_subround:
+            ld_m_sta_num_by_sub[subround][str(guy_eunum)] = ld_f_sta_num_by_sub[subround][str(girl_eunum)]
+
+        # # Add the guy's eunum to the male ld of station numbers.
+        # for subr, li_slots_in_subround in enumerate(list(li_m_slots)):
+            
+        # for index, slot in enumerate(list(li_m_slots[subround])):
+
+        #     li_m_slots[subr][li_m_slots[subr].index()]
+
+
+        # # Make a list of ranks for the subround, and add its sum to a list
+        # # of sums by subround.
+        # li_ranks = []
+        # for tu in litu_subround: # ()
+        #     for tu_edge in graph_no_00: # (meunum, feunum, -1 * rank)
+        #         if tu_edge[0] == tu[0] and tu_edge[1] == tu[1]:
+        #             li_ranks.append((-1)*tu_edge[2])
+        # li_ranks.sort()
+        # li_sums_ranks.append(sum(li_ranks))
+
+        # Remove the edges of the mwm from the graph copy.
+        for index, tu_edge in enumerate(graph_copy):
+            m_eu_num = tu_edge[0]
+            f_eu_num = tu_edge[1]
+            rank = tu_edge[2]
+            if (m_eu_num, f_eu_num) in litu_subround:
+                lilitu_repr_an_ix[subround].append(tu_edge)
+                graph_no_00.remove(tu_edge)
+
+
+
+    # Now that we're done, print a list of the ranks that didn't happen 
+    # again, plus some other info about the round.
+    ###li_ranks_dn_happen = sorted([(-1) * tu_edge[2] for tu_edge in graph_no_00])
+    ###print("\n\nli_ranks_didnt_happen:\n{}\n".format(li_ranks_dn_happen))
+    ###print("li_sums_ranks:\n{}\n".format(li_sums_ranks))
+    ###print("Total sum of ranks: {}\n".format(sum(li_sums_ranks)))
+    ###print("Average rank: {}\n".format(round(sum(li_sums_ranks)/(e.num_m_eu_p*nr3g_.num_ix_pp), 2)))
+
+
+    # Make sure the guy is moving at least 5 stations away btwn ix's.
+    pprint(ld_m_sta_num_by_sub)
+    pprint(ld_f_sta_num_by_sub)
+
+    for i in range(10):
+        if not guys_are_walking(ld_m_sta_num_by_sub, min_distance = 5):
+            # Rearrange the subround ld's for ...
+            pass
+
+
+
+
+    # Make the new ix's and put them in a list to return.
+    for s_index, subround_li in enumerate(lilitu_repr_an_ix):
+        for t_index, tu in enumerate(subround_li):
+
+            # Make an interaction from the tuple.
+            m = tu[0] # m_eu_num
+            f = tu[1] # f_eu_num
+            rank = (-1)*tu[2] # rank
+            meu = leu[m-1]
+            feu = leu[f-1]
+            newix = _Interaction(e, r, meu, feu) # Make new ix object.
+            newix.sub_num = s_index + 1
+            newix.sta_num = ld_f_sta_num_by_sub[s_index][str(f)]
+            #newix.sta_num = list(li_f_slots[s_index]).index(f) + 1
+            #li_m_slots[s_index][]
+            newix.m_ipad_num = e.li_m_ipad_nums[newix.sta_num-1]
+            newix.f_ipad_num = e.li_f_ipad_nums[newix.sta_num-1]
+            newix.m_hotness = meu.hotness
+            newix.f_hotness = feu.hotness
+            newix.m_nixness = meu.nixness
+            newix.f_nixness = feu.nixness
+            newix.m_personality = meu.personality
+            newix.f_personality = feu.personality
+            newix.r1_likeness = ix.r1_likeness
+            newix.r1_rank = ix.r1_rank
+            newix.r1_m_sel = ix.r1_m_sel # or, meu.r1_sel
+            newix.r1_f_sel = ix.r1_f_sel
+            newix.r1_m_des = ix.r1_m_des
+            newix.r1_f_des = ix.r1_f_des
+            newix.r1msac = ix.m_sac
+            newix.r1fsac = ix.f_sac   
+            newix.r1_sac_tot = ix.sac_total        
+            li_ix_planned.append(newix)
+
+    return li_ix_planned
 
 
 
@@ -1229,7 +1198,7 @@ def get_perfect_maximum_matchings(round_num, leu, lix):
 ################################################################################
 ################################################################################
 
-def main():
+def simulate_daeious_event():
     """
     1. Create fake users, ghosts, ipads, questions from helper functions
     5. Create and simulate an event by calling simulate()
@@ -1254,17 +1223,6 @@ def main():
     """  Optimize event timing.  
     """
 
-    # lili_good = []
-    # lili_perfect = []
-
-    # lili_good, lili_perfect = optimize_event_timing(
-    #     m = e.num_m_eu_p,
-    #     w = e.num_f_eu_p
-    #     )
-
-
-
-
     """  Create a bunch of Users.
     """
     _User.CURR_USER_NUM = 0
@@ -1273,7 +1231,6 @@ def main():
     li_mgu = list((_User('MG') for i in range(5*e.num_m_eu_g)))
     li_fgu = list((_User('FG') for i in range(5*e.num_f_eu_g)))
     li_all_u = li_mpu + li_fpu + li_mgu + li_fgu
-
     # reset CURR_USER_NUM
     _User.CURR_USER_NUM = 0
 
@@ -1285,6 +1242,8 @@ def main():
     li_mgeu = list((_EventUser(e, u) for u in li_mgu[:e.num_m_eu_g]))
     li_fgeu = list((_EventUser(e, u) for u in li_fgu[:e.num_f_eu_g]))
     li_all_eu = li_mpeu + li_fpeu + li_mgeu + li_fgeu
+    # reset CURR_EVENTUSER_NUM
+    _EventUser.CURR_EVENTUSER_NUM = 0
 
 
     """  Create up to 5 _Round objects.  
@@ -1309,14 +1268,11 @@ def main():
     li_r1_ix_planned = r1.plan(leu = li_all_eu)
     li_r1_ix_simulated = r1.simulate(lix = li_r1_ix_planned)
     li_r1_ix_analyzed = r1.analyze(leu = li_all_eu, lix = li_r1_ix_simulated)
-
-    # reset _Interaction.CURR_IX_NUM
     _Interaction.CURR_IX_NUM = 0
 
 
     """  ROUND 2  """
-
-    li_r2_ix_planned = r2.plan_A(leu=li_all_eu,lix=li_r1_ix_analyzed)
+    li_r2_ix_planned = r2.plan_A(leu = li_all_eu, lix = li_r1_ix_analyzed)
     li_r2_ix_simulated = r2.simulate(li_r2_ix_planned)
     li_r2_ix_analyzed = r2.analyze(leu = li_all_eu, lix = li_r2_ix_simulated)
     # reset _Interaction.CURR_IX_NUM
@@ -1326,6 +1282,8 @@ def main():
     li_r3_ix_planned = r3.plan_A(leu = li_all_eu, lix = li_r2_ix_analyzed)
     li_r3_ix_simulated = r3.simulate(li_r3_ix_planned)
     li_r3_ix_analyzed = r3.analyze(leu = li_all_eu, lix = li_r3_ix_simulated)
+    # reset _Interaction.CURR_IX_NUM
+    _Interaction.CURR_IX_NUM = 0
 
 
     """  Set most "full" / up-to-date round interaction lists for Excel writing
@@ -1379,6 +1337,13 @@ def main():
     end = time.time()
 
     return round(end-start, 2)
+
+
+def main():
+    li_info = []
+    for i in range(1):
+        li_info.append(simulate_daeious_event())
+    pass
 
 
 if __name__ == '__main__':

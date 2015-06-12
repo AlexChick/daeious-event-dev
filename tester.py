@@ -1,0 +1,3 @@
+import daeious
+
+daeious.main()

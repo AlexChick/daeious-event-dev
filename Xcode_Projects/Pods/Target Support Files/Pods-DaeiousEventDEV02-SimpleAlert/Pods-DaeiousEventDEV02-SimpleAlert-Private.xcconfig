@@ -1,0 +1,10 @@
+#include "Pods-DaeiousEventDEV02-SimpleAlert.xcconfig"
+CONFIGURATION_BUILD_DIR = $PODS_FRAMEWORK_BUILD_PATH
+FRAMEWORK_SEARCH_PATHS = "$PODS_FRAMEWORK_BUILD_PATH"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/SimpleAlert" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/AFNetworking" "${PODS_ROOT}/Headers/Public/AIFlatSwitch" "${PODS_ROOT}/Headers/Public/BubbleTransition" "${PODS_ROOT}/Headers/Public/Cent" "${PODS_ROOT}/Headers/Public/Dollar" "${PODS_ROOT}/Headers/Public/FLKAutoLayout" "${PODS_ROOT}/Headers/Public/Firebase" "${PODS_ROOT}/Headers/Public/FlatUIColors" "${PODS_ROOT}/Headers/Public/FontAwesome.swift" "${PODS_ROOT}/Headers/Public/KYCircularProgress" "${PODS_ROOT}/Headers/Public/LTMorphingLabel" "${PODS_ROOT}/Headers/Public/MaterialKit" "${PODS_ROOT}/Headers/Public/NilColorKit" "${PODS_ROOT}/Headers/Public/ORStackView" "${PODS_ROOT}/Headers/Public/PageMenu" "${PODS_ROOT}/Headers/Public/Player" "${PODS_ROOT}/Headers/Public/PrintlnMagic" "${PODS_ROOT}/Headers/Public/RandomColorSwift" "${PODS_ROOT}/Headers/Public/Realm" "${PODS_ROOT}/Headers/Public/Realm/realm" "${PODS_ROOT}/Headers/Public/RealmSwift" "${PODS_ROOT}/Headers/Public/SCLAlertView" "${PODS_ROOT}/Headers/Public/SimpleAlert" "${PODS_ROOT}/Headers/Public/Spring" "${PODS_ROOT}/Headers/Public/SwiftyTimer"
+OTHER_LDFLAGS = ${PODS_DAEIOUSEVENTDEV___SIMPLEALERT_OTHER_LDFLAGS} -ObjC
+OTHER_SWIFT_FLAGS = $(inherited) "-D" "COCOAPODS"
+PODS_FRAMEWORK_BUILD_PATH = $(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Pods-DaeiousEventDEV02
+PODS_ROOT = ${SRCROOT}
+SKIP_INSTALL = YES

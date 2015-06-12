@@ -1,0 +1,6 @@
+framework module NilColorKit {
+  umbrella header "Pods-DaeiousEventDEV02-NilColorKit-umbrella.h"
+
+  export *
+  module * { export * }
+}
