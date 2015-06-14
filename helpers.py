@@ -36,6 +36,12 @@ import requests
 """                                FUNCTIONS                                """
 ###############################################################################
 
+def get_full_QA_list(li_q_nums):
+
+    
+
+    pass
+
 def guys_are_walking(ld, min_distance = 5):
 
     bool_all_are_walking = False

@@ -173,7 +173,7 @@ class _Event(object):
         # Set instance variables
         self.start_at_round = START_AT_ROUND
         self.event_num = EVENT_NUMBER
-        self.event_serial = mk_serial(EVENT_NUMBER)
+        self.event_serial = mk_serial(EVENT_NUMBER, 4)
         self.event_date = time.strftime("%Y.%m.%d")
         self.event_time = random.choice(["19:00", "19:30", "20:00", "20:30"])
         self.event_location = random.choice(["Heaven", "California"])
@@ -903,7 +903,7 @@ def li_ordered_attr_names(obj):
 """                 CREATE_QA_AND_SAC_DATABASES_IN_FIREBASE                  """
 ################################################################################
 
-def create_QA_and_SAC_databases_in_Firebase(e, leu):
+def create_QA_and_SAC_databases_in_Firebase(e, leu, flat = True):
     """
     Sets up an empty database in Firebase with 3 main nodes: IX, SAC and QA.
 
@@ -930,7 +930,7 @@ def create_QA_and_SAC_databases_in_Firebase(e, leu):
 
     ref_root = Firebase('https://burning-fire-8681.firebaseio.com')
 
-    ref_Event = ref_root.child("Event")
+    ref_Event = ref_root.child("Event_{}{}".format())
 
     hasData = ref_Event.child("hasData").get()
 
@@ -942,41 +942,65 @@ def create_QA_and_SAC_databases_in_Firebase(e, leu):
 
     db1_start_time = time.time()
 
-    for rd_num in [1]:
-        ref_e = ref_Event.child(e.event_serial)
-        ref_Round = ref_e.child("Round")
-        ref_r = ref_Round.child(str(rd_num))
-        ref_EventUser = ref_r.child("EventUser")
-        for eu in leu[:10]:
-            ref_eu = ref_EventUser.child("{}{}".format("0"*(3-len(str(eu.eu_num))), str(eu.eu_num)))
-            ref_eu.put(
-                {
+    if flat == True:
+
+        # 3 x 102 x 5 = 1,530 records, takes about 110 seconds
+        for round_num in [1]: # for each round (x3)
+            ref_round = ref_Event.child("Round {}".format(str(round_num)))
+            for index, eu in enumerate(leu[:15]): # for each event user (x102)
+                ref_EU = ref_round.child("EventUser_{}{}".format(
+                    "0"*(3-len(str(eu.eu_num))), 
+                    str(eu.eu_num))
+                    )
+                ref_EU.put({ # (x5)
                     "first_name": eu.first_name,
-                    "SAC": {
-                            "yes": 0,
-                            "my": 0,
-                            "mn": 0,
-                            "no": 0
-                            }    
+                    "eu_num": eu.eu_num,
+                    "SAC_yes": 0,
+                    "SAC_my": 0,
+                    "SAC_mn": 0,
+                    "SAC_no": 0
+                    })
+            # for q_num in e.li_q_nums:
+            #     ref_QA = ref_round.child("Question_{}{}".format(
+            #         "0"*(3-len(str(q_num))),
+            #         str(q_num)
+            #         ))
+
+        ref_Question = ref_Event.child("Question")
+        for q_num in e.li_q_nums:
+            ref_q = ref_Question.child("q_num_{}{}".format("0"*(3-len(str(q_num))), str(q_num)))
+            ref_q.put( {
+                "q_text": "___, ___, jingle all the way.",
+                "q_answers": {
+                    "1": None,
+                    "2": None
+                    }
                 })
 
+                #ref_EU.post({ # equivalent to "push()" in Firebase; creates unique id's for each node
 
-    # # 3 x 102 x 5 = 1,530 records, takes about 110 seconds
-    # for rd_num in [1,2,3]: # for each round (x3)
-    #     ref_rd = ref_root.child("zE{}R{}".format(e.event_serial, str(rd_num)))
-    #     for index, eu in enumerate(leu): # for each event user (x102)
-    #         ref_EU = ref_rd.child("EventUser_{}{}".format(
-    #             "0"*(3-len(str(eu.eu_num))), 
-    #             str(eu.eu_num))
-    #         )
-    #         ref_EU.put({ # (x5)
-    #             "first_name": eu.first_name,
-    #             "SAC_yes": 0,
-    #             "SAC_my": 0,
-    #             "SAC_mn": 0,
-    #             "SAC_no": 0
-    #             })
-    #         #ref_EU.post({ # equivalent to "push()" in Firebase; creates unique id's for each node
+
+
+    else:
+        for rd_num in [1]:
+            ref_e = ref_Event.child(e.event_serial)
+            ref_Round = ref_e.child("Round")
+            ref_r = ref_Round.child(str(rd_num))
+            ref_EventUser = ref_r.child("EventUser")
+            for eu in leu[:10]:
+                ref_eu = ref_EventUser.child("{}{}".format("0"*(3-len(str(eu.eu_num))), str(eu.eu_num)))
+                ref_eu.put(
+                    {
+                        "first_name": eu.first_name,
+                        "SAC": {
+                                "yes": 0,
+                                "my": 0,
+                                "mn": 0,
+                                "no": 0
+                                }    
+                    })
+
+
 
     db1_stop_time = time.time()
     print("DB 1 took {} seconds to create.".format(
@@ -1257,7 +1281,7 @@ def simulate_daeious_event():
 
     """ Create a skeleton DB in Firebase for the simulated event.
     """
-    create_QA_and_SAC_databases_in_Firebase(e, li_all_eu)
+    create_QA_and_SAC_databases_in_Firebase(e, li_all_eu, flat = True)
 
 
     """  Plan, simulate, and analyze the rounds.  
