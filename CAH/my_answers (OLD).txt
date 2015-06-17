@@ -22,6 +22,43 @@
 ###################################### Other (Real)
 ###################################### Other (Imaginary)
 
+### Topics to Go Through:
+
+-- TV & Movies:
+	-- DONE The Hunger Games
+	-- DONE Harry Potter
+	-- Game of Thrones
+	-- Mad Men
+	-- Lord of the Rings
+	-- The Office.
+	-- The Hangover.
+	-- Avatar.
+	-- Titanic.
+	-- Breaking Bad.
+
+-- Video Games:
+	-- Sonic
+	-- Pokemon
+	-- Mario
+
+-- Music:
+	-- Artists / Bands
+	-- Lyrics
+	-- Song names
+
+-- Sports:
+	-- Athletes
+	-- Sport names
+	-- Sport terms
+
+-- Actors
+-- The Rich
+-- The Otherwise Famous
+-- The Commonfolk
+
+
+
+
 
 
 

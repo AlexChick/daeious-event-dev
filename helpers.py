@@ -38,7 +38,7 @@ import requests
 
 def get_full_QA_list(li_q_nums):
 
-    
+
 
     pass
 
@@ -229,8 +229,8 @@ def xfrange(first, last, step):
         first += step
 
 
-def mk_serial(eNum):
-    return "{}{}".format("0"*(4 - len(str(eNum))), eNum)
+def mk_serial(eNum, num_digits):
+    return "{}{}".format("0"*(num_digits - len(str(eNum))), eNum)
 
 
 
