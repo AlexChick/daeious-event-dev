@@ -10,6 +10,7 @@ This program contains several helpful little functions.
 
 # Import Python stuff.
 from pprint import pprint
+import copy
 import itertools
 import math
 import numpy # for arange or linspace
@@ -34,6 +35,34 @@ import requests
 ###############################################################################
 """                                FUNCTIONS                                """
 ###############################################################################
+
+def get_full_QA_list(li_q_nums):
+
+
+
+    pass
+
+def guys_are_walking(ld, min_distance = 5):
+
+    bool_all_are_walking = False
+    num_subrounds = len(ld)
+    num_guys = len(ld[0])
+
+    for guy_num in range(1, num_guys+1):
+        li_his_station_path = []
+        for subround in range(num_subrounds):
+            li_his_station_path.append(ld[subround][str(guy_num)])
+        for index, station in enumerate(li_his_station_path):
+            if station != li_his_station_path[-1]:
+                if abs(station - li_his_station_path[index+1]) < min_distance:
+                    print("Guy {} ISN'T walking enough!".format(guy_num))
+                    return bool_all_are_walking
+        print("Guy {} is walking enough.".format(guy_num))
+
+    bool_all_are_walking = True
+
+    return bool_all_are_walking
+
 
 def optimize_event_timing(
                         m = 40, 
@@ -84,8 +113,8 @@ def optimize_event_timing(
 
     # Make lists of possible per-ix times for each round.
     li_r1_possible_sec_per_ix = numpy.arange(15, 30+1, 0.5)
-    li_r2_possible_sec_per_ix = range(30, 120+1, 0.5)
-    li_r3_possible_sec_per_ix = range(60, 300+1, 0.5)
+    li_r2_possible_sec_per_ix = numpy.arange(30, 120+1, 0.5)
+    li_r3_possible_sec_per_ix = numpy.arange(60, 300+1, 0.5)
 
     # Iterate through these lists, adding the good combos to a list to return.
     # "good" means within the deviation
@@ -152,6 +181,10 @@ def optimize_event_timing(
     return lili_good_sec_per_ix_tuples, lili_perfect_sec_per_ix_tuples
 
 
+
+
+
+
 def filter_by_value(sequence, value):
     """
     A generator than yields all elements of a sequence whose attrName 
@@ -196,8 +229,8 @@ def xfrange(first, last, step):
         first += step
 
 
-def mk_serial(eNum):
-    return "{}{}".format("0"*(4 - len(str(eNum))), eNum)
+def mk_serial(eNum, num_digits):
+    return "{}{}".format("0"*(num_digits - len(str(eNum))), eNum)
 
 
 
