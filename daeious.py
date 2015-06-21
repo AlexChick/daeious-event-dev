@@ -33,7 +33,9 @@ Probably. But I should still have some rules -- like, if I want every single
 event to be 1 hour, how are things different when there are 40 ppl vs. 100 ppl?
 Maybe 20m/20w events will just have to be shorter. How much shorter? I can
 figure that out by scaling down how I want a 50m/50w event to be structured.
+
     - Given 50m/50w/1mg/1fg,
+
         R1 --> sec_per_r1_ix = 15 --> 51 * 15 = 765s = 12.75min = 12m45s.
                sec_per_r1_ix = 20 --> 51 * 20 = 1020s = 17.00min = 17m00s.
                sec_per_r1_ix = 25 --> 51 * 25 = 1275s = 21.25min = 21m15s.
@@ -422,6 +424,7 @@ class Round_1(_Round):
             des = 0
             li_rcvd = [0,0,0,0] # no, mn, my, yes
             li_gave = [0,0,0,0] # no, mn, my, yes
+            
             for ix in [ixobj for ixobj in li_r1_ix_analyzed if eu.eu_num in 
             [ixobj.m_eu_num, ixobj.f_eu_num]]:
                 if eu.eu_num == ix.m_eu_num: # male or male ghost
